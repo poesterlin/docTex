@@ -1,20 +1,52 @@
 import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
 
-export const user = sqliteTable('user', {
+export const userTable = sqliteTable('user', {
 	id: text('id').primaryKey(),
-	age: integer('age'),
-	username: text('username').notNull().unique(),
-	passwordHash: text('password_hash').notNull()
+	username: text('username').notNull(),
+	email: text('email').notNull().unique(),
 });
 
-export const session = sqliteTable('session', {
+export type User = typeof userTable.$inferSelect;
+
+export const sessionTable = sqliteTable('session', {
 	id: text('id').primaryKey(),
 	userId: text('user_id')
-		.notNull()
-		.references(() => user.id),
-	expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull()
+	.notNull()
+	.references(() => userTable.id),
+	expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
+	sessionToken: text('session_token').notNull(),
 });
 
-export type Session = typeof session.$inferSelect;
+export type Session = typeof sessionTable.$inferSelect;
 
-export type User = typeof user.$inferSelect;
+export const stylesTable = sqliteTable('styles', {
+	id: text('id').primaryKey(),
+	name: text('name').notNull(),
+});
+
+export type Style = typeof stylesTable.$inferSelect;
+
+export const requiredFilesTable = sqliteTable('required_files', {
+	id: text('id').primaryKey(),
+	name: text('name').notNull(),
+	description: text('description').notNull(),
+	path: text('path').notNull(),
+	stylesId: text('styles_id').references(() => stylesTable.id),
+	mimeType: text('mime_type').notNull(),
+	default: text('default').notNull(),
+	override: integer('override').notNull(),
+});
+
+export type RequiredFile = typeof requiredFilesTable.$inferSelect;
+
+export const projectTable = sqliteTable('project', {
+	id: text('id').primaryKey(),
+	name: text('name').notNull(),
+	userId: text('user_id')
+		.notNull()
+		.references(() => userTable.id),
+	folderId: text('folder_id').notNull(),
+	styleId: text('style_id').notNull().references(() => stylesTable.id),
+});
+
+export type Project = typeof projectTable.$inferSelect;
