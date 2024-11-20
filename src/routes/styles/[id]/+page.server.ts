@@ -5,6 +5,7 @@ import { db } from "$lib/server/db";
 import { generateId, validateForm } from "$lib";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
+import { uploadFile } from "$lib/server/s3";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
     if (!locals.user) {
@@ -40,6 +41,7 @@ export const actions = {
             const id = generateId();
 
             // TODO: upload file to cloud storage
+            uploadFile(id, form.file);
 
             await db.insert(requiredFilesTable).values({
                 id,

@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -25,6 +24,16 @@
 				class="block rounded-lg bg-gray-100 p-3 font-medium text-indigo-600 shadow hover:bg-gray-200"
 			>
 				{file.name}
+
+				<form action="/?reset-file">
+					<input type="hidden" name="fileId" value="{file.id}" />
+					<button
+						type="submit"
+						class="float-right text-red-600"
+					>
+						Reset
+					</button>
+				</form>
 			</a>
 		</li>
 	{/each}
