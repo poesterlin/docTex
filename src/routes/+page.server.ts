@@ -2,7 +2,7 @@ import { validateForm, assert, generateId } from '$lib';
 import * as auth from '$lib/server/auth';
 import { db } from '$lib/server/db';
 import { projectTable, stylesTable } from '$lib/server/db/schema';
-import { createFolder } from '$lib/server/drive';
+import { createOrGetFolder } from '$lib/server/drive';
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { eq } from 'drizzle-orm';
@@ -46,7 +46,7 @@ export const actions: Actions = {
 			const session = locals.session;
 			assert(session);
 
-			const folderId = await createFolder(session, form.name);
+			const folderId = await createOrGetFolder(session, form.name);
 			assert(folderId);
 
 			const [style] = await db

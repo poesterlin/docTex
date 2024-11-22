@@ -1,0 +1,77 @@
+% HCI Group Konstanz Seminar Template
+% Version 1.1
+%
+% ATTENTION: This template was designed to fit the most common requirements for different types of reports (e.g., Seminar to the Project or Project Report). However, if you feel the need to add an extra component or layout feature please talk to your advisor. Please do not change anything on this template unless it is explicitly allowed or agreed with your advisor. However, it is allowed to add packages that do not alter the design/layout of this template.
+%
+
+\documentclass[10pt, paper=a4, parskip, oneside]{scrreprt}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{hciknseminar}
+\usepackage{subcaption}
+\usepackage[english]{babel} % Spell checking (Using ngerman for german spell checking). The last language is the standard language for the document.
+\addbibresource{bibliography.bib}
+
+% =========== Title page ============
+\title{Evaluating Gesture Based Teleportation Techniques For Immersive Virtual Environments} % Your title
+\type{Master Thesis} % Seminar to the Bachelor/Master Project | Bachelor/Master Project Report
+\author{Philip Oesterlin} % Your name
+\studentno{01/993546} % Your student number
+\group{Human-Computer Interaction} % Do not change this
+\department{Computer and Information Science} % Do not change this
+\advisor{Jonathan Wieland} % Your advisor
+\reviewer{Prof. Dr. Harald Reiterer} % Do not change this
+\date{\the\day .~\monthname~\the\year}
+
+% ============= Abstract =============
+\abstract{
+    Locomotion in VR is an essential feature for applications on a larger scale. However, with the increasingly popular option to use hand-tracking instead of controller inputs, there is not yet an established way to use locomotion. For this work, the focus lies on teleportation based locomotion. To find results that are intuitive to the users, a gesture elicitation study was conducted. The study concluded in three different gesture systems. All of them include two stages: a targeting and a confirmation stage. This was not consistently included in the gestures found in excising literature, but most of the study participants proposed a two-step process. After implementing all three gestures into a prototype that allowed to compare the gestures in two tasks, a comparative study was performed. The results are not always conclusive, but the best gesture seems to be a bimanual gesture that uses both thumbs and index fingers to construct a triangle. This triangle is used for aiming and subsequently selecting a target point. To confirm the teleport location, the index fingers are pinched down to meat the thumbs. However, even though the gesture made the users perform the best on different metrics, the users did not always prefer this gesture even if it was working the best. A lot of users also liked a one-handed gesture that uses the index finger to target and the thumb to confirm the teleportation. However, with the current tracking technology, this gesture suffered some tracking and activation issues. If the tracking technology evolves further, it still might be a good candidate. The fact that it is a one-handed gesture would also be a benefit since it would improve the compatibility with more VR environments. However, with the current state of the technology, the triangular gesture is recommended.
+}
+
+% ============= Document =============
+\begin{document}
+% Title page
+\maketitle
+% Abstract
+\makeabstract
+% Table of contents
+\tableofcontents
+\addcontentsline{toc}{chapter}{Contents} % Add contents to table of contents
+% List of Figures
+\listoffigures
+\addcontentsline{toc}{chapter}{\listfigurename} % Add list of figures to table of contents
+% List of Tables
+\listoftables
+\addcontentsline{toc}{chapter}{\listtablename} % Add list of tables to table of contents
+% Prepare chapters
+\clearpage
+\setcounter{romanPages}{\value{page}} % Update variable for roman pages
+\pagenumbering{arabic} % Turn on page numbering again
+
+% ============= Chapters =============
+
+
+\input{chapters/Introduction.tex}
+
+\input{chapters/RelatedWork.tex}
+
+\input{chapters/GestureElicitationStudy.tex}
+\input{chapters/ImplementationOverview.tex}
+\input{chapters/ComparativeStudy.tex}
+\input{chapters/Discussion.tex}
+\input{chapters/Conclusion.tex}
+
+
+
+
+% =========== Bibliography ===========
+\chapter*{References} % Set custom bibliography heading
+\renewcommand{\thepage}{\roman{page}} % Use roman page numbers again
+\setcounter{page}{\theromanPages} % Set the page counter
+\addcontentsline{toc}{chapter}{References} % Add bibliography to table of contents
+\defbibheading{bibempty}{} % Remove standard bibliography heading
+\printbibliography[heading=bibempty] % Print bibliography and set the heading to the defined empty heading
+
+\input{chapters/Appendix.tex}
+
+\end{document}

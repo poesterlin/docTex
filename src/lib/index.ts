@@ -33,8 +33,7 @@ export function validateForm<T extends ZodObject<any>, Form extends z.infer<T>>(
         const result = validator.safeParse(data);
 
         if (result.success === false) {
-            console.log(result.error.errors);
-            fail(400, { errors: result.error.errors, message: 'Invalid form data' });
+            return fail(400, { errors: result.error.errors, message: 'Invalid form data' });
         }
 
         return action(event, result.data as Form);

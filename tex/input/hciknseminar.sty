@@ -1,0 +1,153 @@
+% HCI Group Konstanz Seminar Template
+% Version: 1.1
+%
+% ATTENTION: If you are a student don't even think about touching this place without asking your advisor ;)
+%
+
+% ============= Packages =============
+\usepackage{color} % Use colors
+\usepackage{bookmark} % Bookmarks
+\usepackage{libertine} % Font
+\usepackage{inconsolata} % Consolas code font
+\usepackage{graphicx} % Include graphics
+\usepackage[autostyle]{csquotes} % Using \enquote for quotes
+\usepackage[labelfont=bf]{caption} % Figure numbering in bold
+\usepackage[all]{nowidow} % Prevent widows
+\usepackage{datetime} % Date commands like \monthname
+\usepackage{biblatex} % Biblatex (not BibTex)
+\usepackage{makecell}
+\usepackage{lscape}
+\newcounter{romanPages} % The counter for the roman pages
+
+% =========== Page margin ============
+\usepackage[top=4cm, bottom=4cm, left=2.5cm, right=2.5cm]{geometry} % inner= outer= for twoside
+
+% ==== Make references clickable =====
+\usepackage{hyperref}
+% References style
+\hypersetup{
+    colorlinks,
+    citecolor=black,
+    filecolor=black,
+    linkcolor=black, % Links like in the table of contents
+    urlcolor=black
+}
+
+% ======== Title page commands ========
+%
+% Define \studentno command
+\newcommand{\studentno}[1]{\def\@studentno{#1}}
+\newcommand{\@studentno}{}
+% Define \university command
+\newcommand{\university}[1]{\def\@university{#1}}
+\newcommand{\@university}{}
+% Define \department command
+\newcommand{\department}[1]{\def\@department{#1}}
+\newcommand{\@department}{}
+% Define \group command
+\newcommand{\group}[1]{\def\@group{#1}}
+\newcommand{\@group}{}
+% Define \type command
+\newcommand{\type}[1]{\def\@type{#1}}
+\newcommand{\@type}{}
+% Define \advisor command
+\newcommand{\advisor}[1]{\def\@advisor{#1}}
+\newcommand{\@advisor}{}
+% Define \reviewer command
+\newcommand{\reviewer}[1]{\def\@reviewer{#1}}
+\newcommand{\@reviewer}{}
+%
+% ============ Title page =============
+%
+\renewcommand{\maketitle}{
+\begin{titlepage}
+\begin{center}
+{\LARGE\sffamily\bfseries{\@title}}\\[1.5cm]
+{\Large\sffamily{\@type}}\\[1.5cm]
+{\large\sffamily submitted by\\[.5cm]
+\Large\@author\ (\@studentno)}\\[.5cm]
+{\large\sffamily at the}
+\vfill
+\resizebox{.6\linewidth}{!}{\includegraphics{figures/unisignet.pdf}}\\[.4cm]
+\vfill
+{\large\sffamily\@group~Group}\\[.5cm]
+{\large\sffamily Department of \@department}\\[1cm]
+{\large\sffamily\begin{tabular}{rl}
+Advisor: & \@advisor\\[.5cm]
+Reviewer: & \@reviewer
+\end{tabular}}\\[1cm]
+{\large\sffamily Konstanz, \@date}
+\end{center}
+\end{titlepage}
+}
+
+% ========= Table of contents =========
+% Make table of contents sans serif
+\RedeclareSectionCommands[% note the "s" at the end
+  tocentryformat=\sffamily,%
+  tocpagenumberformat=\sffamily% 
+]{section,subsection}
+ % 0 = show only chapters, 1 = show only chpaters and sections, ...
+\setcounter{tocdepth}{1}
+
+% ============= Abstract ==============
+% Define abstract
+\renewcommand{\abstract}[2]{\def\@abstracten{#1}\def\@abstractde{#2}}
+\newcommand{\makeabstract}{
+\pagenumbering{roman}
+\section*{Abstract}
+{\@abstracten}
+%\section*{Zusammenfassung}
+%{\@abstractde}
+\thispagestyle{myheadings} % Remove page numbering and header
+\addcontentsline{toc}{chapter}{Abstract}
+\newpage
+}
+
+% ============== Header ===============
+\usepackage[automark,headsepline]{scrlayer-scrpage}
+%\clearpairofpagestyles
+
+%\rohead*{\pagemark} % * shows it also on first chapter page
+\lohead{\normalfont\sffamily\headmark} % Chapter on the left side of the header, normalfont prevents italic
+\cohead{}
+%\lohead{\@title} % Title on the left side of the header
+%\lehead*{\pagemark}
+%\rehead{\headmark}
+
+% ========= Sectioning style ===========
+% Make chapters, sections, subsections, ... sans serif
+\setkomafont{sectioning}{\sffamily}
+% Make subsubsections bold
+\addtokomafont{subsubsection}{\bfseries}
+% Make paragraph bold
+\addtokomafont{paragraph}{\bfseries}
+% Change paragraph spaces
+\RedeclareSectionCommand[beforeskip=0.5\baselineskip, afterskip=-1em]{paragraph}
+
+% ========= Page number style ==========
+% Make page numbers sans serif
+\addtokomafont{pagenumber}{\small\sffamily}
+
+% ============ Code style ==============
+\usepackage{fancyvrb,newverbs,xcolor}
+% Background color
+\definecolor{codegray}{gray}{0.9}
+% Code inline
+\newcommand{\code}[1]{\colorbox{codegray}{\small\texttt{#1}}}
+% Code block
+\newenvironment{codeblock}
+ {\SaveVerbatim{cverb}}
+ {\endSaveVerbatim
+  \flushleft\fboxrule=0pt\fboxsep=.5em
+  \colorbox{codegray}{%
+    \makebox[\dimexpr\linewidth-2\fboxsep][l]{\small\BUseVerbatim{cverb}}%
+  }
+  \endflushleft
+}
+
+% =========== Bullet points ===========
+\usepackage{amssymb}
+\renewcommand{\labelitemi}{${\color{black!100}\raisebox{.40ex}{\scalebox{.40}{$\blacksquare$}}}$}
+
+% ========== End of document ===========

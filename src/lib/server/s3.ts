@@ -29,8 +29,8 @@ export async function getFileResponseStream(sha: string) {
 	});
 }
 
-export async function downloadFileTo(sha: string, path: string) {
-	await client.fGetObject(MINIO_BUCKET, sha, path);
+export async function downloadFile(sha: string) {
+	return client.getObject(MINIO_BUCKET, sha);
 }
 
 export async function deleteImage(id: string) {

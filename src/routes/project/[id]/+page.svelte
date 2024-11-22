@@ -2,6 +2,7 @@
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
+	import { enhance } from '$app/forms';
 </script>
 
 <h1 class="mt-8 text-2xl font-semibold">{data.project.name}</h1>
@@ -18,28 +19,22 @@
 <h2 class="mt-8 text-xl font-semibold">Files</h2>
 <ul class="mt-4 space-y-3">
 	{#each data.files as file}
-		<li>
-			<a
-				href="/file/{file.id}"
-				class="block rounded-lg bg-gray-100 p-3 font-medium text-indigo-600 shadow hover:bg-gray-200"
-			>
+		<li
+			class="block rounded-lg bg-gray-100 p-3 font-medium text-indigo-600 shadow hover:bg-gray-200"
+		>
+			<span>
 				{file.name}
+			</span>
 
-				<form action="/?reset-file">
-					<input type="hidden" name="fileId" value="{file.id}" />
-					<button
-						type="submit"
-						class="float-right text-red-600"
-					>
-						Reset
-					</button>
-				</form>
-			</a>
+			<form action="?/reset" class="float-right inline-block" method="POST" use:enhance>
+				<input type="hidden" name="fileId" value={file.id} />
+				<button type="submit" class="float-right text-red-600"> Reset </button>
+			</form>
 		</li>
 	{/each}
 </ul>
 
-<form action="?/build" method="post">
+<form action="?/build" method="POST" use:enhance>
 	<button
 		type="submit"
 		class="mt-8 w-full rounded-md bg-sky-600 px-4 py-2 font-medium text-white shadow hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
