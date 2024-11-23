@@ -31,14 +31,15 @@ export const styleSettingsTable = sqliteTable('style_settings', {
 	id: text('id').primaryKey(),
 	styleId: text('style_id').references(() => stylesTable.id),
 	key: text('key').notNull(),
-	value: text('value').notNull()
+	value: text('value').notNull(),
+	comment: text('comment').notNull()
 });
 
 export const projectSettingsTable = sqliteTable('project_settings', {
 	id: text('id').primaryKey(),
+	setting: text('setting').notNull().references(() => styleSettingsTable.id),
 	projectId: text('project_id').references(() => projectTable.id),
-	key: text('key').notNull(),
-	value: text('value').notNull()
+	value: text('value').notNull(),
 });
 
 export const requiredFilesTable = sqliteTable('required_files', {

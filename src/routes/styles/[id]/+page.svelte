@@ -114,11 +114,14 @@
 	{/each}
 </ul>
 
-<h2>Settings</h2>
+<h2>Settings Defaults</h2>
+<p>
+	These are the default settings for this style. They can be overridden by the users project.
+</p>
 <ul class="space-y-4">
 	{#each data.settings as setting}
 		<li class="flex items-center space-x-4 rounded-md bg-gray-100 p-4 shadow">
-			<em class="font-semibold text-gray-700 min-w-[30%]">{setting.key}</em>
+			<em class="min-w-[30%] font-semibold text-gray-700">{setting.key}</em>
 			<form
 				action="?/update-setting"
 				method="post"
@@ -130,6 +133,14 @@
 					type="text"
 					name="value"
 					value={setting.value}
+					placeholder="Value"
+					class="flex-1 rounded-md border border-gray-300 p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+				/>
+				<input
+					type="text"
+					name="comment"
+					value={setting.comment}
+					placeholder="Comment"
 					class="flex-1 rounded-md border border-gray-300 p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
 				/>
 				<input type="submit" hidden />

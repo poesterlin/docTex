@@ -37,7 +37,7 @@ export const actions = {
             await db.insert(stylesTable).values({ id, name: form.name, mainFile: id });
 
             for (const setting of settings) {
-                await db.insert(styleSettingsTable).values({ id: generateId(), styleId: id, key: setting, value: "" });
+                await db.insert(styleSettingsTable).values({ id: generateId(), styleId: id, key: setting, value: "", comment: "" });
             }
 
             return redirect(303, `/styles/${id}`);
