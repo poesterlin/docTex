@@ -5,6 +5,7 @@ import { downloadFile } from './s3';
 import { env } from '$env/dynamic/private';
 import { join } from 'path';
 import { writeFile, mkdir } from 'fs/promises';
+import { substituteSettings } from './tex';
 
 const drive = google.drive('v3');
 
@@ -174,6 +175,25 @@ export async function downloadFolder(session: Session, folderId: string, path?: 
 
 		await writeFile(filePath, Buffer.from(buffer));
 	}
+
+	await substituteSettings('./tex/input/main.tex', {
+		FONTSIZE: '12pt',
+		PAPERSIZE: 'a4paper',
+		LANGUAGE: 'english',
+		TITLE: 'My Document Title',
+		AUTHOR: 'Author Name',
+		BIBFILE: 'references.bib',
+		TYPE: 'Bachelor Thesis',
+		STUDENTNR: '123456',
+		GROUP: 'Group 1',
+		DEPARTMENT: 'Department of Computer Science',
+		ADVISOR: 'Advisor Name',
+		REVIEWER: 'Reviewer Name',
+		ABSTRACT: 'This is the abstract of the document.',
+		LOF: true,
+		LOT: true,
+		APPENDIX: 'appendix.tex'
+	});
 }
 
 const fileTypeToExtension: Record<string, string> = {

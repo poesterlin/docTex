@@ -20,7 +20,6 @@ export async function getFileResponseStream(sha: string) {
 	const { size } = await client.statObject(MINIO_BUCKET, sha);
 	const stream = await client.getObject(MINIO_BUCKET, sha);
 
-	// @ts-expect-error - Response constructor is not yet in the types
 	return new Response(stream, {
 		headers: {
 			'content-size': size,

@@ -1,6 +1,6 @@
 import { error, redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { requiredFilesTable, stylesTable } from '$lib/server/db/schema';
+import { requiredFilesTable, stylesTable, styleSettingsTable } from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { generateId, validateForm } from '$lib';
 import { z } from 'zod';
@@ -25,7 +25,13 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		.select()
 		.from(requiredFilesTable)
 		.where(eq(requiredFilesTable.stylesId, id));
-	return { style, files };
+
+	const settings = await db
+		.select()
+		.from(styleSettingsTable)
+		.where(eq(styleSettingsTable.styleId, id));
+
+	return { style, files, settings };
 };
 
 export const actions = {
@@ -76,5 +82,24 @@ export const actions = {
 
 			redirect(303, `/styles/${styleId}`);
 		}
-	)
+	),
+	"update-setting": validateForm(
+		z.object({
+			id: z.string(),
+			value: z.string()
+		}),
+		async ({ locals, params }, form) => {
+			if (!locals.user) {
+				return redirect(302, '/login');
+			}
+
+			const styleId = params.id;
+			await db
+				.update(styleSettingsTable)
+				.set({ value: form.value })
+				.where(eq(styleSettingsTable.id, form.id));
+
+			redirect(303, `/styles/${styleId}`);
+		}
+	),
 };

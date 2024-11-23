@@ -21,7 +21,8 @@ export type Session = typeof sessionTable.$inferSelect;
 
 export const stylesTable = sqliteTable('styles', {
 	id: text('id').primaryKey(),
-	name: text('name').notNull()
+	name: text('name').notNull(),
+	mainFile: text('main_file').notNull(),
 });
 
 export type Style = typeof stylesTable.$inferSelect;

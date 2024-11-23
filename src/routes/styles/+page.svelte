@@ -10,6 +10,7 @@
 	action="?/setup"
 	method="POST"
 	use:enhance
+	enctype="multipart/form-data"
 	class="mx-auto max-w-md space-y-4 rounded-lg bg-white p-6 shadow-md"
 >
 	<label for="name" class="block text-sm font-medium text-gray-700"> New Style: </label>
@@ -20,6 +21,15 @@
 		class="block w-full rounded-md border-gray-300 p-4 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
 		placeholder="Style Name"
 	/>
+
+	<!-- File Field -->
+	<label
+		for="file"
+		class="block w-full rounded-md bg-sky-500 px-4 py-2 text-center font-medium text-white shadow hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+	>
+		Add Main File
+	</label>
+	<input id="file" type="file" class="hidden" name="file" required />
 
 	<button
 		type="submit"

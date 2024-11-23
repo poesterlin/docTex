@@ -16,9 +16,7 @@
 	action="?/addFile"
 	enctype="multipart/form-data"
 >
-	<h2
-        class="text-xl font-semibold"
-    >Add File</h2>
+	<h2 class="text-xl font-semibold">Add File</h2>
 	<!-- Name Field -->
 	<div>
 		<label for="name" class="block text-sm font-medium text-gray-700">Name</label>
@@ -56,12 +54,12 @@
 		/>
 	</div>
 
-    <div class="flex items-center justify-between">
-        <label for="override" class="block text-sm font-medium text-gray-700 flex-1 py-4">
-            Should the file be overridden? 
-        </label>
-        <input type="checkbox" name="override" id="override" class="mr-2" />
-    </div>
+	<div class="flex items-center justify-between">
+		<label for="override" class="block flex-1 py-4 text-sm font-medium text-gray-700">
+			Should the file be overridden?
+		</label>
+		<input type="checkbox" name="override" id="override" class="mr-2" />
+	</div>
 
 	<!-- File Field -->
 	<label
@@ -71,7 +69,6 @@
 		Add Default File
 	</label>
 	<input id="file" type="file" class="hidden" name="file" required />
-
 
 	<!-- Submit Button -->
 	<button
@@ -89,7 +86,7 @@
 		<li
 			class="group block flex items-center justify-between rounded-lg bg-gray-100 p-3 font-medium shadow hover:bg-gray-200"
 		>
-			<div class="flex flex-col w-full items-center justify-between">
+			<div class="flex w-full flex-col items-center justify-between">
 				<h4 class="text-indigo-600">
 					{file.name}
 				</h4>
@@ -99,7 +96,7 @@
 			</div>
 
 			<!-- tags -->
-			<div class="mt-2 flex flex-col w-full items-center justify-between text-sm text-gray-500">
+			<div class="mt-2 flex w-full flex-col items-center justify-between text-sm text-gray-500">
 				<span class="">{file.mimeType}</span>
 				<span class="">{file.path}</span>
 			</div>
@@ -108,10 +105,34 @@
 				<input type="hidden" name="id" value={file.id} />
 				<button
 					type="submit"
-					class="opacity-0 group-hover:opacity-100 rounded-md bg-red-500 px-4 py-2 font-medium text-white shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+					class="rounded-md bg-red-500 px-4 py-2 font-medium text-white opacity-0 shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 group-hover:opacity-100"
 				>
 					Delete
 				</button>
+			</form>
+		</li>
+	{/each}
+</ul>
+
+<h2>Settings</h2>
+<ul class="space-y-4">
+	{#each data.settings as setting}
+		<li class="flex items-center space-x-4 rounded-md bg-gray-100 p-4 shadow">
+			<em class="font-semibold text-gray-700 min-w-[30%]">{setting.key}</em>
+			<form
+				action="?/update-setting"
+				method="post"
+				use:enhance
+				class="flex flex-1 items-center space-x-2"
+			>
+				<input type="hidden" name="id" value={setting.id} />
+				<input
+					type="text"
+					name="value"
+					value={setting.value}
+					class="flex-1 rounded-md border border-gray-300 p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+				/>
+				<input type="submit" hidden />
 			</form>
 		</li>
 	{/each}
