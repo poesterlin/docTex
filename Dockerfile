@@ -14,25 +14,21 @@ RUN bun run build
 
 FROM alpine:latest as tex
 
-RUN apk update && \
-    apk add --no-cache nodejs
-
-# 'small' or 'full'
-ARG scheme=full
-
 ENV PATH="/opt/texlive/texdir/bin/x86_64-linuxmusl:${PATH}"
 
 WORKDIR /tex
-
 COPY --chmod=777 tex/ ./
 
+# this takes a long time to run, so we cache it
 RUN cd /tex && \
-  chmod +x ./setup.sh && \
   sed -i 's/\r$//' ./setup.sh && \
-  ./setup.sh ${scheme}
+  ./setup.sh full
 
+RUN apk update && \
+    apk add --no-cache nodejs
+
+# copy node app
 WORKDIR /app
-
 COPY --from=bun /app/build/ build
 COPY --from=bun /app/node_modules/ node_modules
 COPY --from=bun /app/package.json ./

@@ -18,7 +18,7 @@ import { error, redirect } from '@sveltejs/kit';
 import { and, eq } from 'drizzle-orm';
 import { z } from 'zod';
 import type { Actions, PageServerLoad } from './$types';
-import { buildTex, writeMainFile } from '$lib/server/tex';
+import { buildTex, clearFolder, downloadStyleFiles, writeMainFile } from '$lib/server/tex';
 
 export const load: PageServerLoad = async ({ locals, params }) => {
 	if (!locals.user) {
@@ -47,7 +47,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
 	const settings = await db
 		.select({
-			id: styleSettingsTable.id,
+			id: projectSettingsTable.id,
 			key: styleSettingsTable.key,
 			value: projectSettingsTable.value,
 			comment: styleSettingsTable.comment
@@ -129,9 +129,10 @@ export const actions: Actions = {
 		if (!style) {
 			error(404, { message: 'Style not found' });
 		}
+		await clearFolder(project);
 
-		// TODO: Build project
 		await downloadFolder(locals.session, project.folderId);
+		await downloadStyleFiles(project, style);
 		await writeMainFile(project, style);
 
 		await buildTex(project);

@@ -1,18 +1,22 @@
 import { env } from '$env/dynamic/private';
+import { generateId } from '$lib';
+import { exec } from 'child_process';
 import { eq } from 'drizzle-orm';
+import { mkdir, stat, writeFile } from 'fs/promises';
+import { join } from 'path';
 import { db } from './db';
 import {
+	outputTable,
 	type Project,
-	type Style,
-	styleSettingsTable,
 	projectSettingsTable,
-	outputTable
+	requiredFilesTable,
+	type Style,
+	styleSettingsTable
 } from './db/schema';
-import { getFileContentString, uploadFile, uploadFileFromPath } from './s3';
-import { join } from 'path';
-import { writeFile } from 'fs/promises';
-import { exec } from 'child_process';
-import { generateId } from '$lib';
+import { getFileContentString, uploadFileFromPath } from './s3';
+import { unlink } from 'fs/promises';
+import { rmdir } from 'fs/promises';
+import { rm } from 'fs/promises';
 
 export async function substituteSettings(
 	contents: string,
@@ -103,7 +107,10 @@ export async function writeMainFile(project: Project, style: Style) {
 	const content = await getFileContentString(style.mainFile);
 
 	let res = await substituteSettings(content, settings);
-	res = res.replace('#INCLUDE_CHAPTERS', `\\markdownInput{${project.name}.md}`);
+	res = res.replace('#INCLUDE_CHAPTERS', `\\begin{markdown}
+# Hello!
+\\end{markdown}`);
+	console.log('MAIN FILE:\n', res);
 
 	const path = join(env.TMP_DIR, project.folderId, 'main.tex');
 	await writeFile(path, res);
@@ -130,12 +137,47 @@ export async function buildTex(project: Project) {
 		await db.insert(outputTable).values({
 			id,
 			projectId: project.id,
+			timestamp: new Date(),
 			logs: stdout,
-			errors: error + stderr
+			errors: stderr
 		});
 
 		if (!error) {
 			await uploadFileFromPath(id, join(path, 'main.pdf'));
 		}
 	});
+}
+
+export async function downloadStyleFiles(project: Project, style: Style) {
+	const files = await db
+		.select()
+		.from(requiredFilesTable)
+		.where(eq(requiredFilesTable.stylesId, style.id));
+
+	for (const file of files) {
+		const content = await getFileContentString(file.id);
+		const path = join(env.TMP_DIR, project.folderId, file.path);
+
+		const isAlreadyDownloaded =
+			file.override &&
+			(await stat(path)
+				.then(() => true)
+				.catch(() => false));
+
+		if (isAlreadyDownloaded) {
+			continue;
+		}
+
+		const folder = path.split('/').slice(0, -1).join('/');
+
+		await mkdir(folder, { recursive: true });
+		await writeFile(path, content);
+	}
+}
+
+export async function clearFolder(project: Project) {
+	const path = join(env.TMP_DIR, project.folderId);
+	try {
+		await rm(path, { recursive: true });
+	} catch (error) {}
 }

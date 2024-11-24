@@ -231,4 +231,5 @@ const fileTypeToExtension: Record<string, string> = {
 	'text/markdown': 'md',
 	'text/plain': 'txt',
 	'application/json': 'json',
+	'text/x-java': 'java',
 };

@@ -9,5 +9,5 @@ services:
       - 5173:3000
     environment:
       - INPUT_ROOT_FILE=main.tex
-      - INPUT_CONTINUE_ON_ERROR
+      - INPUT_CONTINUE_ON_ERROR=true
       - TMP_DIR=/tmp
