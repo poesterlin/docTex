@@ -1,6 +1,6 @@
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
+import { date, integer, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 
-export const userTable = sqliteTable('user', {
+export const userTable = pgTable('user', {
 	id: text('id').primaryKey(),
 	username: text('username').notNull(),
 	email: text('email').notNull().unique()
@@ -8,26 +8,26 @@ export const userTable = sqliteTable('user', {
 
 export type User = typeof userTable.$inferSelect;
 
-export const sessionTable = sqliteTable('session', {
+export const sessionTable = pgTable('session', {
 	id: text('id').primaryKey(),
 	userId: text('user_id')
 		.notNull()
 		.references(() => userTable.id),
-	expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
+	expiresAt: timestamp('expires_at', { mode: 'date' }).notNull(),
 	sessionToken: text('session_token').notNull()
 });
 
 export type Session = typeof sessionTable.$inferSelect;
 
-export const stylesTable = sqliteTable('styles', {
+export const stylesTable = pgTable('styles', {
 	id: text('id').primaryKey(),
 	name: text('name').notNull(),
-	mainFile: text('main_file').notNull(),
+	mainFile: text('main_file').notNull()
 });
 
 export type Style = typeof stylesTable.$inferSelect;
 
-export const styleSettingsTable = sqliteTable('style_settings', {
+export const styleSettingsTable = pgTable('style_settings', {
 	id: text('id').primaryKey(),
 	styleId: text('style_id').references(() => stylesTable.id),
 	key: text('key').notNull(),
@@ -35,14 +35,16 @@ export const styleSettingsTable = sqliteTable('style_settings', {
 	comment: text('comment').notNull()
 });
 
-export const projectSettingsTable = sqliteTable('project_settings', {
+export const projectSettingsTable = pgTable('project_settings', {
 	id: text('id').primaryKey(),
-	setting: text('setting').notNull().references(() => styleSettingsTable.id),
+	setting: text('setting')
+		.notNull()
+		.references(() => styleSettingsTable.id),
 	projectId: text('project_id').references(() => projectTable.id),
-	value: text('value').notNull(),
+	value: text('value').notNull()
 });
 
-export const requiredFilesTable = sqliteTable('required_files', {
+export const requiredFilesTable = pgTable('required_files', {
 	id: text('id').primaryKey(),
 	name: text('name').notNull(),
 	description: text('description').notNull(),
@@ -55,7 +57,7 @@ export const requiredFilesTable = sqliteTable('required_files', {
 
 export type RequiredFile = typeof requiredFilesTable.$inferSelect;
 
-export const projectTable = sqliteTable('project', {
+export const projectTable = pgTable('project', {
 	id: text('id').primaryKey(),
 	name: text('name').notNull(),
 	userId: text('user_id')
@@ -68,3 +70,12 @@ export const projectTable = sqliteTable('project', {
 });
 
 export type Project = typeof projectTable.$inferSelect;
+
+export const outputTable = pgTable('output', {
+	id: text('id').primaryKey(),
+	projectId: text('project_id')
+		.notNull()
+		.references(() => projectTable.id),
+	logs: text('logs').notNull(),
+	errors: text('errors').notNull()
+});

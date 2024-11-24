@@ -47,6 +47,8 @@ export const actions = {
 					.insert(styleSettingsTable)
 					.values({ id: generateId(), styleId: id, key: setting, value: '', comment });
 			}
+
+			return redirect(303, '/styles/' + id);
 		}
 	)
 };

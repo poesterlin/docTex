@@ -1,4 +1,4 @@
-FROM oven/bun:1 AS bun
+FROM oven/bun:alpine AS bun
 
 WORKDIR /app
 
@@ -8,24 +8,35 @@ RUN bun install
 
 COPY . .
 
-RUN bun run build && \
-    bun build --compile ./build/index.js --outfile sveltekit
+RUN bun run build
+
+#########################################################
 
 FROM alpine:latest as tex
 
+RUN apk update && \
+    apk add --no-cache nodejs
+
 # 'small' or 'full'
-ARG scheme=small
+ARG scheme=full
 
 ENV PATH="/opt/texlive/texdir/bin/x86_64-linuxmusl:${PATH}"
 
-COPY tex/setup.sh \
-  tex/texlive.profile \
-  tex/texlive_pgp_keys.asc \
-  tex/entrypoint.sh \
-  /
+WORKDIR /tex
 
-RUN /setup.sh ${scheme}
+COPY --chmod=777 tex/ ./
 
-COPY --from=bun /app/sveltekit /app/sveltekit
+RUN cd /tex && \
+  chmod +x ./setup.sh && \
+  sed -i 's/\r$//' ./setup.sh && \
+  ./setup.sh ${scheme}
 
-CMD ["/app/sveltekit"]
+WORKDIR /app
+
+COPY --from=bun /app/build/ build
+COPY --from=bun /app/node_modules/ node_modules
+COPY --from=bun /app/package.json ./
+
+EXPOSE 3000
+
+CMD ["node", "/app/build/index.js"]

@@ -29,6 +29,10 @@ export async function getFileResponseStream(sha: string) {
 	});
 }
 
+export async function uploadFileFromPath(sha: string, path: string) {
+	client.fPutObject(MINIO_BUCKET, sha, path);
+}
+
 export async function downloadFile(sha: string) {
 	return client.getObject(MINIO_BUCKET, sha);
 }

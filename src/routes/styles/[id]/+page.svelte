@@ -11,8 +11,7 @@
 </h1>
 
 <details class="mb-4">
-	<summary class="text-indigo-600 cursor-pointer text-lg select-none">
-		Edit Style</summary>
+	<summary class="cursor-pointer select-none text-lg text-indigo-600"> Edit Style</summary>
 	<form
 		class="mx-auto mb-6 max-w-md space-y-4 rounded-lg bg-white p-6 shadow-md"
 		use:enhance
@@ -139,6 +138,8 @@
 				</button>
 			</form>
 		</li>
+	{:else}
+		<li class="text-gray-500">No files found</li>
 	{/each}
 </ul>
 

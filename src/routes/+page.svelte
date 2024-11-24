@@ -9,7 +9,7 @@
 	action="?/setup"
 	method="POST"
 	use:enhance
-	class="mx-auto max-w-md space-y-4 rounded-lg bg-white p-6 shadow-md"
+	class="mx-auto max-w-md rounded-lg bg-white p-6 shadow-md border-2 border-gray-200"
 >
 	<label for="name" class="block text-sm font-medium text-gray-700"> New Project: </label>
 	<input
@@ -17,17 +17,17 @@
 		type="text"
 		name="name"
 		id="name"
-		class="block w-full rounded-md border-gray-300 p-4 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+		class="block my-4 w-full rounded-md p-4 border-2 shadow-sm focus:border-indigo-500 outline-none focus:ring-indigo-500 sm:text-sm"
 		placeholder="Project Name"
 	/>
-	<span class="mt-4 text-sm text-gray-500">
+	<p class="text-sm text-gray-500 px-4 my-2">
 		This will also create a folder in your Google Drive with the same name.
-	</span>
+	</p>
 	<select
 		required
 		name="styleId"
 		id="style"
-		class="mt-2 block w-full rounded-md border-gray-300 p-4 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+		class="my-4 w-full rounded-md p-4 text-sm border-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
 	>
 		<option selected disabled>Select a style</option>
 		{#each data.styles as style}

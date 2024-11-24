@@ -1,1 +1,0 @@
-docker run --rm -e INPUT_ROOT_FILE='main.tex' -e INPUT_WORKING_DIRECTORY='/input' -e INPUT_CONTINUE_ON_ERROR='true' -v ./input:/input -v ./entrypoint.sh:/entrypoint.sh --entrypoint /entrypoint.sh ghcr.io/xu-cheng/texlive-full:latest

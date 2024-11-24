@@ -1,10 +1,18 @@
 import { env } from '$env/dynamic/private';
 import { eq } from 'drizzle-orm';
 import { db } from './db';
-import { type Project, type Style, styleSettingsTable, projectSettingsTable } from './db/schema';
-import { getFileContentString } from './s3';
+import {
+	type Project,
+	type Style,
+	styleSettingsTable,
+	projectSettingsTable,
+	outputTable
+} from './db/schema';
+import { getFileContentString, uploadFile, uploadFileFromPath } from './s3';
 import { join } from 'path';
 import { writeFile } from 'fs/promises';
+import { exec } from 'child_process';
+import { generateId } from '$lib';
 
 export async function substituteSettings(
 	contents: string,
@@ -93,7 +101,7 @@ export async function getSettings(project: Project, style: Style) {
 export async function writeMainFile(project: Project, style: Style) {
 	const settings = await getSettings(project, style);
 	const content = await getFileContentString(style.mainFile);
-	
+
 	let res = await substituteSettings(content, settings);
 	res = res.replace('#INCLUDE_CHAPTERS', `\\markdownInput{${project.name}.md}`);
 
@@ -109,4 +117,25 @@ function settingsToObject(settings: any) {
 	}
 
 	return result;
+}
+
+export async function buildTex(project: Project) {
+	const path = join(env.TMP_DIR, project.folderId);
+	const command = `/tex/entrypoint.sh`;
+
+	exec(command, { cwd: path }, async (error, stdout, stderr) => {
+		console.log({ stdout, stderr, error });
+
+		const id = generateId();
+		await db.insert(outputTable).values({
+			id,
+			projectId: project.id,
+			logs: stdout,
+			errors: error + stderr
+		});
+
+		if (!error) {
+			await uploadFileFromPath(id, join(path, 'main.pdf'));
+		}
+	});
 }

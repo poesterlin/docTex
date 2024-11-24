@@ -1,15 +1,14 @@
-import { env } from '$env/dynamic/private';
-import { assert } from '$lib';
+import { deleteSessionTokenCookie } from '$lib/server/auth';
+import { getAuthInfo } from '$lib/server/google';
 import { redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { getAuthInfo } from '$lib/server/google';
 
 export const load: PageServerLoad = async (event) => {
 	if (event.locals.user) {
 		return redirect(302, '/');
 	}
-	
-	return {};
+
+	deleteSessionTokenCookie(event);
 };
 
 export const actions: Actions = {

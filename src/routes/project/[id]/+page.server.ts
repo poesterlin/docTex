@@ -1,6 +1,7 @@
 import { validateForm } from '$lib';
 import { db } from '$lib/server/db';
 import {
+	outputTable,
 	projectSettingsTable,
 	projectTable,
 	requiredFilesTable,
@@ -17,7 +18,7 @@ import { error, redirect } from '@sveltejs/kit';
 import { and, eq } from 'drizzle-orm';
 import { z } from 'zod';
 import type { Actions, PageServerLoad } from './$types';
-import { writeMainFile } from '$lib/server/tex';
+import { buildTex, writeMainFile } from '$lib/server/tex';
 
 export const load: PageServerLoad = async ({ locals, params }) => {
 	if (!locals.user) {
@@ -46,16 +47,22 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
 	const settings = await db
 		.select({
-			id: projectSettingsTable.id,
+			id: styleSettingsTable.id,
 			key: styleSettingsTable.key,
 			value: projectSettingsTable.value,
 			comment: styleSettingsTable.comment
 		})
 		.from(styleSettingsTable)
 		.where(eq(projectSettingsTable.projectId, id))
-		.leftJoin(projectSettingsTable, eq(projectSettingsTable.setting, styleSettingsTable.id));
+		.leftJoin(projectSettingsTable, eq(projectSettingsTable.setting, styleSettingsTable.id))
+		.orderBy(styleSettingsTable.key);
 
-	return { project, style, files, settings };
+	const outputs = await db
+		.select()
+		.from(outputTable)
+		.where(eq(outputTable.projectId, id));
+
+	return { project, style, files, settings, outputs };
 };
 
 export const actions: Actions = {
@@ -126,6 +133,8 @@ export const actions: Actions = {
 		// TODO: Build project
 		await downloadFolder(locals.session, project.folderId);
 		await writeMainFile(project, style);
+
+		await buildTex(project);
 	},
 	'update-setting': validateForm(
 		z.object({

@@ -3,7 +3,6 @@ import { generateSessionToken, setSessionTokenCookie } from "$lib/server/auth";
 import { db } from "$lib/server/db";
 import { sessionTable, userTable } from "$lib/server/db/schema";
 import { getToken, getUserInfo } from "$lib/server/google";
-import { encodeBase32LowerCase } from "@oslojs/encoding";
 import { redirect } from "@sveltejs/kit";
 import { eq } from "drizzle-orm";
 import type { PageServerLoad } from "./$types";

@@ -41,7 +41,7 @@ echo "Use mirror url: ${MIRROR_URL}"
 curl -fsSOL "${MIRROR_URL}systems/texlive/tlnet/install-tl-unx.tar.gz"
 curl -fsSOL "${MIRROR_URL}systems/texlive/tlnet/install-tl-unx.tar.gz.sha512"
 curl -fsSOL "${MIRROR_URL}systems/texlive/tlnet/install-tl-unx.tar.gz.sha512.asc"
-gpg --import /texlive_pgp_keys.asc
+gpg --import /tex/texlive_pgp_keys.asc
 gpg --verify ./install-tl-unx.tar.gz.sha512.asc ./install-tl-unx.tar.gz.sha512
 sha512sum -c ./install-tl-unx.tar.gz.sha512
 mkdir -p /tmp/install-tl/installer
@@ -66,7 +66,7 @@ retry() {
   done
 }
 
-retry 3 /tmp/install-tl/installer/install-tl -scheme "scheme-$scheme" -profile=/texlive.profile
+retry 3 /tmp/install-tl/installer/install-tl -scheme "scheme-$scheme" -profile=/tex/texlive.profile
 
 # Install additional packages for non full scheme
 if [ "$scheme" != "full" ]; then
@@ -103,7 +103,7 @@ rm -rf \
   /opt/texlive/texdir/texmf-dist/doc \
   /opt/texlive/texdir/texmf-dist/source \
   /opt/texlive/texdir/texmf-var/web2c/tlmgr.log \
-  /setup.sh \
-  /texlive.profile \
-  /texlive_pgp_keys.asc \
+  /tex/setup.sh \
+  /tex/texlive.profile \
+  /tex/texlive_pgp_keys.asc \
   /tmp/install-tl

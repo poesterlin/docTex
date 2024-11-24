@@ -3,13 +3,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    env_file: .env
+    restart: unless-stopped
+    ports:
+      - 5173:3000
     environment:
       - INPUT_ROOT_FILE=main.tex
-      - INPUT_WORKING_DIRECTORY=/input
-      # - INPUT_WORK_IN_ROOT_FILE_DIR
-      # - INPUT_CONTINUE_ON_ERROR
-      # - INPUT_ARGS
-      # - INPUT_EXTRA_FONTS
-    volumes:
-      - ./input:/input
-      - /var/run/docker.sock:/var/run/docker.sock
+      - INPUT_CONTINUE_ON_ERROR
+      - TMP_DIR=/tmp
