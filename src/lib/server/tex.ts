@@ -1,30 +1,15 @@
-import { readFile } from 'fs/promises';
-
-// substituteSettings('./tex/input/main.tex', {
-// 	FONTSIZE: '12pt',
-// 	PAPERSIZE: 'a4paper',
-// 	LANGUAGE: 'english',
-// 	TITLE: 'My Document Title',
-// 	AUTHOR: 'Author Name',
-// 	BIBFILE: 'references.bib',
-// 	TYPE: 'Bachelor Thesis',
-// 	STUDENTNR: '123456',
-// 	GROUP: 'Group 1',
-// 	DEPARTMENT: 'Department of Computer Science',
-// 	ADVISOR: 'Advisor Name',
-// 	REVIEWER: 'Reviewer Name',
-// 	ABSTRACT: 'This is the abstract of the document.',
-// 	LOF: true,
-// 	LOT: true,
-// 	APPENDIX: 'appendix.tex'
-// });
+import { env } from '$env/dynamic/private';
+import { eq } from 'drizzle-orm';
+import { db } from './db';
+import { type Project, type Style, styleSettingsTable, projectSettingsTable } from './db/schema';
+import { getFileContentString } from './s3';
+import { join } from 'path';
+import { writeFile } from 'fs/promises';
 
 export async function substituteSettings(
-	filename: string,
+	contents: string,
 	settings: Record<string, string | boolean>
 ) {
-    await findAllSettings(filename);
-	const contents = await readFile(filename, 'utf-8');
 	const lines = contents.split('\n');
 
 	const newLines = lines.map((line) => {
@@ -44,7 +29,7 @@ export async function substituteSettings(
 			}
 
 			if (typeof value === 'boolean') {
-                return line;
+				return line;
 			}
 
 			return line.replace(prefixedKey, value);
@@ -53,22 +38,75 @@ export async function substituteSettings(
 		return line;
 	});
 
-    const newContents = newLines.join('\n');
-    console.log(newContents);
+	return newLines.join('\n');
 }
 
+export async function findAllSettings(contents: string): Promise<[string, string][]> {
+	const lines = contents.split('\n');
 
-export async function findAllSettings(contents: string) {
-    const lines = contents.split('\n');
+	const settings = new Set<string>();
+	const optionalSettings = new Set<string>();
 
-    const settings= new Set<string>();
+	for (const line of lines) {
+		const match = line.match(/SETTING_([A-Z_]+)/);
+		if (!match) {
+			continue;
+		}
 
-    for (const line of lines) {
-        const match = line.matchAll(/SETTING_([A-Z_]+)/g);
-        for (const m of match) {
-            settings.add(m[1]);
-        }
-    }
+		settings.add(match[1]);
 
-    return settings;
+		const conditionalMatch = line.includes(`#IF_SETTING_${match[1]}#`);
+		if (conditionalMatch) {
+			optionalSettings.add(match[1]);
+		}
+	}
+
+	return Array.from(settings.entries()).map(([key]) => [
+		key,
+		optionalSettings.has(key) ? 'optional' : ''
+	]);
+}
+
+export async function getSettings(project: Project, style: Style) {
+	const baseSettings = await db
+		.select()
+		.from(styleSettingsTable)
+		.where(eq(styleSettingsTable.styleId, style.id))
+		.limit(1);
+
+	const settings = settingsToObject(baseSettings);
+
+	const projectSettings = await db
+		.select({
+			key: styleSettingsTable.key,
+			value: projectSettingsTable.value
+		})
+		.from(styleSettingsTable)
+		.where(eq(projectSettingsTable.projectId, project.id))
+		.leftJoin(projectSettingsTable, eq(projectSettingsTable.setting, styleSettingsTable.id));
+
+	const overrideSettings = settingsToObject(projectSettings);
+
+	return { ...settings, ...overrideSettings };
+}
+
+export async function writeMainFile(project: Project, style: Style) {
+	const settings = await getSettings(project, style);
+	const content = await getFileContentString(style.mainFile);
+	
+	let res = await substituteSettings(content, settings);
+	res = res.replace('#INCLUDE_CHAPTERS', `\\markdownInput{${project.name}.md}`);
+
+	const path = join(env.TMP_DIR, project.folderId, 'main.tex');
+	await writeFile(path, res);
+}
+
+function settingsToObject(settings: any) {
+	const result: Record<string, string> = {};
+
+	for (const setting of settings) {
+		result[setting.key] = setting.value;
+	}
+
+	return result;
 }

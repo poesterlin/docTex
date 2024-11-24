@@ -5,7 +5,6 @@
 	let { data }: { data: PageServerData } = $props();
 </script>
 
-
 <form
 	action="?/setup"
 	method="POST"
@@ -29,7 +28,7 @@
 	>
 		Add Main File
 	</label>
-	<input id="file" type="file" class="hidden" name="file" required />
+	<input id="file" type="file" class="hidden" name="file" required accept=".tex" />
 
 	<button
 		type="submit"

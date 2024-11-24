@@ -1,11 +1,10 @@
+import { env } from '$env/dynamic/private';
+import { mkdir, writeFile } from 'fs/promises';
 import { google } from 'googleapis';
-import type { RequiredFile, Session } from './db/schema';
+import { join } from 'path';
+import { type RequiredFile, type Session } from './db/schema';
 import { getAuthClient } from './google';
 import { downloadFile } from './s3';
-import { env } from '$env/dynamic/private';
-import { join } from 'path';
-import { writeFile, mkdir } from 'fs/promises';
-import { substituteSettings } from './tex';
 
 const drive = google.drive('v3');
 
@@ -35,10 +34,15 @@ export async function listFilesInFolder(session: Session, folderId: string) {
 
 export async function createOrGetFolder(session: Session, name: string, parent?: string) {
 	const auth = getAuthClient(session);
+	let query = `mimeType='application/vnd.google-apps.folder' and name='${name}' and trashed = false`;
+
+	if (parent) {
+		query += ` and '${parent}' in parents`;
+	}
 
 	const exists = await drive.files.list({
 		auth,
-		q: `mimeType='application/vnd.google-apps.folder' and name='${name}' and trashed = false and '${parent}' in parents`
+		q: query
 	});
 
 	if (exists.data.files?.length && exists.data.files[0].id) {
@@ -58,6 +62,21 @@ export async function createOrGetFolder(session: Session, name: string, parent?:
 	return res.data.id!;
 }
 
+export async function getFileIdByName(session: Session, parent: string, name: string) {
+	const auth = getAuthClient(session);
+
+	const exists = await drive.files.list({
+		auth,
+		q: `name='${name}' and '${parent}' in parents and trashed = false`
+	});
+
+	if (exists.data.files?.length && exists.data.files[0].id) {
+		return exists.data.files[0].id;
+	}
+
+	return null;
+}
+
 export async function deleteFolder(session: Session, folderId: string) {
 	const auth = getAuthClient(session);
 
@@ -72,6 +91,11 @@ export async function copyFileToProjectFolder(
 	file: RequiredFile,
 	folderId: string
 ) {
+	// If the file is not set to override, don't upload it to the users folder
+	if (!file.override) {
+		return;
+	}
+
 	const auth = getAuthClient(session);
 	const buffer = await downloadFile(file.id);
 
@@ -116,7 +140,7 @@ export async function copyFileToProjectFolder(
 
 export async function downloadFolder(session: Session, folderId: string, path?: string) {
 	if (!path) {
-		path = env.TMP_DIR + '/' + folderId;
+		path = join(env.TMP_DIR, folderId);
 	}
 
 	await mkdir(path, { recursive: true });
@@ -154,7 +178,7 @@ export async function downloadFolder(session: Session, folderId: string, path?: 
 		});
 
 		const buffer = await res.arrayBuffer();
-		
+
 		let extension = fileTypeToExtension[file.mimeType];
 		if (!extension) {
 			extension = file.mimeType.split('/')[1] ?? 'bin';
@@ -175,25 +199,17 @@ export async function downloadFolder(session: Session, folderId: string, path?: 
 
 		await writeFile(filePath, Buffer.from(buffer));
 	}
+}
 
-	await substituteSettings('./tex/input/main.tex', {
-		FONTSIZE: '12pt',
-		PAPERSIZE: 'a4paper',
-		LANGUAGE: 'english',
-		TITLE: 'My Document Title',
-		AUTHOR: 'Author Name',
-		BIBFILE: 'references.bib',
-		TYPE: 'Bachelor Thesis',
-		STUDENTNR: '123456',
-		GROUP: 'Group 1',
-		DEPARTMENT: 'Department of Computer Science',
-		ADVISOR: 'Advisor Name',
-		REVIEWER: 'Reviewer Name',
-		ABSTRACT: 'This is the abstract of the document.',
-		LOF: true,
-		LOT: true,
-		APPENDIX: 'appendix.tex'
-	});
+export async function getNestedFolderId(session: Session, base: string, path: string) {
+	const folders = path.split('/');
+
+	let currentFolder = base;
+	for (const folder of folders) {
+		currentFolder = await createOrGetFolder(session, folder, currentFolder);
+	}
+
+	return currentFolder;
 }
 
 const fileTypeToExtension: Record<string, string> = {
@@ -211,5 +227,8 @@ const fileTypeToExtension: Record<string, string> = {
 	'image/x-icon': 'ico',
 	'image/png': 'png',
 	'application/pdf': 'pdf',
-	'application/zip': 'zip'
+	'application/zip': 'zip',
+	'text/markdown': 'md',
+	'text/plain': 'txt',
+	'application/json': 'json',
 };

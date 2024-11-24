@@ -20,6 +20,7 @@ export async function getFileResponseStream(sha: string) {
 	const { size } = await client.statObject(MINIO_BUCKET, sha);
 	const stream = await client.getObject(MINIO_BUCKET, sha);
 
+	// @ts-expect-error - missing types
 	return new Response(stream, {
 		headers: {
 			'content-size': size,
@@ -63,4 +64,25 @@ export async function sha256(file: File) {
 
 export function getFileContent(sha: string) {
 	return client.getObject(MINIO_BUCKET, sha);
+}
+
+export async function getFileContentString(sha: string) {
+	const readable = await client.getObject(MINIO_BUCKET, sha);
+
+	const buffer = await readStreamToBuffer(readable);
+	const decoder = new TextDecoder();
+	return decoder.decode(buffer);
+}
+
+function readStreamToBuffer(readable: any) {
+	return new Promise<Buffer>((resolve, reject) => {
+		const chunks: Buffer[] = [];
+		readable.on('data', (chunk: Buffer) => {
+			chunks.push(chunk);
+		});
+		readable.on('end', () => {
+			resolve(Buffer.concat(chunks));
+		});
+		readable.on('error', reject);
+	});
 }

@@ -1,12 +1,19 @@
 import { validateForm, assert, generateId } from '$lib';
 import * as auth from '$lib/server/auth';
 import { db } from '$lib/server/db';
-import { projectTable, stylesTable } from '$lib/server/db/schema';
-import { createOrGetFolder } from '$lib/server/drive';
+import {
+	projectSettingsTable,
+	projectTable,
+	styleSettingsTable,
+	stylesTable,
+	type RequiredFile
+} from '$lib/server/db/schema';
+import { copyFileToProjectFolder, createOrGetFolder } from '$lib/server/drive';
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
+import { env } from '$env/dynamic/private';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) {
@@ -36,7 +43,7 @@ export const actions: Actions = {
 	setup: validateForm(
 		z.object({
 			name: z.string(),
-			styleId: z.string(),
+			styleId: z.string()
 		}),
 		async ({ locals }, form) => {
 			if (!locals.user) {
@@ -65,9 +72,34 @@ export const actions: Actions = {
 				name: form.name,
 				styleId: form.styleId,
 				userId: locals.user.id,
-				folderId,
+				folderId
 			});
 
+			const settings = await db
+				.select()
+				.from(styleSettingsTable)
+				.where(eq(styleSettingsTable.styleId, form.styleId));
+
+			for (const setting of settings) {
+				await db.insert(projectSettingsTable).values({
+					id: generateId(),
+					projectId: id,
+					setting: setting.id,
+					value: setting.value
+				});
+			}
+
+			const file = {
+				id: env.MARKDOWN_EXPLAINER_DOC,
+				name: form.name,
+				mimeType: 'text/markdown',
+				override: 1,
+				path: form.name,
+			} as RequiredFile;
+
+			await copyFileToProjectFolder(session, file, folderId);
+
 			redirect(302, `/project/${id}`);
-		})
+		}
+	)
 };

@@ -6,6 +6,7 @@ import { generateId, validateForm } from '$lib';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
 import { uploadFile } from '$lib/server/s3';
+import { findAllSettings } from '$lib/server/tex';
 
 const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
 
@@ -43,7 +44,7 @@ export const actions = {
 			file: z
 				.instanceof(File)
 				.refine((file) => file?.size <= MAX_FILE_SIZE, `Max image size is 25MB.`),
-			override: z.string().transform((v) => v === 'on')
+			override: z.string().optional().transform((v) => v === 'on')
 		}),
 		async ({ locals, params }, form) => {
 			if (!locals.user) {
@@ -83,10 +84,11 @@ export const actions = {
 			redirect(303, `/styles/${styleId}`);
 		}
 	),
-	"update-setting": validateForm(
+	'update-setting': validateForm(
 		z.object({
 			id: z.string(),
-			value: z.string()
+			value: z.string().optional(),
+			comment: z.string().optional()
 		}),
 		async ({ locals, params }, form) => {
 			if (!locals.user) {
@@ -96,10 +98,52 @@ export const actions = {
 			const styleId = params.id;
 			await db
 				.update(styleSettingsTable)
-				.set({ value: form.value })
+				.set({
+					value: form.value,
+					comment: form.comment
+				})
 				.where(eq(styleSettingsTable.id, form.id));
 
-			redirect(303, `/styles/${styleId}`);
+			// redirect(303, `/styles/${styleId}`);
 		}
 	),
+	'update-main': validateForm(
+		z.object({
+			file: z.instanceof(File)
+		}),
+		async ({ locals, params }, form) => {
+			if (!locals.user) {
+				return redirect(302, '/login');
+			}
+
+			const id = params.id;
+
+			if (!id) {
+				error(404, { message: 'Style not found' });
+			}
+
+			const [style] = await db.select().from(stylesTable).where(eq(stylesTable.id, id)).limit(1);
+
+			if (!style) {
+				error(404, { message: 'Style not found' });
+			}
+
+			const content = await form.file.text();
+			const settings = await findAllSettings(content);
+
+			await uploadFile(id, form.file);
+			await db.update(stylesTable).set({ mainFile: id }).where(eq(stylesTable.id, id));
+
+			await db.delete(styleSettingsTable).where(eq(styleSettingsTable.styleId, id));
+			for (const [setting, comment] of settings) {
+				if (setting === undefined || comment === undefined) {
+					continue;
+				}
+
+				await db
+					.insert(styleSettingsTable)
+					.values({ id: generateId(), styleId: id, key: setting, value: '', comment });
+			}
+		}
+	)
 };
