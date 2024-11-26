@@ -11,7 +11,7 @@ services:
       - TMP_DIR=/tmp
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.tex.rule=Host(`${HOST}`) || HOST(`doc.homelab`)"
+      - "traefik.http.routers.tex.rule=Host(`${HOST_DOMAIN}`) || HOST(`doc.homelab`)"
       - "traefik.http.services.tex.loadbalancer.server.port=3000"
     networks:
       - traefik_web
