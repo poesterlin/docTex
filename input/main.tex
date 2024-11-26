@@ -1,8 +1,9 @@
 \documentclass[SETTING_FONTSIZE, paper=SETTING_PAPERSIZE, parskip, oneside]{scrreprt}
 \usepackage[T1]{fontenc}
-\usepackage[settings]{markdown} % Markdown package for including markdown files
+\usepackage[hybrid]{markdown} % Markdown package for including markdown files
 \usepackage[utf8]{inputenc}
 \usepackage{style}
+#IF_SETTING_BIBFILE#\usepackage{biblatex}
 \usepackage{subcaption}
 \usepackage[SETTING_LANGUAGE]{babel} % Spell checking (Using ngerman for german spell checking). The last language is the standard language for the document.
 #IF_SETTING_BIBFILE#\addbibresource{SETTING_BIBFILE}

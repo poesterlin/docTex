@@ -27,7 +27,7 @@ export async function validateSessionToken(sessionId: string) {
 		.innerJoin(userTable, eq(sessionTable.userId, userTable.id))
 		.where(eq(sessionTable.id, sessionId));
 
-	if (!result) {
+	if (!result || result.session.expiresAt.getTime() < Date.now()) {
 		return { session: null, user: null };
 	}
 	const { session, user } = result;
@@ -53,7 +53,11 @@ export async function validateSessionToken(sessionId: string) {
 export type SessionValidationResult = Awaited<ReturnType<typeof validateSessionToken>>;
 
 export async function invalidateSession(sessionId: string) {
-	const [session] = await db.select().from(sessionTable).where(eq(sessionTable.id, sessionId)).limit(1);
+	const [session] = await db
+		.select()
+		.from(sessionTable)
+		.where(eq(sessionTable.id, sessionId))
+		.limit(1);
 	if (session) {
 		await invalidateToken(session);
 		await db.delete(sessionTable).where(eq(sessionTable.id, sessionId));
