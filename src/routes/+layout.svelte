@@ -21,7 +21,7 @@
 					</li>
 				</ul>
 			</nav>
-			<form method="post" action="?/logout" use:enhance>
+			<form method="post" action="/?/logout" use:enhance>
 				<button
 					type="submit"
 					class="rounded-md bg-white px-4 py-2 text-sm font-medium text-indigo-600 shadow hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-600"

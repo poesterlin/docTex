@@ -17,6 +17,7 @@ import { getFileContentString, uploadFileFromPath } from './s3';
 import { unlink } from 'fs/promises';
 import { rmdir } from 'fs/promises';
 import { rm } from 'fs/promises';
+import { removeSpaces } from './drive';
 
 export async function substituteSettings(
 	contents: string,
@@ -107,10 +108,8 @@ export async function writeMainFile(project: Project, style: Style) {
 	const content = await getFileContentString(style.mainFile);
 
 	let res = await substituteSettings(content, settings);
-	res = res.replace('#INCLUDE_CHAPTERS', `\\begin{markdown}
-# Hello!
-\\end{markdown}`);
-	console.log('MAIN FILE:\n', res);
+
+	res = res.replace('#INCLUDE_CHAPTERS', `\\markdownInput{${removeSpaces(project.name)}.md}`);
 
 	const path = join(env.TMP_DIR, project.folderId, 'main.tex');
 	await writeFile(path, res);
@@ -126,25 +125,33 @@ function settingsToObject(settings: any) {
 	return result;
 }
 
-export async function buildTex(project: Project) {
+export async function buildTex(project: Project, id: string) {
 	const path = join(env.TMP_DIR, project.folderId);
 	const command = `/tex/entrypoint.sh`;
 
 	exec(command, { cwd: path }, async (error, stdout, stderr) => {
-		console.log({ stdout, stderr, error });
-
-		const id = generateId();
-		await db.insert(outputTable).values({
-			id,
-			projectId: project.id,
+		const build: Partial<typeof outputTable.$inferInsert> = {
 			timestamp: new Date(),
+			projectId: project.id,
 			logs: stdout,
-			errors: stderr
-		});
+			errors: stderr,
+			running: false,
+		};
 
-		if (!error) {
-			await uploadFileFromPath(id, join(path, 'main.pdf'));
+		// wait for the file to be written
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+
+		const outputPath = join(path, 'main.pdf');
+		const hasOutputFile = await stat(outputPath)
+			.then(() => true)
+			.catch(() => false);
+
+		if (hasOutputFile) {
+			await uploadFileFromPath(id, outputPath);
+			build.fileId = id;
 		}
+		
+		await db.update(outputTable).set(build).where(eq(outputTable.id, id));
 	});
 }
 

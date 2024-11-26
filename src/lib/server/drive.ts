@@ -5,6 +5,7 @@ import { join } from 'path';
 import { type RequiredFile, type Session } from './db/schema';
 import { getAuthClient } from './google';
 import { downloadFile } from './s3';
+import { storeAndReplaceDataImages } from './transform';
 
 const drive = google.drive('v3');
 
@@ -166,8 +167,9 @@ export async function downloadFolder(session: Session, folderId: string, path?: 
 					Authorization: `Bearer ${auth.credentials.access_token}`
 				}
 			});
-			const buffer = await res.arrayBuffer();
-			writeFile(filePath + '.md', Buffer.from(buffer));
+			const text = await res.text();
+			const doc = await storeAndReplaceDataImages(text, path);
+			await writeFile(removeSpaces(filePath) + '.md', doc);
 			continue;
 		}
 
@@ -192,12 +194,12 @@ export async function downloadFolder(session: Session, folderId: string, path?: 
 			}
 		}
 
-		const hasExtensionInFileName = filePath.endsWith(extension);
+		const hasExtensionInFileName = filePath.endsWith('.' + extension);
 		if (!hasExtensionInFileName) {
 			filePath += '.' + extension;
 		}
 
-		await writeFile(filePath, Buffer.from(buffer));
+		await writeFile(removeSpaces(filePath), Buffer.from(buffer));
 	}
 }
 
@@ -212,7 +214,11 @@ export async function getNestedFolderId(session: Session, base: string, path: st
 	return currentFolder;
 }
 
-const fileTypeToExtension: Record<string, string> = {
+export function removeSpaces(str: string) {
+	return str.replace(/\s/g, '_');
+}
+
+export const fileTypeToExtension: Record<string, string> = {
 	'application/vnd.google-apps.document': 'docx',
 	'application/vnd.google-apps.spreadsheet': 'xlsx',
 	'application/vnd.google-apps.presentation': 'pptx',
@@ -232,4 +238,14 @@ const fileTypeToExtension: Record<string, string> = {
 	'text/plain': 'txt',
 	'application/json': 'json',
 	'text/x-java': 'java',
+	'text/x-bibtex': 'bib',
+	'image/jpg': 'jpg',
+	'image/vnd.microsoft.icon': 'ico',
+	'image/vnd.wap.wbmp': 'wbmp',
+	'image/x-xbitmap': 'xbm',
+	'image/x-portable-pixmap': 'ppm',
+	'image/x-portable-graymap': 'pgm',
+	'image/x-portable-bitmap': 'pbm',
+	'image/x-portable-anymap': 'pnm',
+	'image/x-rgb': 'rgb'
 };

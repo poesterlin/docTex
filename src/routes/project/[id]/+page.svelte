@@ -4,6 +4,21 @@
 	let { data }: { data: PageData } = $props();
 	import { enhance } from '$app/forms';
 	import { invalidate } from '$app/navigation';
+
+	const lastSuccessfulBuild = data.outputs.find((build) => build.fileId !== null);
+
+	const intl = Intl.DateTimeFormat('en-US', {
+		year: 'numeric',
+		month: 'short',
+		day: 'numeric',
+		hour: 'numeric',
+		minute: 'numeric',
+		second: 'numeric'
+	});
+
+	function format(timestamp: Date) {
+		return intl.format(timestamp);
+	}
 </script>
 
 <h1 class="mt-8 text-2xl font-semibold">{data.project.name}</h1>
@@ -26,11 +41,67 @@
 	</button>
 </form>
 
+{#if lastSuccessfulBuild}
+	<div class="mt-4 flex w-full justify-center">
+		<a
+			href="/project/{data.project.id}/pdf"
+			class=" inline-block rounded-md bg-green-600 px-6 py-2 text-center font-medium text-white shadow ring-2 ring-green-500 ring-offset-2 hover:bg-green-700 focus:outline-none"
+			target="_blank"
+		>
+			Open Build
+		</a>
+	</div>
+{/if}
+
+{#if data.outputs}
+	<details>
+		<summary class="mt-8 text-lg font-semibold">Builds</summary>
+
+		<ul class="mt-4 space-y-4">
+			{#each data.outputs as build}
+				<li class="rounded-md bg-gray-100 p-4 shadow">
+					<em class="min-w-[30%] font-semibold text-gray-700">{format(build.timestamp)}</em>
+
+					{#if build.running}
+						<p class="animate-pulse text-indigo-600">Running...</p>
+					{:else}
+						<h2>Result</h2>
+						{#if build.errors}
+							<pre class="flex-1 text-red-500">{build.errors}</pre>
+						{/if}
+
+						{#if build.fileId}
+							<a
+								href="/builds/{build.id}"
+								class="flex-1 text-indigo-600"
+								target="_blank"
+								download="{data.project.name}-{build.id.substring(0, 4)}.pdf"
+							>
+								Download PDF
+							</a>
+
+							<a href="/builds/{build.id}" class="flex-1 text-indigo-600" target="_blank">
+								Open PDF
+							</a>
+						{/if}
+
+						<!-- logs -->
+						<details>
+							<summary class="text-indigo-600">Logs</summary>
+							<pre class="flex-1 text-gray-500">{build.logs}</pre>
+						</details>
+					{/if}
+				</li>
+			{/each}
+		</ul>
+	</details>
+{/if}
+
 <h2 class="mt-16 text-xl font-semibold">Files to Customize</h2>
 <ul class="mt-4 space-y-4">
 	{#each data.files as file}
 		<li
-			class="block rounded-lg bg-gray-100 p-3 font-medium text-indigo-600 shadow hover:bg-gray-200 flex items-center justify-between"
+			class="block flex items-center justify-between rounded-lg bg-gray-100 p-3 font-medium text-indigo-600 shadow hover:bg-gray-200"
 		>
 			<span>
 				{file.name}
@@ -40,7 +111,12 @@
 				{file.description}
 			</p>
 
-			<form action="?/openGDFolder" method="POST" class="inline-block border text-indigo-600 border-2 border-indigo-600 px-4 rounded shadow hover:bg-indigo-600 hover:text-white" use:enhance>
+			<form
+				action="?/openGDFolder"
+				method="POST"
+				class="inline-block rounded border border-2 border-indigo-600 px-4 text-indigo-600 shadow hover:bg-indigo-600 hover:text-white"
+				use:enhance
+			>
 				<input type="hidden" name="fileId" value={file.id} />
 				<button type="submit"> Show </button>
 			</form>
@@ -50,6 +126,8 @@
 				<button type="submit" class="text-red-600"> Reset </button>
 			</form>
 		</li>
+	{:else}
+		<li class="text-gray-500">No files to customize</li>
 	{/each}
 </ul>
 
@@ -93,5 +171,16 @@
 				<input type="submit" hidden />
 			</form>
 		</li>
+	{:else}
+		<li class="text-gray-500">No settings to customize</li>
 	{/each}
 </ul>
+
+<form action="?/delete" method="POST">
+	<button
+		type="submit"
+		class="mt-8 w-full rounded-md bg-red-600 px-4 py-2 font-medium text-white shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+	>
+		Delete Project
+	</button>
+</form>

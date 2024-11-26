@@ -16,15 +16,17 @@ export async function uploadFile(sha: string, file: File) {
 	await client.putObject(MINIO_BUCKET, sha, buffer);
 }
 
-export async function getFileResponseStream(sha: string) {
-	const { size } = await client.statObject(MINIO_BUCKET, sha);
+export async function getFileResponseStream(sha: string, asDownload: boolean = false) {
+	const { size, metaData } = await client.statObject(MINIO_BUCKET, sha);
 	const stream = await client.getObject(MINIO_BUCKET, sha);
 
 	// @ts-expect-error - missing types
 	return new Response(stream, {
 		headers: {
 			'content-size': size,
-			'content-type': 'image/webp'
+			'content-type': metaData['content-type'], 
+			'content-disposition': asDownload ? 'attachment' : 'inline',
+			// 'cache-control': 'public, max-age=31536000, immutable',
 		}
 	});
 }

@@ -1,4 +1,4 @@
-import { date, integer, pgTable, text, time, timestamp } from 'drizzle-orm/pg-core';
+import { boolean, date, integer, pgTable, text, time, timestamp } from 'drizzle-orm/pg-core';
 
 const fullCascade = { onDelete: 'cascade', onUpdate: 'cascade' } as const;
 
@@ -80,5 +80,7 @@ export const outputTable = pgTable('output', {
 		.notNull()
 		.references(() => projectTable.id, fullCascade),
 	logs: text('logs').notNull(),
-	errors: text('errors').notNull()
+	errors: text('errors').notNull(),
+	running: boolean('running').notNull().default(false),
+	fileId: text('file_id'),
 });

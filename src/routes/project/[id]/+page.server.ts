@@ -1,4 +1,4 @@
-import { validateForm } from '$lib';
+import { generateId, validateForm } from '$lib';
 import { db } from '$lib/server/db';
 import {
 	outputTable,
@@ -15,7 +15,7 @@ import {
 	getNestedFolderId
 } from '$lib/server/drive';
 import { error, redirect } from '@sveltejs/kit';
-import { and, eq } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import { z } from 'zod';
 import type { Actions, PageServerLoad } from './$types';
 import { buildTex, clearFolder, downloadStyleFiles, writeMainFile } from '$lib/server/tex';
@@ -60,7 +60,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	const outputs = await db
 		.select()
 		.from(outputTable)
-		.where(eq(outputTable.projectId, id));
+		.where(eq(outputTable.projectId, id))
+		.orderBy(desc(outputTable.timestamp));
 
 	return { project, style, files, settings, outputs };
 };
@@ -129,13 +130,25 @@ export const actions: Actions = {
 		if (!style) {
 			error(404, { message: 'Style not found' });
 		}
+
+		const buildId = generateId();
+		await db.update(outputTable).set({ running: false }).where(eq(outputTable.projectId, id));
+		await db.insert(outputTable).values({
+			id: buildId,
+			projectId: id,
+			timestamp: new Date(),
+			logs: '',
+			errors: '',
+			running: true
+		});
+
 		await clearFolder(project);
 
 		await downloadFolder(locals.session, project.folderId);
 		await downloadStyleFiles(project, style);
 		await writeMainFile(project, style);
 
-		await buildTex(project);
+		await buildTex(project, buildId);
 	},
 	'update-setting': validateForm(
 		z.object({
@@ -217,5 +230,29 @@ export const actions: Actions = {
 
 			redirect(302, url);
 		}
-	)
+	),
+	delete: async ({ locals, params }) => {
+		if (!locals.user || !locals.session) {
+			return redirect(302, '/login');
+		}
+
+		const projectId = params.id;
+		if (!projectId) {
+			error(400, { message: 'Invalid project ID' });
+		}
+
+		const [project] = await db
+			.select()
+			.from(projectTable)
+			.where(and(eq(projectTable.id, projectId), eq(projectTable.userId, locals.user.id)))
+			.limit(1);
+
+		if (!project) {
+			error(404, { message: 'Project not found' });
+		}
+
+		await clearFolder(project);
+		await db.delete(projectTable).where(eq(projectTable.id, projectId));
+		redirect(302, '/');
+	}
 };
