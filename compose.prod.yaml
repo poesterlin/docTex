@@ -1,0 +1,21 @@
+services:
+  tex:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file: .env
+    restart: unless-stopped
+    environment:
+      - INPUT_ROOT_FILE=main.tex
+      - INPUT_CONTINUE_ON_ERROR=true
+      - TMP_DIR=/tmp
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.tex.rule=Host(`${HOST}`)"
+      - "traefik.http.services.tex.loadbalancer.server.port=3000"
+    networks:
+      - traefik_web
+
+networks:
+  traefik_web:
+    external: true
