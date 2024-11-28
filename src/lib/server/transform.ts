@@ -97,8 +97,6 @@ export function convertTables(document: string) {
 	convertMdTablesToTex(ast);
 
 	const output = toMarkdown(ast);
-
-	console.log({ output, input: document });
 	return output;
 }
 

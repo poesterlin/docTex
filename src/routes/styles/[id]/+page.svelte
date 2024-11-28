@@ -1,9 +1,15 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { invalidate } from '$app/navigation';
+	import { handleSettingsSubmit } from '$lib/client/utils';
 	import type { PageServerData } from './$types';
 
 	let { data }: { data: PageServerData } = $props();
+
+	function submit(event: Event) {
+		const input = event.target as HTMLInputElement;
+		const form = input.form as HTMLFormElement;
+		handleSettingsSubmit(form);
+	}
 </script>
 
 <h1 class="mb-4 text-3xl font-bold">
@@ -13,7 +19,7 @@
 <details class="mb-4">
 	<summary class="cursor-pointer select-none text-lg text-indigo-600"> Edit Style</summary>
 	<form
-		class="mx-auto mb-6 max-w-md space-y-4 rounded-lg bg-white p-6 shadow-md"
+		class="mx-auto mt-8 max-w-md space-y-4 rounded-lg border-2 border-gray-200 bg-white p-6 shadow-md"
 		use:enhance
 		method="POST"
 		action="?/addFile"
@@ -59,7 +65,7 @@
 
 		<div class="flex items-center justify-between">
 			<label for="override" class="block flex-1 py-4 text-sm font-medium text-gray-700">
-				Should the file be overridden?
+				Should the file be overridden by the project?
 			</label>
 			<input type="checkbox" name="override" id="override" class="mr-2" />
 		</div>
@@ -86,7 +92,7 @@
 		action="?/update-main"
 		method="POST"
 		enctype="multipart/form-data"
-		class="mx-auto mb-6 max-w-md space-y-4 rounded-lg bg-white p-6 shadow-md"
+		class="mx-auto mt-8 max-w-md space-y-4 rounded-lg border-2 border-gray-200 bg-white p-6 shadow-md"
 		use:enhance
 	>
 		<h2 class="text-xl font-semibold">Update Main File</h2>
@@ -94,7 +100,7 @@
 			for="main"
 			class="block w-full rounded-md bg-sky-500 px-4 py-2 text-center font-medium text-white shadow hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
 		>
-			Upload Main File
+			New Main File
 			<input id="main" type="file" name="file" class="hidden" required accept=".tex" />
 		</label>
 
@@ -139,7 +145,7 @@
 			</form>
 		</li>
 	{:else}
-		<li class="text-gray-500">No files found</li>
+		<li class="text-gray-500">No files added</li>
 	{/each}
 </ul>
 
@@ -147,24 +153,13 @@
 <p>These are the default settings for this style. They can be overridden by the users project.</p>
 
 <ul class="mt-4 space-y-4">
-	{#each data.settings as setting}
+	{#each data.settings as setting (setting.id)}
 		<li class="flex items-center space-x-4 rounded-md bg-gray-100 p-4 shadow">
 			<em class="min-w-[30%] font-semibold text-gray-700">{setting.key}</em>
 			<form
 				action="?/update-setting"
 				method="post"
-				use:enhance={({ formElement }) => {
-					const scroll = window.scrollY;
-					return async () => {
-						const path = '/styles/{data.style.id}';
-						await invalidate(path);
-						window.scrollTo(0, scroll);
-						// @ts-ignore
-						formElement.firstChild?.focus();
-
-						// TODO: add a toast message that the setting was updated
-					};
-				}}
+				onsubmit={handleSettingsSubmit}
 				class="flex flex-1 items-center space-x-2"
 			>
 				<input type="hidden" name="id" value={setting.id} />
@@ -174,6 +169,7 @@
 					value={setting.value}
 					placeholder="Value"
 					class="flex-1 rounded-md border border-gray-300 p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+					onblur={submit}
 				/>
 				<input
 					type="text"
@@ -181,6 +177,7 @@
 					value={setting.comment}
 					placeholder="Comment"
 					class="flex-1 rounded-md border border-gray-300 p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+					onblur={submit}
 				/>
 				<input type="submit" hidden />
 			</form>

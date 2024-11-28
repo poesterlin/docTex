@@ -106,19 +106,31 @@ export const actions: Actions = {
 			redirect(302, '/login');
 		}
 
+		
 		const { id } = params;
 		if (!id) {
 			error(400, { message: 'Invalid project ID' });
 		}
-
+		
 		const [project] = await db
-			.select()
-			.from(projectTable)
-			.where(and(eq(projectTable.id, id), eq(projectTable.userId, locals.user.id)))
-			.limit(1);
-
+		.select()
+		.from(projectTable)
+		.where(and(eq(projectTable.id, id), eq(projectTable.userId, locals.user.id)))
+		.limit(1);
+		
 		if (!project) {
 			error(404, { message: 'Project not found' });
+		}
+
+		const [lastBuild] = await db
+			.select()
+			.from(outputTable)
+			.where(eq(outputTable.projectId, id))
+			.orderBy(desc(outputTable.timestamp))
+			.limit(1);
+
+		if (lastBuild && lastBuild.running) {
+			error(400, { message: 'Build already running' });
 		}
 
 		const [style] = await db
@@ -142,7 +154,10 @@ export const actions: Actions = {
 			running: true
 		});
 
-		await clearFolder(project);
+		// Clear folder if last build was not successful, preserving cache
+		if (lastBuild && !lastBuild.fileId) {
+			await clearFolder(project);
+		}
 
 		await downloadFolder(locals.session, project.folderId);
 		await downloadStyleFiles(project, style);
@@ -254,5 +269,51 @@ export const actions: Actions = {
 		await clearFolder(project);
 		await db.delete(projectTable).where(eq(projectTable.id, projectId));
 		redirect(302, '/');
+	},
+	resetSettings: async ({ locals, params }) => {
+		if (!locals.user || !locals.session) {
+			return redirect(302, '/login');
+		}
+
+		const projectId = params.id;
+		if (!projectId) {
+			error(400, { message: 'Invalid project ID' });
+		}
+
+		const [project] = await db
+			.select()
+			.from(projectTable)
+			.where(and(eq(projectTable.id, projectId), eq(projectTable.userId, locals.user.id)))
+			.limit(1);
+
+		if (!project) {
+			error(404, { message: 'Project not found' });
+		}
+
+		const [style] = await db
+			.select()
+			.from(stylesTable)
+			.where(eq(stylesTable.id, project.styleId))
+			.limit(1);
+
+		if (!style) {
+			error(404, { message: 'Style not found' });
+		}
+
+		await db.delete(projectSettingsTable).where(eq(projectSettingsTable.projectId, projectId));
+		const settings = await db
+			.select()
+			.from(styleSettingsTable)
+			.where(eq(styleSettingsTable.styleId, style.id));
+
+	
+		for (const setting of settings) {
+			await db.insert(projectSettingsTable).values({
+				id: generateId(),
+				projectId,
+				setting: setting.id,
+				value: setting.value
+			});
+		}
 	}
 };

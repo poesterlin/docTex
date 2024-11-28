@@ -170,7 +170,6 @@ export async function downloadFolder(session: Session, folderId: string, path?: 
 			const text = await res.text();
 			let doc = await storeAndReplaceDataImages(text, path);
 			doc = convertTables(doc);
-			console.log(doc);
 			await writeFile(removeSpaces(filePath) + '.md', doc);
 			continue;
 		}

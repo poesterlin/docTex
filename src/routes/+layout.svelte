@@ -2,6 +2,9 @@
 	import { enhance } from '$app/forms';
 	import '../app.css';
 	import type { LayoutServerData } from './$types';
+	import { page } from '$app/stores';
+	import { toastStore } from '$lib/client/toast.svelte';
+
 	let { children, data }: { children: any; data: LayoutServerData } = $props();
 </script>
 
@@ -12,7 +15,7 @@
 				Logged in as <span class="font-bold">{data.user.username}</span>
 			</p>
 			<nav>
-				<ul class="flex space-x-4">
+				<ul class="flex gap-4">
 					<li>
 						<a href="/" class="hover:underline">Projects</a>
 					</li>
@@ -29,10 +32,34 @@
 					Sign out
 				</button>
 			</form>
+		{:else}
+			<nav>
+				<ul class="flex gap-4">
+					<li>
+						<a href="/styles">Styles</a>
+					</li>
+					{#if $page.route.id !== '/login'}
+						<li>
+							<a href="/login">Login</a>
+						</li>
+					{/if}
+				</ul>
+			</nav>
 		{/if}
 	</div>
 </header>
 
 <main class="container mx-auto p-6">
 	{@render children()}
+
+	{#each toastStore.toasts as toast (toast.id)}
+		<div class="fixed bottom-4 right-4">
+			<div
+				class="rounded-md border-l-4 border-indigo-600 bg-white p-4 shadow-md"
+				style="min-width: 300px"
+			>
+				<p class="font-medium">{toast.message}</p>
+			</div>
+		</div>
+	{/each}
 </main>

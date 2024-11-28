@@ -13,7 +13,10 @@ const client = new Client({
 
 export async function uploadFile(sha: string, file: File) {
 	const buffer = Buffer.from(await file.arrayBuffer());
-	await client.putObject(MINIO_BUCKET, sha, buffer);
+	const metaData = {
+		'content-type': file.type,
+	};
+	await client.putObject(MINIO_BUCKET, sha, buffer, undefined, metaData);
 }
 
 export async function getFileResponseStream(sha: string, asDownload: boolean = false) {
@@ -24,8 +27,8 @@ export async function getFileResponseStream(sha: string, asDownload: boolean = f
 	return new Response(stream, {
 		headers: {
 			'content-size': size,
-			'content-type': metaData['content-type'], 
-			'content-disposition': asDownload ? 'attachment' : 'inline',
+			'content-type': metaData['content-type'],
+			'content-disposition': asDownload ? 'attachment' : 'inline'
 			// 'cache-control': 'public, max-age=31536000, immutable',
 		}
 	});

@@ -1,9 +1,11 @@
 <script lang="ts">
+	import { applyAction, deserialize, enhance } from '$app/forms';
+	import { invalidateAll } from '$app/navigation';
+	import { toastStore } from '$lib/client/toast.svelte';
+	import { handleSettingsSubmit } from '$lib/client/utils';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
-	import { enhance } from '$app/forms';
-	import { invalidate } from '$app/navigation';
 
 	const lastSuccessfulBuild = data.outputs.find((build) => build.fileId !== null);
 
@@ -19,6 +21,13 @@
 	function format(timestamp: Date) {
 		return intl.format(timestamp);
 	}
+
+	function submit(event: Event) {
+		const input = event.target as HTMLInputElement;
+		const form = input.form as HTMLFormElement;
+		handleSettingsSubmit(form);
+	}
+
 </script>
 
 <h1 class="mt-8 text-2xl font-semibold">{data.project.name}</h1>
@@ -133,24 +142,13 @@
 
 <h2 class="mt-16 text-xl font-semibold">Settings to Customize</h2>
 <ul class="mt-4 space-y-4">
-	{#each data.settings as setting}
+	{#each data.settings as setting (setting.id)}
 		<li class="flex items-center space-x-4 rounded-md bg-gray-100 p-4 shadow">
 			<em class="min-w-[30%] font-semibold text-gray-700">{setting.key}</em>
 			<form
 				action="?/update-setting"
 				method="post"
-				use:enhance={({ formElement }) => {
-					const scroll = window.scrollY;
-					return async () => {
-						const path = `/project/[id]`;
-						await invalidate(path);
-						window.scrollTo(0, scroll);
-						// @ts-ignore
-						formElement.firstChild?.focus();
-
-						// TODO: add a toast message that the setting was updated
-					};
-				}}
+				onsubmit={handleSettingsSubmit}
 				class="flex flex-1 items-center space-x-2"
 			>
 				<input type="hidden" name="id" value={setting.id} />
@@ -160,6 +158,7 @@
 					value={setting.value}
 					placeholder="Value"
 					class="flex-1 rounded-md border border-gray-300 p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+					onblur={submit}
 				/>
 				<input
 					type="text"
@@ -167,6 +166,7 @@
 					value={setting.comment}
 					placeholder="Comment"
 					class="flex-1 rounded-md border border-gray-300 p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+					onblur={submit}
 				/>
 				<input type="submit" hidden />
 			</form>
@@ -175,6 +175,15 @@
 		<li class="text-gray-500">No settings to customize</li>
 	{/each}
 </ul>
+
+<form action="?/resetSettings" method="POST">
+	<button
+		type="submit"
+		class="mt-8 rounded-md bg-slate-500 px-4 py-2 font-medium text-white shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+	>
+		Reset Settings
+	</button>
+</form>
 
 <form action="?/delete" method="POST">
 	<button

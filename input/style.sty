@@ -50,6 +50,10 @@
 % Define \reviewer command
 \newcommand{\reviewer}[1]{\def\@reviewer{#1}}
 \newcommand{\@reviewer}{}
+% Define \city command
+\newcommand{\city}[1]{\def\@city{#1}}
+\newcommand{\@city}{}
+
 %
 % ============ Title page =============
 %
@@ -62,7 +66,7 @@
 \Large\@author\ (\@studentno)}\\[.5cm]
 {\large\sffamily at the}
 \vfill
-\resizebox{.6\linewidth}{!}{\includegraphics{figures/logo.pdf}}\\[.4cm]
+\resizebox{.6\linewidth}{!}{\includegraphics{figures/logo.jpg}}\\[.4cm]
 \vfill
 {\large\sffamily\@group~Group}\\[.5cm]
 {\large\sffamily Department of \@department}\\[1cm]
@@ -70,7 +74,7 @@
 Advisor: & \@advisor\\[.5cm]
 Reviewer: & \@reviewer
 \end{tabular}}\\[1cm]
-{\large\sffamily Konstanz, \@date}
+{\large\sffamily \@city, \@date}
 \end{center}
 \end{titlepage}
 }

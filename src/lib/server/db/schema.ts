@@ -1,3 +1,4 @@
+import { desc } from 'drizzle-orm';
 import { boolean, date, integer, pgTable, text, time, timestamp } from 'drizzle-orm/pg-core';
 
 const fullCascade = { onDelete: 'cascade', onUpdate: 'cascade' } as const;
@@ -24,7 +25,8 @@ export type Session = typeof sessionTable.$inferSelect;
 export const stylesTable = pgTable('styles', {
 	id: text('id').primaryKey(),
 	name: text('name').notNull(),
-	mainFile: text('main_file').notNull()
+	mainFile: text('main_file').notNull(),
+	description: text('description').notNull(),
 });
 
 export type Style = typeof stylesTable.$inferSelect;
@@ -42,7 +44,7 @@ export const projectSettingsTable = pgTable('project_settings', {
 	setting: text('setting')
 		.notNull()
 		.references(() => styleSettingsTable.id, fullCascade),
-	projectId: text('project_id').references(() => projectTable.id, fullCascade),
+	projectId: text('project_id').notNull().references(() => projectTable.id, fullCascade),
 	value: text('value').notNull()
 });
 

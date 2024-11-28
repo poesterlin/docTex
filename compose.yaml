@@ -11,3 +11,5 @@ services:
       - INPUT_ROOT_FILE=main.tex
       - INPUT_CONTINUE_ON_ERROR=true
       - TMP_DIR=/tmp
+    volumes:
+      - ./tmp:/tmp

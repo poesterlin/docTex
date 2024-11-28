@@ -6,13 +6,9 @@ import { findAllSettings } from '$lib/server/tex.js';
 import { redirect } from '@sveltejs/kit';
 import { z } from 'zod';
 import type { PageServerLoad } from './$types';
-import { eq } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 
-export const load: PageServerLoad = async ({ locals }) => {
-	if (!locals.user) {
-		return redirect(302, '/login');
-	}
-
+export const load: PageServerLoad = async () => {
 	const styles = await db.select().from(stylesTable);
 
 	return { styles };
@@ -22,7 +18,8 @@ export const actions = {
 	setup: validateForm(
 		z.object({
 			name: z.string().min(3),
-			file: z.instanceof(File)
+			file: z.instanceof(File),
+			description: z.string().min(3),
 		}),
 		async ({ locals }, form) => {
 			if (!locals.user) {
@@ -35,7 +32,9 @@ export const actions = {
 			const settings = await findAllSettings(content);
 
 			await uploadFile(id, form.file);
-			await db.insert(stylesTable).values({ id, name: form.name, mainFile: id });
+			await db
+				.insert(stylesTable)
+				.values({ id, name: form.name, mainFile: id, description: form.description });
 
 			await db.delete(styleSettingsTable).where(eq(styleSettingsTable.styleId, id));
 			for (const [setting, comment] of settings) {
