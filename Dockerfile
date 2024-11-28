@@ -12,17 +12,10 @@ RUN bun run build
 
 #########################################################
 
-FROM alpine:latest as tex
-
-ENV PATH="/opt/texlive/texdir/bin/x86_64-linuxmusl:${PATH}"
+FROM ghcr.io/xu-cheng/texlive-full:latest as tex
 
 WORKDIR /tex
 COPY --chmod=777 tex/ ./
-
-# this takes a long time to run, so we cache it
-RUN cd /tex && \
-  sed -i 's/\r$//' ./setup.sh && \
-  ./setup.sh full
 
 RUN apk update && \
     apk add --no-cache nodejs
