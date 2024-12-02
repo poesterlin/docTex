@@ -65,7 +65,31 @@
 </main>
 
 <style>
-	:global(html) {
+	:global(body) {
 		font-family: Fraunces, sans-serif;
+		position: relative;
+		background: black;
+		padding-bottom: 100vh;
+		color: white;
 	}
+	
+	:global(body::before) {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: url('/noise.webp') repeat;
+		background-size: 500px;
+		opacity: 0.6;
+		filter: saturate(0) invert(0.95) blur(1px);
+		z-index: -1;
+	}
+
+	:global(input),
+	:global(select),
+	:global(a),
+	:global(textarea),
+	:global(button) {
+		background: none;
+	}
+
 </style>
