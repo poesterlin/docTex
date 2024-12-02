@@ -63,3 +63,9 @@
 		</div>
 	{/each}
 </main>
+
+<style>
+	:global(html) {
+		font-family: Fraunces, sans-serif;
+	}
+</style>
