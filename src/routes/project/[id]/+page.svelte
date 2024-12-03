@@ -27,15 +27,14 @@
 		const form = input.form as HTMLFormElement;
 		handleSettingsSubmit(form);
 	}
-
 </script>
 
 <h1 class="mt-8 text-2xl font-semibold">{data.project.name}</h1>
 <nav class="mt-4 space-x-4">
-	<a href="/styles/{data.style.id}" class="text-indigo-600">Style: {data.style.name}</a>
+	<a href="/styles/{data.style.id}" class="text-indigo-400">Style: {data.style.name}</a>
 	<a
 		href="https://drive.google.com/drive/folders/{data.project.folderId}"
-		class="text-indigo-600"
+		class="text-gray-300"
 		target="_blank"
 		rel="noopener noreferrer">Open Google Drive Folder</a
 	>
@@ -44,7 +43,7 @@
 <form action="?/build" method="POST" use:enhance class="mt-8">
 	<button
 		type="submit"
-		class="w-full rounded-md bg-sky-600 px-4 py-2 font-medium text-white shadow hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+		class="w-full rounded-md bg-gray-800 px-4 py-2 font-medium text-white shadow hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
 	>
 		Build Project
 	</button>
@@ -54,7 +53,7 @@
 	<div class="mt-4 flex w-full justify-center">
 		<a
 			href="/project/{data.project.id}/pdf"
-			class=" inline-block rounded-md bg-green-600 px-6 py-2 text-center font-medium text-white shadow ring-2 ring-green-500 ring-offset-2 hover:bg-green-700 focus:outline-none"
+			class="inline-block rounded-md bg-gray-800 px-6 py-2 text-center font-medium text-white shadow ring-2 ring-gray-500 ring-offset-2 hover:bg-gray-700 focus:outline-none"
 			target="_blank"
 		>
 			Open Build
@@ -68,36 +67,38 @@
 
 		<ul class="mt-4 space-y-4">
 			{#each data.outputs as build}
-				<li class="rounded-md bg-gray-100 p-4 shadow">
-					<em class="min-w-[30%] font-semibold text-gray-700">{format(build.timestamp)}</em>
+				<li class="flex flex-col gap-4 rounded-md bg-gray-800 p-4 text-white shadow">
+					<em class="min-w-[30%] font-semibold text-gray-300">{format(build.timestamp)}</em>
 
 					{#if build.running}
-						<p class="animate-pulse text-indigo-600">Running...</p>
+						<p class="animate-pulse text-indigo-400">Running...</p>
 					{:else}
-						<h2>Result</h2>
-						{#if build.errors}
-							<pre class="flex-1 text-red-500">{build.errors}</pre>
-						{/if}
-
 						{#if build.fileId}
 							<a
 								href="/builds/{build.id}"
-								class="flex-1 text-indigo-600"
+								class="flex-1 rounded-md bg-gray-700 p-4 text-indigo-600 shadow hover:bg-gray-600"
 								target="_blank"
 								download="{data.project.name}-{build.id.substring(0, 4)}.pdf"
 							>
 								Download PDF
 							</a>
 
-							<a href="/builds/{build.id}" class="flex-1 text-indigo-600" target="_blank">
+							<a
+								href="/builds/{build.id}"
+								class="flex-1 rounded-md bg-gray-700 p-4 text-indigo-600 text-indigo-600 shadow hover:bg-gray-600"
+								target="_blank"
+							>
 								Open PDF
 							</a>
+						{:else if build.errors}
+							<pre class="flex-1 text-red-500">{build.errors}</pre>
 						{/if}
 
 						<!-- logs -->
 						<details>
-							<summary class="text-indigo-600">Logs</summary>
-							<pre class="flex-1 text-gray-500">{build.logs}</pre>
+							<summary class="mb-2 text-indigo-600">Logs</summary>
+							<pre
+								class="max-h-[50svh] flex-1 overflow-y-scroll rounded-md bg-black p-4 text-gray-500">{build.logs}</pre>
 						</details>
 					{/if}
 				</li>
@@ -106,24 +107,24 @@
 	</details>
 {/if}
 
-<h2 class="mt-16 text-xl font-semibold">Files to Customize</h2>
+<h2 class="mt-16 text-xl font-semibold text-white">Files to Customize</h2>
 <ul class="mt-4 space-y-4">
 	{#each data.files as file}
 		<li
-			class="block flex items-center justify-between rounded-lg bg-gray-100 p-3 font-medium text-indigo-600 shadow hover:bg-gray-200"
+			class="block flex items-center justify-between rounded-lg bg-gray-800 p-3 font-medium text-white shadow hover:bg-gray-700"
 		>
 			<span>
 				{file.name}
 			</span>
 
-			<p class="text-gray-500">
+			<p class="text-gray-400">
 				{file.description}
 			</p>
 
 			<form
 				action="?/openGDFolder"
 				method="POST"
-				class="inline-block rounded border border-2 border-indigo-600 px-4 text-indigo-600 shadow hover:bg-indigo-600 hover:text-white"
+				class="inline-block rounded border border-2 border-gray-600 px-4 text-gray-300 shadow hover:bg-gray-600 hover:text-white"
 				use:enhance
 			>
 				<input type="hidden" name="fileId" value={file.id} />
@@ -132,19 +133,19 @@
 
 			<form action="?/reset" class="inline-block" method="POST" use:enhance>
 				<input type="hidden" name="fileId" value={file.id} />
-				<button type="submit" class="text-red-600"> Reset </button>
+				<button type="submit" class="text-red-600 hover:text-red-400"> Reset </button>
 			</form>
 		</li>
 	{:else}
-		<li class="text-gray-500">No files to customize</li>
+		<li class="text-gray-400">No files to customize</li>
 	{/each}
 </ul>
 
-<h2 class="mt-16 text-xl font-semibold">Settings to Customize</h2>
+<h2 class="mt-16 text-xl font-semibold text-white">Settings to Customize</h2>
 <ul class="mt-4 space-y-4">
 	{#each data.settings as setting (setting.id)}
-		<li class="flex items-center space-x-4 rounded-md bg-gray-100 p-4 shadow">
-			<em class="min-w-[30%] font-semibold text-gray-700">{setting.key}</em>
+		<li class="flex items-center space-x-4 rounded-md bg-gray-800 p-4 text-white shadow">
+			<em class="min-w-[30%] font-semibold text-gray-300">{setting.key}</em>
 			<form
 				action="?/update-setting"
 				method="post"
@@ -157,7 +158,7 @@
 					name="value"
 					value={setting.value}
 					placeholder="Value"
-					class="flex-1 rounded-md border border-gray-300 p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+					class="flex-1 rounded-md border border-gray-600 bg-gray-700 p-2 text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
 					onblur={submit}
 				/>
 				<input
@@ -165,14 +166,14 @@
 					name="comment"
 					value={setting.comment}
 					placeholder="Comment"
-					class="flex-1 rounded-md border border-gray-300 p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+					class="flex-1 rounded-md border border-gray-600 bg-gray-700 p-2 text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
 					onblur={submit}
 				/>
 				<input type="submit" hidden />
 			</form>
 		</li>
 	{:else}
-		<li class="text-gray-500">No settings to customize</li>
+		<li class="text-gray-400">No settings to customize</li>
 	{/each}
 </ul>
 

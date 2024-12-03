@@ -9,25 +9,25 @@
 	action="?/setup"
 	method="POST"
 	use:enhance
-	class="mx-auto max-w-md rounded-lg border-2 border-gray-200 bg-white p-6 shadow-md"
+	class="mx-auto max-w-md rounded-lg border-2 border-gray-700 bg-gray-800 p-6 shadow-md"
 >
-	<label for="name" class="block text-sm font-medium text-gray-700"> New Project: </label>
+	<label for="name" class="block text-sm font-medium text-gray-300"> New Project: </label>
 	<input
 		required
 		type="text"
 		name="name"
 		id="name"
-		class="my-4 block w-full rounded-md border-2 p-4 shadow-sm outline-none focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+		class="my-4 block w-full rounded-md border-2 border-gray-700 bg-gray-800 p-4 text-gray-300 placeholder-gray-500 shadow-sm outline-none focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
 		placeholder="Project Name"
 	/>
-	<p class="my-2 px-4 text-sm text-gray-500">
+	<p class="my-2 px-4 text-sm text-gray-400">
 		This will also create a folder in your Google Drive with the same name.
 	</p>
 	<select
 		required
 		name="styleId"
 		id="style"
-		class="my-4 w-full rounded-md border-2 p-4 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+		class="my-4 w-full rounded-md border-2 border-gray-700 bg-gray-800 p-4 text-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
 	>
 		<option selected disabled>Select a style</option>
 		{#each data.styles as style}
@@ -37,7 +37,7 @@
 
 	<button
 		type="submit"
-		class="w-full rounded-md bg-indigo-600 px-4 py-2 font-medium text-white shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+		class="w-full rounded-md bg-gray-700 px-4 py-2 font-medium text-gray-300 shadow hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
 	>
 		Setup
 	</button>
@@ -49,7 +49,7 @@
 		<li>
 			<a
 				href="/project/{projects.id}"
-				class="block rounded-lg bg-gray-100 p-3 font-medium text-indigo-600 shadow hover:bg-gray-200"
+				class="block rounded-lg bg-gray-800 p-3 font-medium text-gray-300 shadow hover:bg-gray-700"
 			>
 				{projects.name}
 			</a>

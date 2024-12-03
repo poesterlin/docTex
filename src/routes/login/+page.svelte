@@ -2,10 +2,10 @@
 	import { enhance } from '$app/forms';
 </script>
 
-<section class="flex flex-col items-center justify-center h-screen space-y-4">
-	<h1 class="mb-4 text-3xl font-bold">Login</h1>
+<section class="flex h-screen flex-col items-center justify-center space-y-4">
+	<h1 class="mb-4 text-3xl font-bold text-white">Login</h1>
 
-	<p class="text-gray-600 w-96 text-center">
+	<p class="w-96 text-center text-gray-300">
 		This application uses Google Drive as a Data store. Please login with your Google account to
 		continue.
 	</p>
