@@ -5,7 +5,7 @@ import { join } from 'path';
 import { type RequiredFile, type Session } from './db/schema';
 import { getAuthClient } from './google';
 import { downloadFile } from './s3';
-import { convertTables, storeAndReplaceDataImages } from './transform';
+import { storeAndReplaceDataImages } from './transform';
 
 const drive = google.drive('v3');
 
@@ -168,8 +168,7 @@ export async function downloadFolder(session: Session, folderId: string, path?: 
 				}
 			});
 			const text = await res.text();
-			let doc = await storeAndReplaceDataImages(text, path);
-			doc = convertTables(doc);
+			const doc = await storeAndReplaceDataImages(text, path);
 			await writeFile(removeSpaces(filePath) + '.md', doc);
 			continue;
 		}

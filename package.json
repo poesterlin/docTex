@@ -37,11 +37,6 @@
     "@sveltejs/adapter-node": "^5.2.9",
     "drizzle-orm": "^0.36.4",
     "googleapis": "^144.0.0",
-    "mdast": "^3.0.0",
-    "mdast-util-from-markdown": "^2.0.2",
-    "mdast-util-gfm-table": "^2.0.0",
-    "mdast-util-to-markdown": "^2.1.2",
-    "micromark-extension-gfm-table": "^2.1.0",
     "minio": "^8.0.2",
     "postgres": "^3.4.4",
     "zod": "^3.23.8"

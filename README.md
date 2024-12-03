@@ -1,6 +1,6 @@
 # DocTex
 
-This is a simple platform to simplify the creation of high-quality documents in LaTeX, without ever having to write a single line of LaTeX code. It is designed to be as simple as possible, while still providing a wide range of features. It is perfect for students, researchers, and professionals who need to create documents quickly and easily. Just write your content in a Google Docs, the rest is done for you.
+This is a simple platform to simplify the creation of high-quality documents in LaTeX, without ever having to write a single line of LaTeX code. It is designed to be as simple as possible, while still providing a wide range of features. It is perfect for students, researchers, and professionals who need to create documents quickly and easily. Just write your content in a Google Doc, the rest is done for you.
 
 
 ## Features
@@ -36,11 +36,13 @@ If you would like to contribute to DocTex, please fork the repository and submit
 - [ ] Add support for Tables
 - [ ] Add an option to input content directly, without using Google Docs
 - [ ] Handle not having full access to the Google Drive API
+- [ ] Allow user to abort the document generation process
 - [ ] Improve design and user experience
 - [ ] Add support to split chapters into separate files
 - [ ] Document how to create custom templates as a power user
 - [ ] Add support for webhooks to trigger document generation
 - [ ] Auto update build status
+- [ ] Share output files by authorized link
 - [ ] Separate the builder process from the server
 - [ ] Document Minio Blob Storage setup
 - [ ] Add support for git repositories

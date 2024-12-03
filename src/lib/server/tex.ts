@@ -1,5 +1,4 @@
 import { env } from '$env/dynamic/private';
-import { generateId } from '$lib';
 import { exec } from 'child_process';
 import { eq } from 'drizzle-orm';
 import { mkdir, stat, writeFile } from 'fs/promises';
@@ -14,9 +13,7 @@ import {
 	styleSettingsTable
 } from './db/schema';
 import { getFileContentString, uploadFileFromPath } from './s3';
-import { unlink } from 'fs/promises';
-import { rmdir } from 'fs/promises';
-import { rm } from 'fs/promises';
+import { rm, readFile } from 'fs/promises';
 import { removeSpaces } from './drive';
 
 export async function substituteSettings(
@@ -109,7 +106,20 @@ export async function writeMainFile(project: Project, style: Style) {
 
 	let res = await substituteSettings(content, settings);
 
-	res = res.replace('#INCLUDE_CHAPTERS', `\\markdownInput{${removeSpaces(project.name)}.md}`);
+	const markdownInputFile = removeSpaces(project.name) + '.md';
+	const inputContent = await readFile(
+		join(env.TMP_DIR, project.folderId, markdownInputFile),
+		'utf-8'
+	);
+	const markdownHeader = `\\markdownBegin{}`;
+	const markdownFooter = `\\markdownEnd{}`;
+	res = res.replace(
+		'#INCLUDE_CHAPTERS',
+		`${markdownHeader}
+${inputContent}
+${markdownFooter}
+`
+	);
 
 	const path = join(env.TMP_DIR, project.folderId, 'main.tex');
 	await writeFile(path, res);
@@ -135,7 +145,7 @@ export async function buildTex(project: Project, id: string) {
 			projectId: project.id,
 			logs: stdout,
 			errors: stderr,
-			running: false,
+			running: false
 		};
 
 		// wait for the file to be written
@@ -150,7 +160,7 @@ export async function buildTex(project: Project, id: string) {
 			await uploadFileFromPath(id, outputPath);
 			build.fileId = id;
 		}
-		
+
 		await db.update(outputTable).set(build).where(eq(outputTable.id, id));
 	});
 }
