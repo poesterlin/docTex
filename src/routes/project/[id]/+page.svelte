@@ -6,9 +6,9 @@
 	let { data }: { data: PageData } = $props();
 </script>
 
-<h1 class="sticky top-0 mb-8 text-3xl font-semibold text-white p-4 shadow bg-gray-700/25 rounded-md backdrop-blur-md">Overview</h1>
+<h1 class="sticky top-0 mb-8 rounded-md bg-gray-700/25 p-4 text-3xl font-semibold text-white shadow backdrop-blur-md">Overview</h1>
 
-<ul class="divide-y divide-gray-700">
+<ul class="divide-y divide-gray-700 rounded-md overflow-hidden bg-gray-800 shadow">
 	<form action="?/build" method="POST" use:enhance>
 		<button type="submit" class="flex w-full items-center justify-between p-4 hover:bg-gray-700">
 			<span>Build Project</span>
@@ -28,7 +28,7 @@
 	{/if}
 
 	<a class="flex items-center justify-between p-4 hover:bg-gray-700" href="/styles/{data.style.id}">
-		<span class="font-medium text-gray-100"><span class="capitalize">{data.style.name}</span> Style</span>
+		<span class="font-medium text-gray-100">Show Style</span>
 		<IconLink />
 	</a>
 
@@ -49,3 +49,6 @@
 		</button>
 	</form>
 </ul>
+
+<!-- <iframe src="/project/{data.project.id}/pdf" frameborder="0" class="mt-8 w-full h-40 md:h-96">
+</iframe> -->

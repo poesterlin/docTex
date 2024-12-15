@@ -25,7 +25,7 @@ export const load = async ({ locals, params, parent }) => {
 	const [build] = await db
 		.select()
 		.from(outputTable)
-		.where(and(eq(outputTable.projectId, id), isNotNull(outputTable.fileId)))
+		.where(and(eq(outputTable.projectId, id)))
 		.orderBy(desc(outputTable.timestamp))
 		.limit(5);
 
@@ -61,7 +61,7 @@ export const actions: Actions = {
 			.limit(1);
 
 		if (lastBuild && lastBuild.running) {
-			error(400, { message: 'Build already running' });
+			redirect(302, `/project/${id}/builds`);
 		}
 
 		const [style] = await db.select().from(stylesTable).where(eq(stylesTable.id, project.styleId)).limit(1);
