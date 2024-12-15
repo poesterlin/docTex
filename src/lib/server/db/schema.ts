@@ -1,5 +1,4 @@
-import { desc } from 'drizzle-orm';
-import { boolean, date, integer, pgTable, text, time, timestamp } from 'drizzle-orm/pg-core';
+import { boolean, integer, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 
 const fullCascade = { onDelete: 'cascade', onUpdate: 'cascade' } as const;
 
@@ -27,6 +26,7 @@ export const stylesTable = pgTable('styles', {
 	name: text('name').notNull(),
 	mainFile: text('main_file').notNull(),
 	description: text('description').notNull(),
+	authorId: text('author_id').references(() => userTable.id, { onDelete: "set null"})
 });
 
 export type Style = typeof stylesTable.$inferSelect;

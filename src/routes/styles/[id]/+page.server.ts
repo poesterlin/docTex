@@ -2,7 +2,7 @@ import { error, redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { requiredFilesTable, stylesTable, styleSettingsTable } from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
-import { generateId, validateForm } from '$lib';
+import { assert, generateId, validateForm } from '$lib';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
 import { uploadFile } from '$lib/server/s3';
@@ -20,6 +20,10 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
 	if (!style) {
 		return error(404, { message: 'Style not found' });
+	}
+
+	if (style.authorId && style.authorId !== locals.user.id) {
+		return error(403, { message: 'You do not have permission to view this style' });
 	}
 
 	const files = await db
@@ -44,7 +48,10 @@ export const actions = {
 			file: z
 				.instanceof(File)
 				.refine((file) => file?.size <= MAX_FILE_SIZE, `Max image size is 25MB.`),
-			override: z.string().optional().transform((v) => v === 'on')
+			override: z
+				.string()
+				.optional()
+				.transform((v) => v === 'on')
 		}),
 		async ({ locals, params }, form) => {
 			if (!locals.user) {
@@ -52,8 +59,19 @@ export const actions = {
 			}
 
 			const styleId = params.id;
-			const id = generateId();
+			assert(styleId);
 
+			const [style] = await db
+				.select()
+				.from(stylesTable)
+				.where(eq(stylesTable.id, styleId))
+				.limit(1);
+
+			if (!style || style.authorId !== locals.user.id) {
+				error(404, { message: 'Style not found' });
+			}
+
+			const id = generateId();
 			await uploadFile(id, form.file);
 			await db.insert(requiredFilesTable).values({
 				id,
@@ -65,8 +83,6 @@ export const actions = {
 				default: id,
 				override: form.override ? 1 : 0
 			});
-
-			redirect(303, `/styles/${styleId}`);
 		}
 	),
 	deleteFile: validateForm(
@@ -79,9 +95,19 @@ export const actions = {
 			}
 
 			const styleId = params.id;
-			await db.delete(requiredFilesTable).where(eq(requiredFilesTable.id, form.id));
+			assert(styleId);
 
-			redirect(303, `/styles/${styleId}`);
+			const [style] = await db
+				.select()
+				.from(stylesTable)
+				.where(eq(stylesTable.id, styleId))
+				.limit(1);
+
+			if (!style || style.authorId !== locals.user.id) {
+				error(404, { message: 'Style not found' });
+			}
+
+			await db.delete(requiredFilesTable).where(eq(requiredFilesTable.id, form.id));
 		}
 	),
 	'update-setting': validateForm(
@@ -96,6 +122,18 @@ export const actions = {
 			}
 
 			const styleId = params.id;
+			assert(styleId);
+
+			const [style] = await db
+				.select()
+				.from(stylesTable)
+				.where(eq(stylesTable.id, styleId))
+				.limit(1);
+
+			if (!style || style.authorId !== locals.user.id) {
+				error(404, { message: 'Style not found' });
+			}
+
 			await db
 				.update(styleSettingsTable)
 				.set({
@@ -103,8 +141,6 @@ export const actions = {
 					comment: form.comment
 				})
 				.where(eq(styleSettingsTable.id, form.id));
-
-			// redirect(303, `/styles/${styleId}`);
 		}
 	),
 	'update-main': validateForm(
@@ -117,14 +153,11 @@ export const actions = {
 			}
 
 			const id = params.id;
-
-			if (!id) {
-				error(404, { message: 'Style not found' });
-			}
+			assert(id);
 
 			const [style] = await db.select().from(stylesTable).where(eq(stylesTable.id, id)).limit(1);
 
-			if (!style) {
+			if (!style || style.authorId !== locals.user.id) {
 				error(404, { message: 'Style not found' });
 			}
 

@@ -29,8 +29,8 @@ The server will be available at `http://localhost:5173`.
 If you would like to contribute to DocTex, please fork the repository and submit a pull request. We welcome contributions of all kinds, including bug fixes, new features, and documentation improvements.
 
 **Open Tasks**:
-- [ ] Remove dependence on the soft deprecated hybrid mode of the [markdown tex library](https://ftp.snt.utwente.nl/pub/software/tex/macros/generic/markdown/markdown.pdf).
-- [ ] Protect updating custom templates from unauthorized users
+- [x] Remove dependence on the soft deprecated hybrid mode of the [markdown tex library](https://ftp.snt.utwente.nl/pub/software/tex/macros/generic/markdown/markdown.pdf).
+- [x] Protect updating custom templates from unauthorized users
 - [ ] Improve Support for Bibliographies
 - [ ] Document special markdown features supported by the markdown tex library [*(citations, linkAttributes, pipeTables, relativeReferences, tableAttributes, tableCaptions)*](https://ftp.snt.utwente.nl/pub/software/tex/macros/generic/markdown/markdown.pdf)
 - [ ] Add support for Tables
