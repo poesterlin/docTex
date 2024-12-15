@@ -1,18 +1,14 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { handleSettingsSubmit } from '$lib/client/utils';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 </script>
 
-
-<h2 class="text-3xl font-semibold text-white">Files</h2>
-<ul class="mt-4 space-y-4">
+<h2 class="sticky top-0 mb-8 text-3xl font-semibold text-white p-4 shadow bg-gray-700/25 rounded-md backdrop-blur-md">Files</h2>
+<ul class="space-y-4">
 	{#each data.files as file}
-		<li
-			class="block flex items-center justify-between rounded-lg bg-gray-800 p-3 font-medium text-white shadow hover:bg-gray-700"
-		>
+		<li class="block flex items-center justify-between rounded-lg bg-gray-800 p-3 font-medium text-white shadow hover:bg-gray-700">
 			<span>
 				{file.name}
 			</span>
@@ -37,7 +33,8 @@
 			</form>
 		</li>
 	{:else}
-		<li class="text-gray-400">No files to customize</li>
+		<li class="text-gray-400">
+			<a href="/styles/{data.project.styleId}" class="underline">This Style</a> does not include any files to customize.
+		</li>
 	{/each}
 </ul>
-

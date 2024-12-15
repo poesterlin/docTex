@@ -6,13 +6,15 @@
 	const { project } = data;
 </script>
 
-<div class="flex h-full">
-	<aside class="h-full w-1/4 px-2">
+<div class="flex flex-wrap items-start gap-6 md:h-full md:flex-nowrap md:gap-0">
+	<aside class="w-full min-w-[200px] border-b border-gray-700 px-2 pb-4 md:h-full md:w-1/4 md:border-b-0 md:border-r">
 		<a href="/project/{project.id}" class="mb-4 block">
-			<h2 class="text-2xl font-semibold uppercase text-white">{project.name}</h2>
+			<h2 class="text-4xl font-semibold uppercase text-white">
+				{project.name}
+			</h2>
 		</a>
 
-		<ul>
+		<ul class="text-xl">
 			<li>
 				<a href="/project/{project.id}" class="hover:underline" use:highlightLink>Overview</a>
 			</li>
@@ -31,7 +33,7 @@
 		</ul>
 	</aside>
 
-	<section class="w-3/4 px-2">
+	<section class="pb-2xl block h-full w-full overflow-y-auto px-4 md:w-3/4 md:px-12">
 		{@render children()}
 	</section>
 </div>
@@ -49,11 +51,14 @@
 		left: -1rem;
 		top: 0;
 		width: 2px;
+		height: 1rem;
+		margin: auto;
 		background-color: #fff;
 		margin-right: 1rem;
 	}
 
-	aside {
-		border-right: 1px solid #333;
+	li a {
+		padding: 0.5rem 0;
+		display: block;
 	}
 </style>

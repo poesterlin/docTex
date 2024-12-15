@@ -11,7 +11,7 @@
 <header class="bg-gray-800 py-4 text-white shadow-md">
 	<div class="container mx-auto flex items-center justify-between space-x-6 px-6">
 		{#if data.user}
-			<p class="text-sm font-medium">
+			<p class="truncate text-sm font-medium">
 				Logged in as <span class="font-bold">{data.user.username}</span>
 			</p>
 			<nav>
@@ -89,6 +89,6 @@
 	}
 
 	main {
-		min-height: calc(100svh - 4.25rem);
+		height: calc(100svh - 4.25rem);
 	}
 </style>

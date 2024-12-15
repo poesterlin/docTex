@@ -11,18 +11,15 @@
 	}
 </script>
 
-<h2 class="text-3xl font-semibold text-white">Setting</h2>
+<h2 class="sticky top-0 mb-8 text-3xl font-semibold text-white p-4 shadow bg-gray-700/25 rounded-md backdrop-blur-md">
+	Setting
+</h2>
 
-<ul class="mt-4 space-y-4">
+<ul class="space-y-4">
 	{#each data.settings as setting (setting.id)}
 		<li class="flex items-center space-x-4 rounded-md bg-gray-800 p-4 text-white shadow">
-			<em class="min-w-[30%] font-semibold text-gray-300">{setting.key}</em>
-			<form
-				action="?/update-setting"
-				method="post"
-				onsubmit={handleSettingsSubmit}
-				class="flex flex-1 items-center space-x-2"
-			>
+			<span class="min-w-[30%] font-semibold text-gray-300">{setting.key}</span>
+			<form action="?/update-setting" method="post" onsubmit={handleSettingsSubmit} class="flex flex-1 items-center space-x-2">
 				<input type="hidden" name="id" value={setting.id} />
 				<input
 					type="text"
@@ -44,15 +41,17 @@
 			</form>
 		</li>
 	{:else}
-		<li class="text-gray-400">No settings to customize</li>
+		<li class="text-gray-400"><a href="/styles/{data.project.styleId}" class="underline">This Style</a> does not have any settings to customize.</li>
 	{/each}
 </ul>
 
-<form action="?/resetSettings" method="POST">
-	<button
-		type="submit"
-		class="mt-8 rounded-md bg-slate-500 px-4 py-2 font-medium text-white shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-	>
-		Reset Settings
-	</button>
-</form>
+{#if data.settings.length > 0}
+	<form action="?/resetSettings" method="POST">
+		<button
+			type="submit"
+			class="mt-8 rounded-md bg-slate-500 px-4 py-2 font-medium text-white shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+		>
+			Reset Settings
+		</button>
+	</form>
+{/if}

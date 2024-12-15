@@ -1,22 +1,17 @@
 import { generateId, validateForm } from '$lib';
 import { db } from '$lib/server/db';
-import {
-	projectSettingsTable,
-	projectTable,
-	styleSettingsTable,
-	stylesTable
-} from '$lib/server/db/schema';
+import { projectSettingsTable, projectTable, styleSettingsTable, stylesTable, type Project } from '$lib/server/db/schema';
 import { error, redirect } from '@sveltejs/kit';
 import { and, eq } from 'drizzle-orm';
 import { z } from 'zod';
 import type { Actions } from './$types';
 
-export const load = async ({ locals, params, parent }) => {
+export const load = async ({ locals, parent }) => {
 	if (!locals.user) {
 		redirect(302, '/login');
 	}
 
-	const { project } = await parent();
+	const { project }: { project: Project } = await parent();
 
 	if (!project) {
 		error(404, 'Project not found');
@@ -70,9 +65,7 @@ export const actions: Actions = {
 				.set({
 					value: form.value
 				})
-				.where(
-					and(eq(projectSettingsTable.id, form.id), eq(projectSettingsTable.projectId, projectId))
-				);
+				.where(and(eq(projectSettingsTable.id, form.id), eq(projectSettingsTable.projectId, projectId)));
 		}
 	),
 	resetSettings: async ({ locals, params }) => {
@@ -95,21 +88,14 @@ export const actions: Actions = {
 			error(404, { message: 'Project not found' });
 		}
 
-		const [style] = await db
-			.select()
-			.from(stylesTable)
-			.where(eq(stylesTable.id, project.styleId))
-			.limit(1);
+		const [style] = await db.select().from(stylesTable).where(eq(stylesTable.id, project.styleId)).limit(1);
 
 		if (!style) {
 			error(404, { message: 'Style not found' });
 		}
 
 		await db.delete(projectSettingsTable).where(eq(projectSettingsTable.projectId, projectId));
-		const settings = await db
-			.select()
-			.from(styleSettingsTable)
-			.where(eq(styleSettingsTable.styleId, style.id));
+		const settings = await db.select().from(styleSettingsTable).where(eq(styleSettingsTable.styleId, style.id));
 
 		for (const setting of settings) {
 			await db.insert(projectSettingsTable).values({

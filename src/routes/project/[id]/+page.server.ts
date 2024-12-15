@@ -20,11 +20,7 @@ export const load = async ({ locals, params, parent }) => {
 
 	const { id } = project;
 
-	const [style] = await db
-		.select()
-		.from(stylesTable)
-		.where(eq(stylesTable.id, project.styleId))
-		.limit(1);
+	const [style] = await db.select().from(stylesTable).where(eq(stylesTable.id, project.styleId)).limit(1);
 
 	const [build] = await db
 		.select()
@@ -68,11 +64,7 @@ export const actions: Actions = {
 			error(400, { message: 'Build already running' });
 		}
 
-		const [style] = await db
-			.select()
-			.from(stylesTable)
-			.where(eq(stylesTable.id, project.styleId))
-			.limit(1);
+		const [style] = await db.select().from(stylesTable).where(eq(stylesTable.id, project.styleId)).limit(1);
 
 		if (!style) {
 			error(404, { message: 'Style not found' });
