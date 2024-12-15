@@ -7,7 +7,7 @@
 </script>
 
 
-<h2 class="mt-16 text-xl font-semibold text-white">Files</h2>
+<h2 class="text-3xl font-semibold text-white">Files</h2>
 <ul class="mt-4 space-y-4">
 	{#each data.files as file}
 		<li

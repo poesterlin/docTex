@@ -29,7 +29,7 @@
 	}
 </script>
 
-<h2>Builds</h2>
+<h2 class="text-3xl font-semibold text-white">Builds</h2>
 <ul class="mt-4 space-y-4">
 	{#each data.outputs as build}
 		<li class="flex flex-col gap-4 rounded-md bg-gray-800 p-4 text-white shadow">

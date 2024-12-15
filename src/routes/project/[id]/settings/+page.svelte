@@ -11,7 +11,8 @@
 	}
 </script>
 
-<h2 class="mt-8 text-2xl font-semibold">Setting</h2>
+<h2 class="text-3xl font-semibold text-white">Setting</h2>
+
 <ul class="mt-4 space-y-4">
 	{#each data.settings as setting (setting.id)}
 		<li class="flex items-center space-x-4 rounded-md bg-gray-800 p-4 text-white shadow">
