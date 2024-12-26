@@ -23,7 +23,7 @@
 	}
 </script>
 
-<h2 class="sticky top-0 mb-8 text-3xl font-semibold text-white p-4 shadow bg-gray-700/25 rounded-md backdrop-blur-md">Builds</h2>
+<h2 class="sticky top-0 mb-8 rounded-md bg-gray-700/25 p-4 text-3xl font-semibold text-white shadow backdrop-blur-md">Builds</h2>
 <ul class="space-y-6 divide-y divide-gray-700">
 	{#each data.outputs as build}
 		<li class="flex flex-col gap-4 rounded-md bg-gray-800 p-4 text-white shadow">
@@ -38,7 +38,8 @@
 				<div class="flex items-center justify-between pl-4">
 					<p class="animate-pulse text-slate-400">Running...</p>
 
-					<form action="/?cancel">
+					<form action="?/cancel" method="post">
+						<input type="hidden" name="buildId" value={build.id} />
 						<button type="submit" class="flex items-center justify-between gap-4 rounded-md p-4 hover:bg-red-800">
 							<span>Cancel</span>
 							<IconCancel />
