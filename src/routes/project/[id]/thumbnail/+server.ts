@@ -29,13 +29,13 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 	const [build] = await db
 		.select()
 		.from(outputTable)
-		.where(and(eq(outputTable.projectId, id), eq(outputTable.running, false), isNotNull(outputTable.fileId)))
+		.where(and(eq(outputTable.projectId, id), eq(outputTable.running, false), isNotNull(outputTable.thumbnail)))
 		.orderBy(desc(outputTable.timestamp))
 		.limit(1);
 
-	if (!build) {
+	if (!build?.thumbnail) {
 		error(404, { message: 'Build not found' });
 	}
 
-	return getFileResponseStream(build.id);
+	return getFileResponseStream(build.thumbnail);
 };

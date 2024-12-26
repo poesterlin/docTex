@@ -4,10 +4,20 @@ import { eq } from 'drizzle-orm';
 import { mkdir, stat, writeFile } from 'fs/promises';
 import { join } from 'path';
 import { db } from './db';
-import { outputTable, type Project, projectSettingsTable, requiredFilesTable, type Style, styleSettingsTable } from './db/schema';
+import {
+	type Output,
+	outputTable,
+	type Project,
+	projectSettingsTable,
+	requiredFilesTable,
+	type Style,
+	styleSettingsTable
+} from './db/schema';
 import { getFileContentString, uploadFileFromPath } from './s3';
 import { rm, readFile } from 'fs/promises';
 import { removeSpaces } from './drive';
+import ImageMagic from 'imagemagick';
+import { generateId } from '$lib';
 
 export async function substituteSettings(contents: string, settings: Record<string, string | boolean>) {
 	const lines = contents.split('\n');
@@ -123,12 +133,13 @@ export async function buildTex(project: Project, id: string) {
 	const signal = AbortSignal.timeout(maxTime);
 
 	exec(command, { cwd: path, signal }, async (error, stdout, stderr) => {
-		const build: Partial<typeof outputTable.$inferInsert> = {
+		const build: Partial<Output> = {
 			timestamp: new Date(),
 			projectId: project.id,
 			logs: stdout,
 			errors: stderr + (error ? `\nERROR:\n` + error.message : ''),
-			running: false
+			running: false,
+			thumbnail: null
 		};
 
 		// wait for the file to be written
@@ -142,6 +153,29 @@ export async function buildTex(project: Project, id: string) {
 		if (hasOutputFile) {
 			await uploadFileFromPath(id, outputPath);
 			build.fileId = id;
+
+			try {
+				const thumbnailPath = join(path, 'output_thumbnail.png');
+				await new Promise<void>((resolve, reject) => {
+					ImageMagic.convert(
+						['-thumbnail', 'x600', '-background', 'white', '-alpha', 'remove', outputPath + '[0]', thumbnailPath],
+						function (err, stdout) {
+							if (err) {
+								return reject(new Error('Failed to generate thumbnail'));
+							}
+
+							console.log('stdout:', stdout);
+							resolve();
+						}
+					);
+				});
+
+				const thumbnailId = generateId();
+				await uploadFileFromPath(thumbnailId, thumbnailPath);
+				build.thumbnail = thumbnailId;
+			} catch (error) {
+				console.error('Failed to generate thumbnail', error);
+			}
 		}
 
 		await db.update(outputTable).set(build).where(eq(outputTable.id, id));

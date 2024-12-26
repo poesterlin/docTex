@@ -86,7 +86,8 @@ export const outputTable = pgTable('output', {
 	logs: text('logs').notNull(),
 	errors: text('errors').notNull(),
 	running: boolean('running').notNull().default(false),
-	fileId: text('file_id')
+	fileId: text('file_id'),
+	thumbnail: text('thumbnail')
 });
 
 export type Output = typeof outputTable.$inferSelect;

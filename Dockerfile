@@ -12,13 +12,13 @@ RUN bun run build
 
 #########################################################
 
-FROM ghcr.io/xu-cheng/texlive-full:latest as tex
+FROM ghcr.io/xu-cheng/texlive-full:latest AS tex
 
 WORKDIR /tex
 COPY --chmod=777 tex/ ./
 
 RUN apk update && \
-    apk add --no-cache nodejs
+    apk add --no-cache nodejs imagemagick
 
 # copy node app
 WORKDIR /app

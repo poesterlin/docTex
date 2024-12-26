@@ -2,7 +2,6 @@
 	import { enhance } from '$app/forms';
 	import type { PageData } from './$types';
 	import { IconPlayerPlay, IconLink, IconExternalLink, IconTrash, IconCancel } from '@tabler/icons-svelte';
-	import PdfViewer from 'svelte-pdf';
 
 	let { data }: { data: PageData } = $props();
 </script>
@@ -52,11 +51,9 @@
 	</form>
 </ul>
 
-<!-- <iframe src="/project/{data.project.id}/pdf" frameborder="0" class="mt-8 w-full h-40 md:h-96">
-</iframe> -->
 {#if data.build}
 	<div class="m-auto mt-8 flex h-40 w-full items-center justify-center md:h-96">
-		<PdfViewer url="/project/{data.project.id}/pdf" data={null} showButtons={[]} showBorder={false} scale={0.5} />
+		<img src="/project/{data.project.id}/thumbnail" alt="PDF Thumbnail" class="h-full w-full object-contain" />
 	</div>
 {/if}
 
