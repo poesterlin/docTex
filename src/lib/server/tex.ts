@@ -4,22 +4,12 @@ import { eq } from 'drizzle-orm';
 import { mkdir, stat, writeFile } from 'fs/promises';
 import { join } from 'path';
 import { db } from './db';
-import {
-	outputTable,
-	type Project,
-	projectSettingsTable,
-	requiredFilesTable,
-	type Style,
-	styleSettingsTable
-} from './db/schema';
+import { outputTable, type Project, projectSettingsTable, requiredFilesTable, type Style, styleSettingsTable } from './db/schema';
 import { getFileContentString, uploadFileFromPath } from './s3';
 import { rm, readFile } from 'fs/promises';
 import { removeSpaces } from './drive';
 
-export async function substituteSettings(
-	contents: string,
-	settings: Record<string, string | boolean>
-) {
+export async function substituteSettings(contents: string, settings: Record<string, string | boolean>) {
 	const lines = contents.split('\n');
 
 	const newLines = lines.map((line) => {
@@ -71,18 +61,11 @@ export async function findAllSettings(contents: string): Promise<[string, string
 		}
 	}
 
-	return Array.from(settings.entries()).map(([key]) => [
-		key,
-		optionalSettings.has(key) ? 'optional' : ''
-	]);
+	return Array.from(settings.entries()).map(([key]) => [key, optionalSettings.has(key) ? 'optional' : '']);
 }
 
 export async function getSettings(project: Project, style: Style) {
-	const baseSettings = await db
-		.select()
-		.from(styleSettingsTable)
-		.where(eq(styleSettingsTable.styleId, style.id))
-		.limit(1);
+	const baseSettings = await db.select().from(styleSettingsTable).where(eq(styleSettingsTable.styleId, style.id)).limit(1);
 
 	const settings = settingsToObject(baseSettings);
 
@@ -107,10 +90,7 @@ export async function writeMainFile(project: Project, style: Style) {
 	let res = await substituteSettings(content, settings);
 
 	const markdownInputFile = removeSpaces(project.name) + '.md';
-	const inputContent = await readFile(
-		join(env.TMP_DIR, project.folderId, markdownInputFile),
-		'utf-8'
-	);
+	const inputContent = await readFile(join(env.TMP_DIR, project.folderId, markdownInputFile), 'utf-8');
 	const markdownHeader = `\\markdownBegin{}`;
 	const markdownFooter = `\\markdownEnd{}`;
 	res = res.replace(
@@ -139,7 +119,10 @@ export async function buildTex(project: Project, id: string) {
 	const path = join(env.TMP_DIR, project.folderId);
 	const command = `/tex/entrypoint.sh`;
 
-	exec(command, { cwd: path }, async (error, stdout, stderr) => {
+	const maxTime = 1000 * 60 * 5; // 5 minutes
+	const signal = AbortSignal.timeout(maxTime);
+
+	exec(command, { cwd: path, signal }, async (error, stdout, stderr) => {
 		const build: Partial<typeof outputTable.$inferInsert> = {
 			timestamp: new Date(),
 			projectId: project.id,
@@ -166,10 +149,7 @@ export async function buildTex(project: Project, id: string) {
 }
 
 export async function downloadStyleFiles(project: Project, style: Style) {
-	const files = await db
-		.select()
-		.from(requiredFilesTable)
-		.where(eq(requiredFilesTable.stylesId, style.id));
+	const files = await db.select().from(requiredFilesTable).where(eq(requiredFilesTable.stylesId, style.id));
 
 	for (const file of files) {
 		const content = await getFileContentString(file.id);

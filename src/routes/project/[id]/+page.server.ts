@@ -90,7 +90,11 @@ export const actions: Actions = {
 		await downloadStyleFiles(project, style);
 		await writeMainFile(project, style);
 
-		await buildTex(project, buildId);
+		try {
+			await buildTex(project, buildId);
+		} catch (error) {
+			await db.update(outputTable).set({ running: false }).where(eq(outputTable.id, buildId));
+		}
 	},
 	delete: async ({ locals, params }) => {
 		if (!locals.user || !locals.session) {
