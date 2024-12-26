@@ -39,15 +39,11 @@ export const actions: Actions = {
 				error(400, { message: 'Invalid project ID' });
 			}
 
-			console.log('form', form);
-
 			const [project] = await db
 				.select()
 				.from(projectTable)
 				.where(and(eq(projectTable.id, id), eq(projectTable.userId, locals.user.id)))
 				.limit(1);
-
-			console.log('project', project);
 
 			if (!project) {
 				error(404, { message: 'Project not found' });
@@ -58,8 +54,6 @@ export const actions: Actions = {
 				.from(outputTable)
 				.where(and(eq(outputTable.projectId, id), eq(outputTable.running, true), eq(outputTable.id, form.buildId)))
 				.limit(1);
-
-			console.log('build', build);
 
 			if (!build) {
 				error(400, { message: 'No build' });

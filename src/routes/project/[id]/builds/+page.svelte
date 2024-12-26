@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { IconCancel, IconDownload, IconLink } from '@tabler/icons-svelte';
+	import { IconCancel, IconDownload, IconLink, IconPlayerPlay } from '@tabler/icons-svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -24,6 +24,19 @@
 </script>
 
 <h2 class="sticky top-0 mb-8 rounded-md bg-gray-700/25 p-4 text-3xl font-semibold text-white shadow backdrop-blur-md">Builds</h2>
+
+{#if !data.outputs[0]?.running}
+	<form action="/project/{data.project.id}?/build" method="post">
+		<button
+			type="submit"
+			class="items center my-4 flex w-full justify-between gap-4 rounded-md bg-gray-500 p-4 text-white shadow hover:bg-gray-700"
+		>
+			<span>Start Build</span>
+			<IconPlayerPlay />
+		</button>
+	</form>
+{/if}
+
 <ul class="space-y-6 divide-y divide-gray-700">
 	{#each data.outputs as build}
 		<li class="flex flex-col gap-4 rounded-md bg-gray-800 p-4 text-white shadow">
@@ -34,8 +47,8 @@
 				</span>
 			</div>
 
-			{#if build.running}
-				<div class="flex items-center justify-between pl-4">
+			<div class="flex items-center justify-between pl-4">
+				{#if build.running}
 					<p class="animate-pulse text-slate-400">Running...</p>
 
 					<form action="?/cancel" method="post">
@@ -45,9 +58,7 @@
 							<IconCancel />
 						</button>
 					</form>
-				</div>
-			{:else}
-				{#if build.fileId}
+				{:else if build.fileId}
 					<a class="flex items-center justify-between rounded-md p-4 hover:bg-gray-700" href="/builds/{build.id}" target="_blank">
 						<span class="font-medium text-gray-100">Download PDF</span>
 						<IconDownload />
@@ -62,15 +73,13 @@
 				{:else}
 					<p class="text-gray-400">No PDF generated</p>
 				{/if}
+			</div>
 
-				<!-- logs -->
-				{#if build.logs}
-					<details class="rounded-md bg-gray-700 p-4">
-						<summary class="text-slate-400">Logs</summary>
-						<pre class="mt-2 max-h-[50svh] flex-1 overflow-y-scroll rounded-md bg-black p-4 text-gray-500">{build.logs}</pre>
-					</details>
-				{/if}
-			{/if}
+			<!-- logs -->
+			<details class="rounded-md bg-gray-700 p-4">
+				<summary class="text-slate-400">Logs</summary>
+				<pre class="mt-2 max-h-[50svh] flex-1 overflow-y-scroll rounded-md bg-black p-4 text-gray-500">{build.logs}</pre>
+			</details>
 		</li>
 	{/each}
 </ul>

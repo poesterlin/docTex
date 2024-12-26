@@ -26,7 +26,7 @@ export const stylesTable = pgTable('styles', {
 	name: text('name').notNull(),
 	mainFile: text('main_file').notNull(),
 	description: text('description').notNull(),
-	authorId: text('author_id').references(() => userTable.id, { onDelete: "set null"})
+	authorId: text('author_id').references(() => userTable.id, { onDelete: 'set null' })
 });
 
 export type Style = typeof stylesTable.$inferSelect;
@@ -44,7 +44,9 @@ export const projectSettingsTable = pgTable('project_settings', {
 	setting: text('setting')
 		.notNull()
 		.references(() => styleSettingsTable.id, fullCascade),
-	projectId: text('project_id').notNull().references(() => projectTable.id, fullCascade),
+	projectId: text('project_id')
+		.notNull()
+		.references(() => projectTable.id, fullCascade),
 	value: text('value').notNull()
 });
 
@@ -84,5 +86,7 @@ export const outputTable = pgTable('output', {
 	logs: text('logs').notNull(),
 	errors: text('errors').notNull(),
 	running: boolean('running').notNull().default(false),
-	fileId: text('file_id'),
+	fileId: text('file_id')
 });
+
+export type Output = typeof outputTable.$inferSelect;

@@ -127,7 +127,7 @@ export async function buildTex(project: Project, id: string) {
 			timestamp: new Date(),
 			projectId: project.id,
 			logs: stdout,
-			errors: stderr,
+			errors: stderr + (error ? `\nERROR:\n` + error.message : ''),
 			running: false
 		};
 

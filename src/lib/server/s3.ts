@@ -14,7 +14,7 @@ const client = new Client({
 export async function uploadFile(sha: string, file: File) {
 	const buffer = Buffer.from(await file.arrayBuffer());
 	const metaData = {
-		'content-type': file.type,
+		'content-type': file.type
 	};
 	await client.putObject(MINIO_BUCKET, sha, buffer, undefined, metaData);
 }
@@ -83,7 +83,16 @@ export async function getFileContentString(sha: string) {
 	return decoder.decode(buffer);
 }
 
-function readStreamToBuffer(readable: any) {
+export async function hasFile(sha: string) {
+	try {
+		await client.statObject(MINIO_BUCKET, sha);
+		return true;
+	} catch (error) {
+		return false;
+	}
+}
+
+export function readStreamToBuffer(readable: any) {
 	return new Promise<Buffer>((resolve, reject) => {
 		const chunks: Buffer[] = [];
 		readable.on('data', (chunk: Buffer) => {

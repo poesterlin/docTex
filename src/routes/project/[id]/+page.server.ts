@@ -4,15 +4,15 @@ import { outputTable, projectTable, stylesTable } from '$lib/server/db/schema';
 import { downloadFolder } from '$lib/server/drive';
 import { buildTex, clearFolder, downloadStyleFiles, writeMainFile } from '$lib/server/tex';
 import { error, redirect } from '@sveltejs/kit';
-import { and, desc, eq, isNotNull } from 'drizzle-orm';
-import type { Actions } from './$types';
+import { and, desc, eq, sql } from 'drizzle-orm';
+import type { Actions, PageServerLoad } from './$types';
 
-export const load = async ({ locals, params, parent }) => {
+export const load: PageServerLoad = async ({ locals, params, parent }) => {
 	if (!locals.user) {
 		redirect(302, '/login');
 	}
 
-	const { project } = await parent();
+	const { project, user } = await parent();
 
 	if (!project) {
 		error(404, 'Project not found');
@@ -21,16 +21,19 @@ export const load = async ({ locals, params, parent }) => {
 	const { id } = project;
 
 	const [style] = await db.select().from(stylesTable).where(eq(stylesTable.id, project.styleId)).limit(1);
+	const [build] = await db.select().from(outputTable).where(eq(outputTable.projectId, id)).orderBy(desc(outputTable.timestamp)).limit(1);
 
-	const [build] = await db
-		.select()
-		.from(outputTable)
-		.where(and(eq(outputTable.projectId, id)))
-		.orderBy(desc(outputTable.timestamp))
-		.limit(5);
-
-	return { project, build, style };
+	return { user: user ?? null, project, build, style };
 };
+
+async function appendOutputLog(buildId: string, newLogs: string) {
+	await db
+		.update(outputTable)
+		.set({
+			logs: sql.raw(`CONCAT(logs, '${newLogs}')`)
+		})
+		.where(eq(outputTable.id, buildId));
+}
 
 export const actions: Actions = {
 	build: async ({ params, locals }) => {
@@ -71,7 +74,6 @@ export const actions: Actions = {
 		}
 
 		const buildId = generateId();
-		await db.update(outputTable).set({ running: false }).where(eq(outputTable.projectId, id));
 		await db.insert(outputTable).values({
 			id: buildId,
 			projectId: id,
@@ -83,17 +85,22 @@ export const actions: Actions = {
 
 		// Clear folder if last build was not successful, preserving cache
 		if (lastBuild && !lastBuild.fileId) {
+			await appendOutputLog(buildId, 'Clearing folder...\n');
 			await clearFolder(project);
 		}
 
 		await downloadFolder(locals.session, project.folderId);
+		await appendOutputLog(buildId, 'Downloading files...\n');
 		await downloadStyleFiles(project, style);
+		await appendOutputLog(buildId, 'Writing main file...\n');
 		await writeMainFile(project, style);
+		await appendOutputLog(buildId, 'Building...\n');
 
 		try {
 			await buildTex(project, buildId);
 		} catch (error) {
 			await db.update(outputTable).set({ running: false }).where(eq(outputTable.id, buildId));
+			console.error(error);
 		}
 	},
 	delete: async ({ locals, params }) => {
