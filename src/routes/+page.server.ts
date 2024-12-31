@@ -52,7 +52,7 @@ export const actions: Actions = {
 			const session = locals.session;
 			assert(session);
 
-			const folderId = await createOrGetFolder(session, form.name);
+			const folderId = await createOrGetFolder(session, form.name, 'root');
 			assert(folderId);
 
 			const [style] = await db.select().from(stylesTable).where(eq(stylesTable.id, form.styleId)).limit(1);
