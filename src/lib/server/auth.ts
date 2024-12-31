@@ -1,14 +1,14 @@
+import { db } from '$lib/server/db';
+import { encodeBase64url } from '@oslojs/encoding';
 import type { RequestEvent } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
-import { sha256 } from '@oslojs/crypto/sha2';
-import { encodeBase64url, encodeHexLowerCase } from '@oslojs/encoding';
-import { db } from '$lib/server/db';
-import { sessionTable, userTable, type Session } from './db/schema';
+import { sessionTable, shareTokenTable, userTable, type ShareToken } from './db/schema';
 import { invalidateToken } from './google';
+import { Cookies } from './cookies';
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
-export const sessionCookieName = 'auth-session';
+export const sessionCookieName = Cookies.SESSION;
 
 export function generateSessionToken() {
 	const bytes = crypto.getRandomValues(new Uint8Array(18));
@@ -41,10 +41,7 @@ export async function validateSessionToken(sessionId: string) {
 	const renewSession = Date.now() >= session.expiresAt.getTime() - DAY_IN_MS * 15;
 	if (renewSession) {
 		session.expiresAt = new Date(Date.now() + DAY_IN_MS * 30);
-		await db
-			.update(sessionTable)
-			.set({ expiresAt: session.expiresAt })
-			.where(eq(sessionTable.id, session.id));
+		await db.update(sessionTable).set({ expiresAt: session.expiresAt }).where(eq(sessionTable.id, session.id));
 	}
 
 	return { session, user };
@@ -53,11 +50,7 @@ export async function validateSessionToken(sessionId: string) {
 export type SessionValidationResult = Awaited<ReturnType<typeof validateSessionToken>>;
 
 export async function invalidateSession(sessionId: string) {
-	const [session] = await db
-		.select()
-		.from(sessionTable)
-		.where(eq(sessionTable.id, sessionId))
-		.limit(1);
+	const [session] = await db.select().from(sessionTable).where(eq(sessionTable.id, sessionId)).limit(1);
 	if (session) {
 		await invalidateToken(session);
 		await db.delete(sessionTable).where(eq(sessionTable.id, sessionId));
@@ -75,4 +68,10 @@ export function deleteSessionTokenCookie(event: RequestEvent) {
 	event.cookies.delete(sessionCookieName, {
 		path: '/'
 	});
+}
+
+export async function validateInviteToken(token: string): Promise<ShareToken | undefined> {
+	const [result] = await db.select().from(shareTokenTable).where(eq(shareTokenTable.token, token)).limit(1);
+
+	return result;
 }

@@ -1,27 +1,39 @@
 import { generateId } from '$lib';
 import { db } from '$lib/server/db';
-import { outputTable, projectTable, stylesTable } from '$lib/server/db/schema';
+import { outputTable, projectTable, shareTokenTable, stylesTable, type Project } from '$lib/server/db/schema';
 import { downloadFolder } from '$lib/server/drive';
 import { buildTex, clearFolder, downloadStyleFiles, writeMainFile } from '$lib/server/tex';
 import { error, redirect } from '@sveltejs/kit';
 import { and, desc, eq, sql } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
+import { generateSessionToken } from '$lib/server/auth';
 
 export const load: PageServerLoad = async ({ locals, params, parent }) => {
-	if (!locals.user) {
+	let project: Project | null = null;
+	const parentData = await parent();
+	const { user } = parentData;
+
+	// If user is not logged in, check if they are invited to a project
+	if (locals.invite) {
+		const [result] = await db.select().from(projectTable).where(eq(projectTable.id, locals.invite.projectId)).limit(1);
+		project = result;
+	} else if (locals.user) {
+		project = parentData.project;
+	} else {
 		redirect(302, '/login');
 	}
-
-	const { project, user } = await parent();
 
 	if (!project) {
 		error(404, 'Project not found');
 	}
 
-	const { id } = project;
-
 	const [style] = await db.select().from(stylesTable).where(eq(stylesTable.id, project.styleId)).limit(1);
-	const [build] = await db.select().from(outputTable).where(eq(outputTable.projectId, id)).orderBy(desc(outputTable.timestamp)).limit(1);
+	const [build] = await db
+		.select()
+		.from(outputTable)
+		.where(eq(outputTable.projectId, project.id))
+		.orderBy(desc(outputTable.timestamp))
+		.limit(1);
 
 	return { user: user ?? null, project, build, style };
 };
@@ -40,6 +52,8 @@ export const actions: Actions = {
 		if (!locals.user || !locals.session) {
 			redirect(302, '/login');
 		}
+
+		// TODO: migrate to offline token to allow invited users to build
 
 		const { id } = params;
 		if (!id) {
@@ -63,7 +77,7 @@ export const actions: Actions = {
 			.orderBy(desc(outputTable.timestamp))
 			.limit(1);
 
-		if (lastBuild && lastBuild.running) {
+		if (lastBuild?.running) {
 			redirect(302, `/project/${id}/builds`);
 		}
 

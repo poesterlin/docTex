@@ -9,17 +9,19 @@
 <h1 class="sticky top-0 mb-8 rounded-md bg-gray-700/25 p-4 text-3xl font-semibold text-white shadow backdrop-blur-md">Overview</h1>
 
 <ul class="divide-y divide-gray-700 overflow-hidden rounded-md bg-gray-800 shadow">
-	<form action="?/build" method="POST" use:enhance>
-		<button type="submit" class="flex w-full items-center justify-between p-4 hover:bg-gray-700">
-			{#if data.build && data.build.running}
-				<span>Building Project</span>
-				<IconPlayerPlay class="animate-pulse text-gray-400" />
-			{:else}
-				<span>Build Project</span>
-				<IconPlayerPlay />
-			{/if}
-		</button>
-	</form>
+	{#if !data.isShared}
+		<form action="?/build" method="POST" use:enhance>
+			<button type="submit" class="flex w-full items-center justify-between p-4 hover:bg-gray-700">
+				{#if data.build && data.build.running}
+					<span>Building Project</span>
+					<IconPlayerPlay class="animate-pulse text-gray-400" />
+				{:else}
+					<span>Build Project</span>
+					<IconPlayerPlay />
+				{/if}
+			</button>
+		</form>
+	{/if}
 
 	{#if data.build}
 		<a class="flex items-center justify-between p-4 hover:bg-gray-700" href="/project/{data.project.id}/pdf" target="_blank">
@@ -33,22 +35,24 @@
 		<IconLink />
 	</a>
 
-	<a
-		class="flex items-center justify-between p-4 hover:bg-gray-700"
-		href="https://drive.google.com/drive/folders/{data.project.folderId}"
-		target="_blank"
-		rel="noopener noreferrer"
-	>
-		<span class="font-medium text-gray-100">Open Google Drive Folder</span>
-		<IconExternalLink />
-	</a>
+	{#if !data.isShared}
+		<a
+			class="flex items-center justify-between p-4 hover:bg-gray-700"
+			href="https://drive.google.com/drive/folders/{data.project.folderId}"
+			target="_blank"
+			rel="noopener noreferrer"
+		>
+			<span class="font-medium text-gray-100">Open Google Drive Folder</span>
+			<IconExternalLink />
+		</a>
 
-	<form action="?/delete" method="POST">
-		<button type="submit" class="flex w-full items-center justify-between p-4 hover:bg-red-800">
-			<span>Delete Project</span>
-			<IconTrash />
-		</button>
-	</form>
+		<form action="?/delete" method="POST">
+			<button type="submit" class="flex w-full items-center justify-between p-4 hover:bg-red-800">
+				<span>Delete Project</span>
+				<IconTrash />
+			</button>
+		</form>
+	{/if}
 </ul>
 
 {#if data.build}

@@ -1,12 +1,12 @@
+import { validateForm } from '$lib';
 import { db } from '$lib/server/db';
 import { outputTable, projectTable } from '$lib/server/db/schema';
 import { error, redirect } from '@sveltejs/kit';
 import { and, desc, eq } from 'drizzle-orm';
-import type { Actions } from './$types';
 import { z } from 'zod';
-import { validateForm } from '$lib';
+import type { Actions, PageServerLoad } from './$types';
 
-export const load = async ({ locals, params, parent }) => {
+export const load: PageServerLoad = async ({ locals, params, parent }) => {
 	if (!locals.user) {
 		redirect(302, '/login');
 	}

@@ -54,7 +54,7 @@
 
 	{#each toastStore.toasts as toast (toast.id)}
 		<div class="fixed bottom-4 right-4">
-			<div class="rounded-md border-l-4 border-indigo-600 bg-white p-4 shadow-md" style="min-width: 300px">
+			<div class="rounded-md border-l-4 border-indigo-600 bg-white p-4 text-black shadow-md" style="min-width: 300px">
 				<p class="font-medium">{toast.message}</p>
 			</div>
 		</div>

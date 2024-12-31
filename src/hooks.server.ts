@@ -1,7 +1,13 @@
 import type { Handle } from '@sveltejs/kit';
 import * as auth from '$lib/server/auth.js';
+import { Cookies } from '$lib/server/cookies';
 
 const handleAuth: Handle = async ({ event, resolve }) => {
+	const invite = event.cookies.get(Cookies.INVITE_TOKEN);
+	if (invite) {
+		event.locals.invite = await auth.validateInviteToken(invite);
+	}
+
 	const sessionToken = event.cookies.get(auth.sessionCookieName);
 	if (!sessionToken) {
 		event.locals.user = null;

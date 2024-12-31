@@ -91,3 +91,14 @@ export const outputTable = pgTable('output', {
 });
 
 export type Output = typeof outputTable.$inferSelect;
+
+export const shareTokenTable = pgTable('share_token', {
+	id: text('id').primaryKey(),
+	projectId: text('project_id')
+		.notNull()
+		.references(() => projectTable.id, fullCascade),
+	token: text('token').notNull(),
+	createdAt: timestamp('created_at', { mode: 'date' }).notNull()
+});
+
+export type ShareToken = typeof shareTokenTable.$inferSelect;
