@@ -36,15 +36,17 @@
 	</a>
 
 	{#if !data.isShared}
-		<a
-			class="flex items-center justify-between p-4 hover:bg-gray-700"
-			href="https://drive.google.com/drive/folders/{data.project.folderId}"
-			target="_blank"
-			rel="noopener noreferrer"
-		>
-			<span class="font-medium text-gray-100">Open Google Drive Folder</span>
-			<IconExternalLink />
-		</a>
+		{#if data.project.driveFolderId}
+			<a
+				class="flex items-center justify-between p-4 hover:bg-gray-700"
+				href="https://drive.google.com/drive/folders/{data.project.driveFolderId}"
+				target="_blank"
+				rel="noopener noreferrer"
+			>
+				<span class="font-medium text-gray-100">Open Google Drive Folder</span>
+				<IconExternalLink />
+			</a>
+		{/if}
 
 		<form action="?/delete" method="POST">
 			<button type="submit" class="flex w-full items-center justify-between p-4 hover:bg-red-800">

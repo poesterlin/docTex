@@ -75,6 +75,10 @@ export function getFileContent(sha: string) {
 	return client.getObject(MINIO_BUCKET, sha);
 }
 
+export function downloadFileToPath(sha: string, path: string) {
+	return client.fGetObject(MINIO_BUCKET, sha, path);
+}
+
 export async function getFileContentString(sha: string) {
 	const readable = await client.getObject(MINIO_BUCKET, sha);
 

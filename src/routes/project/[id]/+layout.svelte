@@ -25,6 +25,11 @@
 				<li>
 					<a href="/project/{project.id}" class="hover:underline" use:highlightLink>Overview</a>
 				</li>
+				{#if !project.driveFolderId}
+					<li>
+						<a href="/project/{project.id}/upload" class="hover:underline" use:highlightLink>Upload</a>
+					</li>
+				{/if}
 				<li>
 					<a href="/project/{project.id}/settings" class="hover:underline" use:highlightLink>Settings</a>
 				</li>

@@ -32,6 +32,7 @@ export const load: PageServerLoad = async (event) => {
         userId,
         expiresAt: expirationDate,
         sessionToken: token,
+        isGoogleAuth: true
     };
 
     const data = await getUserInfo(session);

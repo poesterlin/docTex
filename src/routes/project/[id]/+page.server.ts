@@ -1,12 +1,14 @@
+import { env } from '$env/dynamic/private';
 import { generateId } from '$lib';
 import { db } from '$lib/server/db';
-import { outputTable, projectTable, shareTokenTable, stylesTable, type Project } from '$lib/server/db/schema';
-import { downloadFolder } from '$lib/server/drive';
+import { outputTable, projectTable, stylesTable, type Project } from '$lib/server/db/schema';
+import { downloadFolder, removeSpaces } from '$lib/server/drive';
+import { downloadFileToPath } from '$lib/server/s3';
 import { buildTex, clearFolder, downloadStyleFiles, writeMainFile } from '$lib/server/tex';
 import { error, redirect } from '@sveltejs/kit';
 import { and, desc, eq, sql } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
-import { generateSessionToken } from '$lib/server/auth';
+import { join } from 'path';
 
 export const load: PageServerLoad = async ({ locals, params, parent }) => {
 	let project: Project | null = null;
@@ -102,8 +104,14 @@ export const actions: Actions = {
 			await appendOutputLog(buildId, 'Clearing folder...\n');
 			await clearFolder(project);
 		}
+		
+		if (project.driveFolderId) {
+			await downloadFolder(locals.session, project.driveFolderId);
+		} else {
+			const path = join(env.TMP_DIR, project.folderId, removeSpaces(project.name) + '.md');
+			await downloadFileToPath(project.folderId, path);
+		}
 
-		await downloadFolder(locals.session, project.folderId);
 		await appendOutputLog(buildId, 'Downloading files...\n');
 		await downloadStyleFiles(project, style);
 		await appendOutputLog(buildId, 'Writing main file...\n');

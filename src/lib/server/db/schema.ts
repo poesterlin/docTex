@@ -5,7 +5,8 @@ const fullCascade = { onDelete: 'cascade', onUpdate: 'cascade' } as const;
 export const userTable = pgTable('user', {
 	id: text('id').primaryKey(),
 	username: text('username').notNull(),
-	email: text('email').notNull().unique()
+	email: text('email').notNull().unique(),
+	hasGoogleAuth: boolean('has_google_auth').notNull().default(true)
 });
 
 export type User = typeof userTable.$inferSelect;
@@ -16,7 +17,8 @@ export const sessionTable = pgTable('session', {
 		.notNull()
 		.references(() => userTable.id, fullCascade),
 	expiresAt: timestamp('expires_at', { mode: 'date' }).notNull(),
-	sessionToken: text('session_token').notNull()
+	sessionToken: text('session_token').notNull(),
+	isGoogleAuth: boolean('is_google_auth').notNull().default(false)
 });
 
 export type Session = typeof sessionTable.$inferSelect;
@@ -70,6 +72,7 @@ export const projectTable = pgTable('project', {
 		.notNull()
 		.references(() => userTable.id, fullCascade),
 	folderId: text('folder_id').notNull(),
+	driveFolderId: text('drive_folder_id'),
 	styleId: text('style_id')
 		.notNull()
 		.references(() => stylesTable.id, fullCascade)

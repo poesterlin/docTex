@@ -9,8 +9,10 @@ import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { env } from '$env/dynamic/private';
 
-export const load: PageServerLoad = async ({ locals, cookies }) => {
-	if (!locals.user) {
+export const load: PageServerLoad = async ({ locals, parent }) => {
+	const { user } = await parent();
+
+	if (!user) {
 		if (locals.invite?.projectId) {
 			const [project] = await db.select().from(projectTable).where(eq(projectTable.id, locals.invite.projectId)).limit(1);
 
@@ -22,11 +24,11 @@ export const load: PageServerLoad = async ({ locals, cookies }) => {
 		return redirect(302, '/login');
 	}
 
-	const projects = await db.select().from(projectTable).where(eq(projectTable.userId, locals.user.id));
+	const projects = await db.select().from(projectTable).where(eq(projectTable.userId, user.id));
 
 	const styles = await db.select().from(stylesTable);
 
-	return { projects, styles };
+	return { projects, styles, user };
 };
 
 export const actions: Actions = {
@@ -42,7 +44,11 @@ export const actions: Actions = {
 	setup: validateForm(
 		z.object({
 			name: z.string(),
-			styleId: z.string()
+			styleId: z.string(),
+			createFolder: z
+				.string()
+				.optional()
+				.transform((v) => v === 'on')
 		}),
 		async ({ locals }, form) => {
 			if (!locals.user) {
@@ -52,8 +58,13 @@ export const actions: Actions = {
 			const session = locals.session;
 			assert(session);
 
-			const folderId = await createOrGetFolder(session, form.name, 'root');
-			assert(folderId);
+			let googleFolder = null;
+
+			// only create folder if the user wants to
+			if (form.createFolder) {
+				googleFolder = await createOrGetFolder(session, form.name, 'root');
+				assert(googleFolder);
+			}
 
 			const [style] = await db.select().from(stylesTable).where(eq(stylesTable.id, form.styleId)).limit(1);
 
@@ -67,7 +78,8 @@ export const actions: Actions = {
 				name: form.name,
 				styleId: form.styleId,
 				userId: locals.user.id,
-				folderId
+				folderId: generateId(),
+				driveFolderId: googleFolder
 			});
 
 			const settings = await db.select().from(styleSettingsTable).where(eq(styleSettingsTable.styleId, form.styleId));
@@ -81,6 +93,10 @@ export const actions: Actions = {
 				});
 			}
 
+			if (!googleFolder) {
+				return redirect(302, `/project/${id}`);
+			}
+
 			const file = {
 				id: env.MARKDOWN_EXPLAINER_DOC,
 				name: form.name,
@@ -89,7 +105,7 @@ export const actions: Actions = {
 				path: form.name
 			} as RequiredFile;
 
-			await copyFileToProjectFolder(session, file, folderId);
+			await copyFileToProjectFolder(session, file, googleFolder);
 
 			redirect(302, `/project/${id}`);
 		}
