@@ -18,7 +18,8 @@ WORKDIR /tex
 COPY --chmod=777 tex/ ./
 
 RUN apk update && \
-    apk add --no-cache nodejs imagemagick
+    apk add --no-cache imagemagick && \
+    curl -fsSL https://bun.sh/install | bash
 
 # copy node app
 WORKDIR /app
@@ -28,4 +29,4 @@ COPY --from=bun /app/package.json ./
 
 EXPOSE 3000
 
-CMD ["node", "/app/build/index.js"]
+CMD ["bun", "/app/build/index.js"]
