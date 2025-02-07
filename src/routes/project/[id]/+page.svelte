@@ -64,10 +64,10 @@
 {/if}
 
 {#if data.wordHistory}
-	<div class="svg-shadow">
+	<div class="svg-shadow mt-24">
 		{@html data.wordHistory}
 		<h3 class="text-center text-xl font-semibold text-gray-200">
-			{data.build?.wordCount} Words
+			{data.build?.wordCount} Words!
 		</h3>
 	</div>
 {/if}

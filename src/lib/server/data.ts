@@ -1,39 +1,61 @@
 import { addDays, differenceInDays, format } from 'date-fns';
 
 export function toSVG(wordHistory: { count: number; date: Date }[]) {
-	// overwrites the last point if it's higher and on the same day
-	for (let i = 1; i < wordHistory.length; i++) {
-		const last = wordHistory[i - 1];
-		const current = wordHistory[i];
-		const isSameDay = differenceInDays(last.date, current.date) === 0;
-		if (isSameDay || last.count === current.count) {
-			last.count = Math.max(last.count, current.count);
-			wordHistory.splice(i, 1);
-			i--;
-		}
-	}
-
-	// if there's only one point, skip the SVG generation
-	if (wordHistory.length === 1) {
+	if (wordHistory?.length < 2) {
 		return '';
 	}
 
-	const header = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">`;
+	// overwrites the last point if it's higher and on the same day
+	wordHistory = wordHistory.reduce(
+		(acc, current, i) => {
+			const last = acc.at(-1);
+			if (!last) {
+				acc.push(current);
+				return acc;
+			}
+
+			const isSameDay = differenceInDays(last.date, current.date) === 0;
+			const isSameValue = last.count === current.count;
+			if (isSameDay || isSameValue) {
+				return acc;
+			}
+
+			acc.push(current);
+			return acc;
+		},
+		[] as { count: number; date: Date }[]
+	);
+
+	console.log(wordHistory);
+
+	// if there's only one point, skip the SVG generation
+	if (wordHistory.length < 2) {
+		return '';
+	}
+
+	const width = 200;
+	const height = 100;
+	const header = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width + 2} ${height + 2}">`;
 	const footer = `</svg>`;
 
-	const countOnly = wordHistory.map((x, i) => x.count);
+
+	const countOnly = wordHistory.map((x) => x.count);
 	const max = Math.max(...countOnly) + 1;
 	const start = wordHistory[0].date;
-	const times = wordHistory.map((x) => Math.floor(differenceInDays(start, x.date)));
+	const times = wordHistory.map((x) => Math.floor(differenceInDays(x.date, start)));
 	const maxTime = Math.max(...times);
+
+	console.log({ countOnly, max, start, times, maxTime });
 
 	let coords: [number, number][] = [];
 	for (let i = 0; i < wordHistory.length; i++) {
-		const x = map(times[i], 0, maxTime, 1, 99);
-		const y = map(countOnly[i], 0, max, 99, 1);
+		const x = map(times[i], 0, maxTime, 1, width);
+		const y = map(countOnly[i], 0, max, height, 1);
 
 		coords.push([x, y]);
 	}
+
+	console.table(coords);
 
 	let command: Command = lineCommand;
 	if (coords.length > 1) {
@@ -42,16 +64,24 @@ export function toSVG(wordHistory: { count: number; date: Date }[]) {
 
 	const pathString = svgPath(coords, command);
 
-	// add tags to the dates
+	// Calculate the increase in word count for each day
+	const increases = wordHistory.map((entry, i) => {
+		if (i === 0) return { ...entry, increase: 0 };
+		return { ...entry, increase: entry.count - wordHistory[i - 1].count };
+	});
+
+	// Sort the days by the increase in word count
+	const topIncreases = increases.sort((a, b) => b.increase - a.increase).slice(0, 5); // Select the top 5 days with the most increase
+	
 	let tags = '';
-	for (let i = 0; i < wordHistory.length; i++) {
+	for (let i = 0; i < topIncreases.length; i++) {
 		const day = addDays(start, times[i]);
 		const formatted = format(day, 'dd. MM.');
 
-		const x = map(times[i], 0, maxTime, 1, 99);
-		const y = map(countOnly[i], 0, max, 99, 1);
+		const x = map(times[i], 0, maxTime, 1, width);
+		const y = map(countOnly[i], 0, max, height, 1);
 
-		const isLast = i === wordHistory.length - 1;
+		const isLast = i === topIncreases.length - 1;
 		const isFirst = i === 0;
 
 		let anchor = 'middle';
@@ -119,7 +149,7 @@ function controlPoint(current: Point, previous: Point, next: Point, reverse = fa
 	const n = next || current;
 
 	// The smoothing ratio, anything between 0 and 0.22, the higher the more smoothing
-	const smoothing = 0.21;
+	const smoothing = 0.15;
 
 	// Properties of the opposed-line
 	const opposed = line(p, n);

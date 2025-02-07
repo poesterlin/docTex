@@ -1,15 +1,15 @@
 import { env } from '$env/dynamic/private';
 import { generateId } from '$lib';
+import { toSVG } from '$lib/server/data';
 import { db } from '$lib/server/db';
 import { outputTable, projectTable, stylesTable, type Project } from '$lib/server/db/schema';
 import { downloadFolder, removeSpaces } from '$lib/server/drive';
 import { downloadFileToPath } from '$lib/server/s3';
-import { buildTex, clearFolder, updateWordCount, downloadStyleFiles, writeMainFile } from '$lib/server/tex';
+import { buildTex, clearFolder, downloadStyleFiles, updateWordCount, writeMainFile } from '$lib/server/tex';
 import { error, redirect } from '@sveltejs/kit';
-import { and, desc, eq, sql } from 'drizzle-orm';
-import type { Actions, PageServerLoad } from './$types';
+import { and, asc, desc, eq, sql } from 'drizzle-orm';
 import { join } from 'path';
-import { toSVG } from '$lib/server/data';
+import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, parent }) => {
 	let project: Project | null = null;
@@ -41,7 +41,7 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
 	const wordHistory = await db
 		.select({ count: outputTable.wordCount, date: outputTable.timestamp })
 		.from(outputTable)
-		.orderBy(desc(outputTable.timestamp))
+		.orderBy(asc(outputTable.timestamp))
 		.where(eq(outputTable.projectId, project.id));
 
 	return { user: user ?? null, project, build, style, wordHistory: toSVG(wordHistory) };
