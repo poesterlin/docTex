@@ -26,8 +26,6 @@ export function toSVG(wordHistory: { count: number; date: Date }[]) {
 		[] as { count: number; date: Date }[]
 	);
 
-	console.log(wordHistory);
-
 	// if there's only one point, skip the SVG generation
 	if (wordHistory.length < 2) {
 		return '';
@@ -45,8 +43,6 @@ export function toSVG(wordHistory: { count: number; date: Date }[]) {
 	const times = wordHistory.map((x) => Math.floor(differenceInDays(x.date, start)));
 	const maxTime = Math.max(...times);
 
-	console.log({ countOnly, max, start, times, maxTime });
-
 	let coords: [number, number][] = [];
 	for (let i = 0; i < wordHistory.length; i++) {
 		const x = map(times[i], 0, maxTime, 1, width);
@@ -54,8 +50,6 @@ export function toSVG(wordHistory: { count: number; date: Date }[]) {
 
 		coords.push([x, y]);
 	}
-
-	console.table(coords);
 
 	let command: Command = lineCommand;
 	if (coords.length > 1) {
