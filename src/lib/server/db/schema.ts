@@ -75,7 +75,7 @@ export const projectTable = pgTable('project', {
 	driveFolderId: text('drive_folder_id'),
 	styleId: text('style_id')
 		.notNull()
-		.references(() => stylesTable.id, fullCascade)
+		.references(() => stylesTable.id, fullCascade),
 });
 
 export type Project = typeof projectTable.$inferSelect;
@@ -90,7 +90,8 @@ export const outputTable = pgTable('output', {
 	errors: text('errors').notNull(),
 	running: boolean('running').notNull().default(false),
 	fileId: text('file_id'),
-	thumbnail: text('thumbnail')
+	thumbnail: text('thumbnail'),
+	wordCount: integer('word_count').notNull().default(0),
 });
 
 export type Output = typeof outputTable.$inferSelect;

@@ -115,6 +115,14 @@ ${markdownFooter}
 	await writeFile(path, res);
 }
 
+export async function updateWordCount(project: Project, buildId: string) {
+	const path = join(env.TMP_DIR, project.folderId, removeSpaces(project.name) + '.md');
+	const inputContent = await readFile(path, 'utf-8');
+	const wordCount = inputContent.split(/\s+/).length;
+
+	await db.update(outputTable).set({ wordCount }).where(eq(outputTable.id, buildId));
+}
+
 function settingsToObject(settings: any) {
 	const result: Record<string, string> = {};
 

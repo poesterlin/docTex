@@ -63,8 +63,29 @@
 	</div>
 {/if}
 
+{#if data.wordHistory}
+	<div class="svg-shadow">
+		{@html data.wordHistory}
+		<h3 class="text-center text-xl font-semibold text-gray-200">
+			{data.build?.wordCount} Words
+		</h3>
+	</div>
+{/if}
+
 <style>
 	:global(#topBtn) {
 		display: none;
+	}
+
+	.svg-shadow :global(svg) {
+		overflow: visible;
+		max-height: 20svh;
+		height: auto;
+		width: 100%;
+		object-fit: contain;
+
+		:global(path) {
+			filter: drop-shadow(0 0 2px #538adb) drop-shadow(0 0 3px #2175f2) drop-shadow(0 0 5px #51627e);
+		}
 	}
 </style>

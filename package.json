@@ -38,6 +38,7 @@
 		"@tabler/icons-svelte": "^3.25.0",
 		"@types/imagemagick": "^0.0.35",
 		"@types/showdown": "^2.0.6",
+		"date-fns": "^4.1.0",
 		"drizzle-orm": "^0.36.4",
 		"googleapis": "^144.0.0",
 		"imagemagick": "^0.1.3",

@@ -4,13 +4,14 @@ import { db } from '$lib/server/db';
 import { outputTable, projectTable, stylesTable, type Project } from '$lib/server/db/schema';
 import { downloadFolder, removeSpaces } from '$lib/server/drive';
 import { downloadFileToPath } from '$lib/server/s3';
-import { buildTex, clearFolder, downloadStyleFiles, writeMainFile } from '$lib/server/tex';
+import { buildTex, clearFolder, updateWordCount, downloadStyleFiles, writeMainFile } from '$lib/server/tex';
 import { error, redirect } from '@sveltejs/kit';
 import { and, desc, eq, sql } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
 import { join } from 'path';
+import { toSVG } from '$lib/server/data';
 
-export const load: PageServerLoad = async ({ locals, params, parent }) => {
+export const load: PageServerLoad = async ({ locals, parent }) => {
 	let project: Project | null = null;
 	const parentData = await parent();
 	const { user } = parentData;
@@ -37,7 +38,13 @@ export const load: PageServerLoad = async ({ locals, params, parent }) => {
 		.orderBy(desc(outputTable.timestamp))
 		.limit(1);
 
-	return { user: user ?? null, project, build, style };
+	const wordHistory = await db
+		.select({ count: outputTable.wordCount, date: outputTable.timestamp })
+		.from(outputTable)
+		.orderBy(desc(outputTable.timestamp))
+		.where(eq(outputTable.projectId, project.id));
+
+	return { user: user ?? null, project, build, style, wordHistory: toSVG(wordHistory) };
 };
 
 async function appendOutputLog(buildId: string, newLogs: string) {
@@ -96,7 +103,8 @@ export const actions: Actions = {
 			timestamp: new Date(),
 			logs: '',
 			errors: '',
-			running: true
+			running: true,
+			wordCount: 0
 		});
 
 		// Clear folder if last build was not successful, preserving cache
@@ -104,7 +112,7 @@ export const actions: Actions = {
 			await appendOutputLog(buildId, 'Clearing folder...\n');
 			await clearFolder(project);
 		}
-		
+
 		if (project.driveFolderId) {
 			await downloadFolder(locals.session, project.driveFolderId);
 		} else {
@@ -116,6 +124,7 @@ export const actions: Actions = {
 		await downloadStyleFiles(project, style);
 		await appendOutputLog(buildId, 'Writing main file...\n');
 		await writeMainFile(project, style);
+		await updateWordCount(project, buildId);
 		await appendOutputLog(buildId, 'Building...\n');
 
 		try {

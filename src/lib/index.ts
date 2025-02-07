@@ -1,8 +1,8 @@
 // place files you want to import through the `$lib` alias in this folder.
 
 import { encodeBase32LowerCase } from "@oslojs/encoding";
-import { fail, type Action, type RequestEvent } from "@sveltejs/kit";
-import type { z, ZodObject, ZodRawShape } from "zod";
+import { fail, type RequestEvent } from "@sveltejs/kit";
+import type { z, ZodObject } from "zod";
 
 export function assert<T>(p: T | undefined | null): asserts p is T {
     if (!p) {
