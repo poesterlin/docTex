@@ -8,11 +8,7 @@ const config = {
 	preprocess: vitePreprocess(),
 
 	kit: {
-		adapter: adapter({
-			assets: true,
-			precompress: true,
-			dynamic_origin: true,
-		}),
+		adapter: adapter(),
 		csrf: {
 			checkOrigin: false
 		}
