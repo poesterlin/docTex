@@ -30,6 +30,13 @@
 		</a>
 	{/if}
 
+	{#if !data.project.driveFolderId}
+		<a class="flex items-center justify-between p-4 hover:bg-gray-700" href="/project/{data.project.id}/upload">
+			<span class="font-medium text-gray-100">Upload Files</span>
+			<IconLink />
+		</a>
+	{/if}
+
 	<a class="flex items-center justify-between p-4 hover:bg-gray-700" href="/styles/{data.style.id}">
 		<span class="font-medium text-gray-100">Show Style</span>
 		<IconLink />

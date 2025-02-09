@@ -42,7 +42,12 @@ export async function downloadFile(sha: string) {
 	return client.getObject(MINIO_BUCKET, sha);
 }
 
-export async function deleteImage(id: string) {
+export async function deleteFile(id: string) {
+	const has = await hasFile(id);
+	if (!has) {
+		return;
+	}
+
 	await client.removeObject(MINIO_BUCKET, id);
 }
 

@@ -209,7 +209,9 @@ export async function downloadStyleFiles(project: Project, style: Style) {
 
 		const folder = path.split('/').slice(0, -1).join('/');
 
-		await mkdir(folder, { recursive: true });
+		if (folder) {
+			await mkdir(folder, { recursive: true });
+		}
 		await writeFile(path, content);
 	}
 }

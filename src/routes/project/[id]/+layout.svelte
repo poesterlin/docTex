@@ -27,15 +27,17 @@
 				</li>
 				{#if !project.driveFolderId}
 					<li>
-						<a href="/project/{project.id}/upload" class="hover:underline" use:highlightLink>Upload</a>
+						<a href="/project/{project.id}/upload" class="hover:underline" use:highlightLink>Files</a>
 					</li>
 				{/if}
 				<li>
 					<a href="/project/{project.id}/settings" class="hover:underline" use:highlightLink>Settings</a>
 				</li>
-				<li>
-					<a href="/project/{project.id}/files" class="hover:underline" use:highlightLink>Files</a>
-				</li>
+				{#if project.driveFolderId}
+					<li>
+						<a href="/project/{project.id}/files" class="hover:underline" use:highlightLink>Files</a>
+					</li>
+				{/if}
 				<li>
 					<a href="/project/{project.id}/builds" class="hover:underline" use:highlightLink>Builds</a>
 				</li>

@@ -62,5 +62,5 @@ export const actions: Actions = {
 			await copyFileToProjectFolder(locals.session, file, project.folderId);
 			redirect(302, `/project/${id}`);
 		}
-	)
+	),
 };

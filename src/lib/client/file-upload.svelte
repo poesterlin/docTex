@@ -78,21 +78,9 @@
 		<IconFolderOpen />
 		<input type="file" {name} {id} {oninput} required bind:this={fileEl} />
 	</label>
-
 </div>
 
 <style>
-	label {
-		display: inline-block;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 1rem;
-		margin-bottom: 1rem;
-		width: max-content;
-		transition: background 0.3s;
-	}
-
 	input {
 		appearance: none;
 		position: absolute;
@@ -153,6 +141,13 @@
 		}
 
 		label {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 1rem;
+			width: max-content;
+			transition: background 0.3s;
+			pointer-events: all;
 			position: absolute;
 			inset: 0;
 			translate: 0px 40px;

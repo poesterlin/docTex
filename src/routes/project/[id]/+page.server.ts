@@ -2,7 +2,7 @@ import { env } from '$env/dynamic/private';
 import { generateId } from '$lib';
 import { toSVG } from '$lib/server/data';
 import { db } from '$lib/server/db';
-import { outputTable, projectTable, stylesTable, type Project } from '$lib/server/db/schema';
+import { outputTable, projectFilesTable, projectTable, requiredFilesTable, stylesTable, type Project } from '$lib/server/db/schema';
 import { downloadFolder, removeSpaces } from '$lib/server/drive';
 import { downloadFileToPath } from '$lib/server/s3';
 import { buildTex, clearFolder, downloadStyleFiles, updateWordCount, writeMainFile } from '$lib/server/tex';
@@ -10,6 +10,7 @@ import { error, redirect } from '@sveltejs/kit';
 import { and, asc, desc, eq, sql } from 'drizzle-orm';
 import { join } from 'path';
 import type { Actions, PageServerLoad } from './$types';
+import { ca } from 'date-fns/locale';
 
 export const load: PageServerLoad = async ({ locals, parent }) => {
 	let project: Project | null = null;
@@ -115,13 +116,34 @@ export const actions: Actions = {
 
 		if (project.driveFolderId) {
 			await downloadFolder(locals.session, project.driveFolderId);
+			await appendOutputLog(buildId, 'Downloading files...\n');
+			await downloadStyleFiles(project, style);
 		} else {
+			// download main file
 			const path = join(env.TMP_DIR, project.folderId, removeSpaces(project.name) + '.md');
 			await downloadFileToPath(project.folderId, path);
+
+			// download required files
+			await appendOutputLog(buildId, 'Downloading files...\n');
+			await downloadStyleFiles(project, style);
+
+			const projectFiles = await db
+				.select()
+				.from(projectFilesTable)
+				.innerJoin(requiredFilesTable, eq(projectFilesTable.fileId, requiredFilesTable.id))
+				.where(eq(projectFilesTable.projectId, id));
+
+			// overwrite files with user-uploaded files
+			for (const file of projectFiles) {
+				try {
+					const path = join(env.TMP_DIR, project.folderId, file.required_files.path);
+					await downloadFileToPath(file.project_files.id, path);
+				} catch (e) {
+					await appendOutputLog(buildId, `Failed to download file ${file.required_files.name}\n`);
+				}
+			}
 		}
 
-		await appendOutputLog(buildId, 'Downloading files...\n');
-		await downloadStyleFiles(project, style);
 		await appendOutputLog(buildId, 'Writing main file...\n');
 		await writeMainFile(project, style);
 		await updateWordCount(project, buildId);
