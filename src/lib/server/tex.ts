@@ -134,6 +134,8 @@ function settingsToObject(settings: any) {
 }
 
 export async function buildTex(project: Project, id: string) {
+	// TODO: setup postgres listener to abort build if user cancels
+
 	const path = join(env.TMP_DIR, project.folderId);
 	const command = `/tex/entrypoint.sh`;
 
@@ -212,7 +214,12 @@ export async function downloadStyleFiles(project: Project, style: Style) {
 		if (folder) {
 			await mkdir(folder, { recursive: true });
 		}
-		await writeFile(path, content);
+
+		try {
+			await writeFile(path, content);
+		} catch (error) {
+			console.error('Failed to download file', error);
+		}
 	}
 }
 

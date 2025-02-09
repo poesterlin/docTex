@@ -1,8 +1,31 @@
 <script lang="ts">
 	import { IconCancel, IconDownload, IconLink, IconPlayerPlay } from '@tabler/icons-svelte';
 	import type { PageData } from './$types';
+	import { onMount } from 'svelte';
 
 	let { data }: { data: PageData } = $props();
+
+	let builds = $state(data.outputs);
+
+	onMount(() => {
+		const build = builds[0];
+
+		if (!build?.running) {
+			return;
+		}
+
+		const id = setInterval(async () => {
+			const req = await fetch(`/project/${data.project.id}/builds/${build.id}`);
+			const updatedBuild = await req.json();
+			builds[0] = updatedBuild;
+
+			if (!updatedBuild.running) {
+				clearInterval(id);
+			}
+		}, 3 * 1000);
+
+		return () => clearInterval(id);
+	});
 
 	const intlDate = Intl.DateTimeFormat('en-US', {
 		month: 'short',
@@ -25,7 +48,7 @@
 
 <h2 class="sticky top-0 mb-8 rounded-md bg-gray-700/25 p-4 text-3xl font-semibold text-white shadow backdrop-blur-md">Builds</h2>
 
-{#if !data.outputs[0]?.running}
+{#if !builds[0]?.running}
 	<form action="/project/{data.project.id}?/build" method="post">
 		<button
 			type="submit"
@@ -38,7 +61,7 @@
 {/if}
 
 <ul class="space-y-6 divide-y divide-gray-700">
-	{#each data.outputs as build}
+	{#each builds as build}
 		<li class="flex flex-col gap-4 rounded-md bg-gray-800 p-4 text-white shadow">
 			<div class="flex items-center justify-between border-b border-gray-700 p-4">
 				<b class="font-semibold text-gray-400">{format(build.timestamp, 'date')}</b>
