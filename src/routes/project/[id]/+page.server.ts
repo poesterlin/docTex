@@ -133,6 +133,8 @@ export const actions: Actions = {
 			await db.update(outputTable).set({ running: false }).where(eq(outputTable.id, buildId));
 			console.error(error);
 		}
+
+		redirect(302, `/project/${id}/builds`);
 	},
 	delete: async ({ locals, params }) => {
 		if (!locals.user || !locals.session) {
