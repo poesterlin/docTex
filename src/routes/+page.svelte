@@ -17,7 +17,9 @@
 		placeholder="Project Name"
 	/>
 
-	<Checkbox value={data.user.hasGoogleAuth} id="createFolder" name="createFolder">Sync with Google Drive</Checkbox>
+	{#if data.user.hasGoogleAuth}
+	<Checkbox id="createFolder" name="createFolder">Sync with Google Drive</Checkbox>
+	{/if}
 	<p class="my-2 px-4 text-sm text-gray-400">If enabled will also create a folder in your Google Drive with the same name.</p>
 
 	<select

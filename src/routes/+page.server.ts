@@ -45,10 +45,7 @@ export const actions: Actions = {
 		z.object({
 			name: z.string(),
 			styleId: z.string(),
-			createFolder: z
-				.string()
-				.optional()
-				.transform((v) => v === 'on')
+			createFolder: z.string().default('off').transform(value => value === 'on')
 		}),
 		async ({ locals }, form) => {
 			if (!locals.user) {
@@ -58,7 +55,7 @@ export const actions: Actions = {
 			const session = locals.session;
 			assert(session);
 
-			let googleFolder = null;
+			let googleFolder: string | undefined;
 
 			// only create folder if the user wants to
 			if (form.createFolder) {
@@ -96,6 +93,8 @@ export const actions: Actions = {
 			if (!googleFolder) {
 				return redirect(302, `/project/${id}`);
 			}
+
+			// TODO: create a google docs document instead of a markdown file
 
 			const file = {
 				id: env.MARKDOWN_EXPLAINER_DOC,

@@ -1,5 +1,5 @@
 <script>
-	let { children, id, name, value } = $props();
+	let { children, id, name } = $props();
 </script>
 
 <div class="flex gap-2">
@@ -7,7 +7,6 @@
 		type="checkbox"
 		{id}
         {name}
-        {value}
 		class="peer relative mt-1 h-4 w-4 shrink-0 appearance-none rounded-sm border-2 border-blue-500 bg-white checked:border-0 checked:bg-blue-800"
 	/>
 	<label for={id}>
