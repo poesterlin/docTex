@@ -1,12 +1,14 @@
-import { generateId, validateForm } from '$lib';
+import { generateId, MAX_FILE_SIZE, validateForm } from '$lib';
 import { db } from '$lib/server/db';
-import { styleSettingsTable, stylesTable } from '$lib/server/db/schema';
-import { uploadFile } from '$lib/server/s3';
-import { findAllSettings } from '$lib/server/tex.js';
+import { stylesTable } from '$lib/server/db/schema';
 import { redirect } from '@sveltejs/kit';
-import { eq } from 'drizzle-orm';
+import { unzip } from 'unzipit';
 import { z } from 'zod';
 import type { PageServerLoad } from './$types';
+import { styleSettingsTable, requiredFilesTable } from '$lib/server/db/schema';
+import { eq } from 'drizzle-orm';
+import { findAllSettings } from '$lib/server/tex';
+import { uploadFile } from '$lib/server/s3';
 
 export const load: PageServerLoad = async () => {
 	const styles = await db.select().from(stylesTable);
@@ -18,44 +20,73 @@ export const actions = {
 	setup: validateForm(
 		z.object({
 			name: z.string().min(3),
-			file: z.instanceof(File),
-			description: z.string().min(3)
+			description: z.string().min(3),
+			file: z.instanceof(File).refine((file) => file?.size <= MAX_FILE_SIZE, `Max file size is 25MB.`)
 		}),
 		async ({ locals }, form) => {
 			if (!locals.user) {
 				return redirect(302, '/login');
 			}
 
-			const id = generateId();
-
-			const content = await form.file.text();
-			const settings = await findAllSettings(content);
-
-			await uploadFile(id, form.file);
+			const styleId = generateId();
 			await db.insert(stylesTable).values({
-				id,
+				id: styleId,
 				name: form.name,
-				mainFile: id,
+				mainFile: styleId,
 				description: form.description,
 				authorId: locals.user.id
 			});
 
-			await db.delete(styleSettingsTable).where(eq(styleSettingsTable.styleId, id));
-			for (const [setting, comment] of settings) {
-				if (setting === undefined || comment === undefined) {
+			const file = form.file;
+			const buffer = await file.arrayBuffer();
+
+			const { entries } = await unzip(buffer);
+
+			// print all entries and their sizes
+			for (const [name, entry] of Object.entries(entries)) {
+				// skip directories
+				if (name.endsWith('/')) {
 					continue;
 				}
 
-				await db.insert(styleSettingsTable).values({
-					id: generateId(),
-					styleId: id,
-					key: setting,
-					value: '',
-					comment
+				const isMainFile = name === 'main.tex';
+				if (isMainFile) {
+					const content = await entry.text();
+					const settings = await findAllSettings(content);
+					await uploadFile(styleId, entry);
+
+					await db.delete(styleSettingsTable).where(eq(styleSettingsTable.styleId, styleId));
+					for (const [setting, comment] of settings) {
+						if (setting === undefined || comment === undefined) {
+							continue;
+						}
+
+						await db.insert(styleSettingsTable).values({
+							id: generateId(),
+							styleId,
+							key: setting,
+							value: '',
+							comment
+						});
+					}
+					continue;
+				}
+
+				const id = generateId();
+				await db.insert(requiredFilesTable).values({
+					id,
+					name: name,
+					description: '',
+					path: name,
+					stylesId: styleId,
+					mimeType: 'application/octet-stream',
+					default: id,
+					override: 1
 				});
+				await uploadFile(id, entry);
 			}
 
-			return redirect(303, '/styles/' + id);
+			return redirect(303, '/styles/' + styleId);
 		}
 	)
 };

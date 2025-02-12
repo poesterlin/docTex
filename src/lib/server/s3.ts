@@ -1,5 +1,6 @@
 import { env } from '$env/dynamic/private';
 import { Client } from 'minio';
+import type { ZipEntry } from 'unzipit';
 
 const { MINIO_KEY, MINIO_SECRET, MINIO_URL, MINIO_BUCKET, MINIO_PORT } = env;
 
@@ -11,10 +12,10 @@ const client = new Client({
 	useSSL: false
 });
 
-export async function uploadFile(sha: string, file: File) {
+export async function uploadFile(sha: string, file: File | ZipEntry) {
 	const buffer = Buffer.from(await file.arrayBuffer());
 	const metaData = {
-		'content-type': file.type
+		'content-type': 'type' in file ? file.type : 'application/octet-stream'
 	};
 	await client.putObject(MINIO_BUCKET, sha, buffer, undefined, metaData);
 }

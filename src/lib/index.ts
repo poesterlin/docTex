@@ -4,6 +4,8 @@ import { encodeBase32LowerCase } from "@oslojs/encoding";
 import { fail, type RequestEvent } from "@sveltejs/kit";
 import type { z, ZodObject } from "zod";
 
+export const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
+
 export function assert<T>(p: T | undefined | null): asserts p is T {
     if (!p) {
         throw new Error('Assertion failed');

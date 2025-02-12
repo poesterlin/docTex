@@ -2,13 +2,11 @@ import { error, redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { requiredFilesTable, stylesTable, styleSettingsTable } from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
-import { assert, generateId, validateForm } from '$lib';
+import { assert, generateId, MAX_FILE_SIZE, validateForm } from '$lib';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
 import { uploadFile } from '$lib/server/s3';
 import { findAllSettings } from '$lib/server/tex';
-
-const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
 
 export const load: PageServerLoad = async ({ locals, params }) => {
 	if (!locals.user) {
@@ -26,15 +24,9 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		return error(403, { message: 'You do not have permission to view this style' });
 	}
 
-	const files = await db
-		.select()
-		.from(requiredFilesTable)
-		.where(eq(requiredFilesTable.stylesId, id));
+	const files = await db.select().from(requiredFilesTable).where(eq(requiredFilesTable.stylesId, id));
 
-	const settings = await db
-		.select()
-		.from(styleSettingsTable)
-		.where(eq(styleSettingsTable.styleId, id));
+	const settings = await db.select().from(styleSettingsTable).where(eq(styleSettingsTable.styleId, id));
 
 	return { style, files, settings };
 };
@@ -45,9 +37,7 @@ export const actions = {
 			name: z.string().min(3),
 			description: z.string().min(3),
 			path: z.string().min(3),
-			file: z
-				.instanceof(File)
-				.refine((file) => file?.size <= MAX_FILE_SIZE, `Max image size is 25MB.`),
+			file: z.instanceof(File).refine((file) => file?.size <= MAX_FILE_SIZE, `Max image size is 25MB.`),
 			override: z
 				.string()
 				.optional()
@@ -61,11 +51,7 @@ export const actions = {
 			const styleId = params.id;
 			assert(styleId);
 
-			const [style] = await db
-				.select()
-				.from(stylesTable)
-				.where(eq(stylesTable.id, styleId))
-				.limit(1);
+			const [style] = await db.select().from(stylesTable).where(eq(stylesTable.id, styleId)).limit(1);
 
 			if (!style || style.authorId !== locals.user.id) {
 				error(404, { message: 'Style not found' });
@@ -97,11 +83,7 @@ export const actions = {
 			const styleId = params.id;
 			assert(styleId);
 
-			const [style] = await db
-				.select()
-				.from(stylesTable)
-				.where(eq(stylesTable.id, styleId))
-				.limit(1);
+			const [style] = await db.select().from(stylesTable).where(eq(stylesTable.id, styleId)).limit(1);
 
 			if (!style || style.authorId !== locals.user.id) {
 				error(404, { message: 'Style not found' });
@@ -124,11 +106,7 @@ export const actions = {
 			const styleId = params.id;
 			assert(styleId);
 
-			const [style] = await db
-				.select()
-				.from(stylesTable)
-				.where(eq(stylesTable.id, styleId))
-				.limit(1);
+			const [style] = await db.select().from(stylesTable).where(eq(stylesTable.id, styleId)).limit(1);
 
 			if (!style || style.authorId !== locals.user.id) {
 				error(404, { message: 'Style not found' });
@@ -173,10 +151,19 @@ export const actions = {
 					continue;
 				}
 
-				await db
-					.insert(styleSettingsTable)
-					.values({ id: generateId(), styleId: id, key: setting, value: '', comment });
+				await db.insert(styleSettingsTable).values({ id: generateId(), styleId: id, key: setting, value: '', comment });
 			}
 		}
-	)
+	),
+	delete: async ({ locals, params }) => {
+		if (!locals.user) {
+			return redirect(302, '/login');
+		}
+
+		const id = params.id;
+		assert(id);
+
+		await db.delete(stylesTable).where(eq(stylesTable.id, id));
+		redirect(302, '/styles');
+	}
 };

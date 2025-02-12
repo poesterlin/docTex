@@ -1,5 +1,16 @@
 FROM oven/bun:alpine AS bun
 
+WORKDIR /app
+
+COPY package.json bun.lock ./
+
+RUN bun install
+
+COPY . .
+
+RUN bun run build \
+    && bun build --compile ./build/index.js --outfile executable
+
 #########################################################
 
 FROM ghcr.io/xu-cheng/texlive-full:latest AS tex
@@ -18,13 +29,10 @@ RUN echo 'export PATH=$PATH:/usr/local/bin' >> /etc/profile
 
 # copy node app
 WORKDIR /app
+COPY --from=bun /app/build/ build
+COPY --from=bun /app/node_modules/ node_modules
+COPY --from=bun /app/package.json ./
 
-COPY package.json bun.lock ./
+EXPOSE 3000
 
-RUN bun install
-
-COPY . .
-
-EXPOSE 5173
-
-CMD ["bun", "run", "dev", "--", "--host"]
+CMD ["bun", "/app/build/index.js"]

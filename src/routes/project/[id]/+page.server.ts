@@ -114,6 +114,7 @@ export const actions: Actions = {
 			await clearFolder(project);
 		}
 
+		console.log('Downloading files...');
 		if (project.driveFolderId) {
 			await downloadFolder(locals.session, project.driveFolderId);
 			await appendOutputLog(buildId, 'Downloading files...\n');
@@ -144,14 +145,22 @@ export const actions: Actions = {
 			}
 		}
 
-		await appendOutputLog(buildId, 'Writing main file...\n');
-		await writeMainFile(project, style);
-		await updateWordCount(project, buildId);
-		await appendOutputLog(buildId, 'Building...\n');
-
 		try {
+			await appendOutputLog(buildId, 'Writing main file...\n');
+			await writeMainFile(project, style);
+			await updateWordCount(project, buildId);
+			await appendOutputLog(buildId, 'Building...\n');
+
 			await buildTex(project, buildId);
-		} catch (error) {
+		} catch (error: unknown) {
+			if (typeof error === 'string') {
+				await appendOutputLog(buildId, `ERROR: ${error}\n`);
+			}
+
+			if (error instanceof Error) {
+				await appendOutputLog(buildId, `ERROR: ${error.message}\n`);
+			}
+
 			await db.update(outputTable).set({ running: false }).where(eq(outputTable.id, buildId));
 			console.error(error);
 		}
