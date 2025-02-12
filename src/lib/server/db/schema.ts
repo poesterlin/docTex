@@ -1,4 +1,4 @@
-import { boolean, integer, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import { boolean, integer, json, pgTable, text, timestamp, unique } from 'drizzle-orm/pg-core';
 
 const fullCascade = { onDelete: 'cascade', onUpdate: 'cascade' } as const;
 
@@ -85,7 +85,7 @@ export const projectTable = pgTable('project', {
 	driveFolderId: text('drive_folder_id'),
 	styleId: text('style_id')
 		.notNull()
-		.references(() => stylesTable.id, fullCascade),
+		.references(() => stylesTable.id, fullCascade)
 });
 
 export type Project = typeof projectTable.$inferSelect;
@@ -101,7 +101,7 @@ export const outputTable = pgTable('output', {
 	running: boolean('running').notNull().default(false),
 	fileId: text('file_id'),
 	thumbnail: text('thumbnail'),
-	wordCount: integer('word_count').notNull().default(0),
+	wordCount: integer('word_count').notNull().default(0)
 });
 
 export type Output = typeof outputTable.$inferSelect;
@@ -116,3 +116,19 @@ export const shareTokenTable = pgTable('share_token', {
 });
 
 export type ShareToken = typeof shareTokenTable.$inferSelect;
+
+export const bibliographyTable = pgTable(
+	'bibliography',
+	{
+		id: text('id').primaryKey(),
+		projectId: text('project_id')
+			.notNull()
+			.references(() => projectTable.id, fullCascade),
+		key: text('key').notNull(),
+		content: json('content').notNull()
+	},
+	// do not allow two bibliography entries with the same key in the same project
+	(t) => [unique().on(t.projectId, t.key)]
+);
+
+export type BibReference = typeof bibliographyTable.$inferSelect;

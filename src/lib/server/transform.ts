@@ -49,3 +49,18 @@ export async function storeAndReplaceDataImages(markdown: string, baseFolder: st
 
 	return markdown;
 }
+
+export function fixCitationKeys(markdown: string) {
+	// citation keys get exported like this: \[@key2016manual\]
+	// but should be: [@key2016manual]
+
+	const citationRegex = /\[@(\w+)\]/g;
+	const matches = markdown.matchAll(citationRegex);
+	for (const match of matches) {
+		const key = match[1];
+		markdown = markdown.replace(match[0], `[@${key}]`);
+		// markdown = markdown.replace(match[0], `\\footcite{${key}}`);
+	}
+
+	return markdown;
+}

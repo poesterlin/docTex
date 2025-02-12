@@ -5,6 +5,7 @@ import { mkdir, stat, writeFile } from 'fs/promises';
 import { join } from 'path';
 import { db } from './db';
 import {
+	bibliographyTable,
 	type Output,
 	outputTable,
 	type Project,
@@ -18,6 +19,7 @@ import { rm, readFile } from 'fs/promises';
 import { removeSpaces } from './drive';
 import ImageMagic from 'imagemagick';
 import { generateId } from '$lib';
+import { fixCitationKeys } from './transform';
 
 export async function substituteSettings(contents: string, settings: Record<string, string | boolean>) {
 	const lines = contents.split('\n');
@@ -98,6 +100,7 @@ export async function writeMainFile(project: Project, style: Style) {
 	const content = await getFileContentString(style.mainFile);
 
 	let res = await substituteSettings(content, settings);
+	res = fixCitationKeys(res);
 
 	const markdownInputFile = removeSpaces(project.name) + '.md';
 	const inputContent = await readFile(join(env.TMP_DIR, project.folderId, markdownInputFile), 'utf-8');
@@ -228,4 +231,22 @@ export async function clearFolder(project: Project) {
 	try {
 		await rm(path, { recursive: true });
 	} catch (error) {}
+}
+
+export async function createBibliography(project: Project) {
+	const bibs = await db
+		.select({
+			content: bibliographyTable.content
+		})
+		.from(bibliographyTable)
+		.where(eq(bibliographyTable.projectId, project.id))
+		.orderBy(bibliographyTable.key);
+
+	const content = bibs.map((bib) => bib.content).join('\n');
+	const path = join(env.TMP_DIR, project.folderId, 'bibliography.bib');
+
+	console.log('Writing bibliography to', path);
+	console.log('Bibliography:', content);
+
+	await writeFile(path, content);
 }
