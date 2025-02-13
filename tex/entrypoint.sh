@@ -83,6 +83,14 @@ for f in "${root_file[@]}"; do
     error "File '$f' cannot be found from the directory '$PWD'."
   fi
 
+  # Clean auxiliary files
+  info "Cleaning auxiliary files"
+  latexmk -c "$f"
+
+  # Run Biber explicitly (if using biblatex)
+  info "Running biber"
+  biber "main"  # Adjust "main" to your root file name (without extension)
+
   "$INPUT_COMPILER" "${args[@]}" "$f" || ret="$?"
   if [[ "$ret" -ne 0 ]]; then
     if [[ "$INPUT_CONTINUE_ON_ERROR" = "true" ]]; then
