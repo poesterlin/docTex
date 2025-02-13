@@ -43,7 +43,7 @@
 </form>
 
 <h1 class="mt-8 text-2xl font-semibold">Projects</h1>
-<ul class="mt-8 space-y-3">
+<ul class="mt-8 space-y-3 pb-24">
 	{#each data.projects as projects}
 		<li>
 			<a href="/project/{projects.id}" class="block rounded-lg bg-gray-800 p-3 font-medium text-gray-300 shadow hover:bg-gray-700">

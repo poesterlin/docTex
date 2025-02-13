@@ -65,6 +65,7 @@
 		<li class="flex flex-col gap-4 rounded-md bg-gray-800 p-4 text-white shadow">
 			<div class="flex items-center justify-between border-b border-gray-700 p-4">
 				<b class="font-semibold text-gray-400">{format(build.timestamp, 'date')}</b>
+				<span class="text-gray-300">{build.wordCount} Words</span>
 				<span class="text-gray-300">
 					{format(build.timestamp, 'time')}
 				</span>
