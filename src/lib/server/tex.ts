@@ -149,13 +149,14 @@ export async function buildTex(project: Project, id: string) {
 		const command = $`/tex/entrypoint.sh"`.cwd(path).nothrow();
 
 		for await (let line of command.lines()) {
+			console.log(line);
 			// append the line to the output
 			await db.update(outputTable).set({ logs: sql`append(logs, ${line})` })
 				.where(eq(outputTable.id, id));
 		}
 	} catch (error) {
 		console.error('Failed to build tex', error);
-	}
+	}		
 
 	const build: Partial<Output> = {
 		timestamp: new Date(),
