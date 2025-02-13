@@ -37,7 +37,7 @@ done
 root_file=("${expanded_root_file[@]}")
 
 INPUT_COMPILER="latexmk"
-INPUT_ARGS="-pdf -v -file-line-error -shell-escape -interaction=nonstopmode" # Removed -bibtex
+INPUT_ARGS="-pdf -v -file-line-error -shell-escape -interaction=nonstopmode -v" # Added -v
 
 IFS=' ' read -r -a args <<<"$INPUT_ARGS"
 
@@ -95,8 +95,9 @@ for f in "${root_file[@]}"; do
   info "Running biber"
   biber "$(basename "$f" .tex)"
 
-  # Now run latexmk, which should handle subsequent LaTeX passes
-  "$INPUT_COMPILER" "${args[@]}" "$f" || ret="$?"
+  # Now run latexmk, with a timeout
+  info "Running latexmk with timeout"
+  timeout 60s "$INPUT_COMPILER" "${args[@]}" "$f" || ret="$?" # Added timeout
   if [[ "$ret" -ne 0 ]]; then
     if [[ "$INPUT_CONTINUE_ON_ERROR" = "true" ]]; then
       exit_code="$ret"
