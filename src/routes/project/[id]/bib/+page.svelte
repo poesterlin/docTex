@@ -15,10 +15,39 @@
 	}
 
 	function copyCitationToClipboard(bib: BibReference) {
-        // TODO: add feature to cite specific site
+		// TODO: add feature to cite specific site
 		const cite = `[@${bib.key}]`;
 		navigator.clipboard.writeText(cite);
 		toastStore.show('Citation copied to clipboard');
+	}
+
+	function parseBib(bib: string) {
+		const lines = bib.split('\n');
+
+		const parsed = lines
+			.map((line) => {
+				if (!line.includes('=')) {
+					return;
+				}
+
+				const [key, value] = line.split('=');
+				return { key, value };
+			})
+			.filter((line) => line?.key && line?.value);
+
+		const result = parsed
+			.map((line) => {
+				const key = replaceSpecialChars(line!.key.trim()).toUpperCase();
+				const value = replaceSpecialChars(line!.value.trim());
+				return `<b>${key}:</b> ${value}`;
+			})
+			.join('\n');
+
+		return result;
+	}
+
+	function replaceSpecialChars(str: string) {
+		return str.replace(/[\{\}]/g, '');
 	}
 </script>
 
@@ -27,15 +56,12 @@
 <details open>
 	<summary>Add a bibliography entry</summary>
 	<form action="?/addBib" method="POST" class="space-y-4" use:enhance>
-		<label>
-			<span class="block text-gray-400">Entry</span>
-			<textarea
-				oninput={(e) => validateBibEntry(e)}
-				name="content"
-				class="block h-80 w-full rounded-md border border-gray-600 p-2 leading-6 tracking-widest text-gray-300 shadow"
-				placeholder="Enter the bibliography entry here..."
-			></textarea>
-		</label>
+		<textarea
+			oninput={(e) => validateBibEntry(e)}
+			name="content"
+			class="mt-2 block h-80 w-full rounded-md border border-gray-600 p-2 leading-6 tracking-widest text-gray-300 shadow"
+			placeholder="Enter the bibliography entry here..."
+		></textarea>
 		{#if valid === false}
 			<p class="text-red-600">
 				Please enter a valid bibliography entry. For more details, visit the <a
@@ -54,21 +80,55 @@
 	</form>
 </details>
 
-<ul class="mt-8 space-y-4">
+<ul class="mt-8 gap-4">
 	{#each data.bibliography as bib}
-		<li class="block flex items-center justify-between rounded-lg bg-gray-800 p-3 font-medium text-white shadow">
+		<li class="rounded-lg bg-gray-800 p-3 font-medium text-white shadow">
 			<h3>{bib.key}</h3>
-			<!-- <pre class="text-gray-400">
-				{JSON.stringify(bib.content, null, 2)}
-			</pre> -->
 			<form action="?/delBib" method="POST" class="inline-block" use:enhance>
 				<input type="hidden" name="id" value={bib.id} />
 				<button type="submit" class="text-red-600 hover:text-red-400">Delete</button>
 			</form>
-			<button onclick={() => copyCitationToClipboard(bib)}
-                class="text-gray-300 hover:text-gray-600">Copy citation to clipboard</button>
+			<button onclick={() => copyCitationToClipboard(bib)} class="text-gray-300 hover:text-gray-600">Copy citation to clipboard</button>
+
+			<div class="text-gray-400 mt-8">
+				<pre>{@html parseBib(bib.content as string)}</pre>
+			</div>
 		</li>
 	{:else}
 		<li class="text-gray-400">This project does not include any bibliography entries yet.</li>
 	{/each}
 </ul>
+
+<style>
+	ul {
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr;
+		width: 100%;
+		li {
+			display: grid;
+			grid-template-columns: subgrid;
+			grid-column: span 3;
+			align-items: center;
+			justify-content: space-between;
+
+			* {
+				text-align: center;
+			}
+
+			:first-child {
+				text-align: left;
+				margin-left: 1rem;
+			}
+
+			div {
+				grid-column: span 3;
+			}
+
+			pre {
+				white-space: pre-wrap;
+				word-wrap: break-word;
+				line-height-step: 1.5rem;
+			}
+		}
+	}
+</style>
