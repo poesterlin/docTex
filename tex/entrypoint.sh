@@ -37,7 +37,7 @@ done
 root_file=("${expanded_root_file[@]}")
 
 INPUT_COMPILER="latexmk"
-INPUT_ARGS="-pdf -file-line-error -shell-escape -bibtex -interaction=nonstopmode"
+INPUT_ARGS="-pdf -file-line-error -shell-escape -interaction=nonstopmode" # Removed -bibtex
 
 IFS=' ' read -r -a args <<<"$INPUT_ARGS"
 
@@ -87,9 +87,9 @@ for f in "${root_file[@]}"; do
   info "Cleaning auxiliary files"
   latexmk -c "$f"
 
-  # Run Biber explicitly (if using biblatex)
+  # Run Biber explicitly
   info "Running biber"
-  biber "main"  # Adjust "main" to your root file name (without extension)
+  biber "$(basename "$f" .tex)"  # Remove .tex extension
 
   "$INPUT_COMPILER" "${args[@]}" "$f" || ret="$?"
   if [[ "$ret" -ne 0 ]]; then
