@@ -37,7 +37,7 @@ done
 root_file=("${expanded_root_file[@]}")
 
 INPUT_COMPILER="latexmk"
-INPUT_ARGS="-pdf -v -file-line-error -shell-escape -interaction=nonstopmode -v" # Added -v
+INPUT_ARGS="-pdf -file-line-error -shell-escape -interaction=nonstopmode -v"
 
 IFS=' ' read -r -a args <<<"$INPUT_ARGS"
 
