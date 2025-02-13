@@ -87,10 +87,15 @@ for f in "${root_file[@]}"; do
   info "Cleaning auxiliary files"
   latexmk -c "$f"
 
-  # Run Biber explicitly
-  info "Running biber"
-  biber "$(basename "$f" .tex)"  # Remove .tex extension
+  # Run LaTeX *first* to generate the .bcf file
+  info "Running LaTeX (first pass)"
+  pdflatex "$f" || true  # Ignore errors on the first pass
 
+  # Run Biber
+  info "Running biber"
+  biber "$(basename "$f" .tex)"
+
+  # Now run latexmk, which should handle subsequent LaTeX passes
   "$INPUT_COMPILER" "${args[@]}" "$f" || ret="$?"
   if [[ "$ret" -ne 0 ]]; then
     if [[ "$INPUT_CONTINUE_ON_ERROR" = "true" ]]; then
