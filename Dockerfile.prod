@@ -1,4 +1,10 @@
+# only for bun
 FROM oven/bun:alpine AS bun
+
+#########################################################
+
+# build the app
+FROM bun AS build
 
 WORKDIR /app
 
@@ -10,28 +16,29 @@ COPY . .
 
 RUN bun run build \
     && bun build --compile ./build/index.js --outfile executable
-
+    
 #########################################################
-
+    
 FROM ghcr.io/xu-cheng/texlive-full:latest AS tex
 
-WORKDIR /tex
-COPY --chmod=777 tex/ ./
 
 RUN apk update \
-    && apk add --no-cache imagemagick
+&& apk add --no-cache imagemagick
 
 # install bun
 COPY --from=bun /usr/local/bin/bun /usr/local/bin/bun
+
+WORKDIR /tex
+COPY --chmod=777 tex/ ./
 
 # add bun to PATH
 RUN echo 'export PATH=$PATH:/usr/local/bin' >> /etc/profile
 
 # copy node app
 WORKDIR /app
-COPY --from=bun /app/build/ build
-COPY --from=bun /app/node_modules/ node_modules
-COPY --from=bun /app/package.json ./
+COPY --from=build /app/build/ build
+COPY --from=build /app/node_modules/ node_modules
+COPY --from=build /app/package.json ./
 
 EXPOSE 3000
 
