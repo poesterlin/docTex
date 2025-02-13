@@ -16,6 +16,17 @@ error() {
   exit 1
 }
 
+log_command() {
+  local start_time=$(date +%s)
+  info "Running command: $*"
+  "$@"
+  local end_time=$(date +%s)
+  local exit_code=$?
+  local duration=$((end_time - start_time))
+  info "Command '$*' finished in ${duration}s with exit code ${exit_code}"
+  return $exit_code
+}
+
 if [[ -z "$INPUT_ROOT_FILE" ]]; then
   error "Input 'root_file' is missing."
 fi
@@ -37,7 +48,7 @@ done
 root_file=("${expanded_root_file[@]}")
 
 INPUT_COMPILER="latexmk"
-INPUT_ARGS="-pdf -file-line-error -shell-escape -interaction=nonstopmode -v"
+INPUT_ARGS="-pdf -file-line-error -shell-escape -interaction=nonstopmode -v" # Added -v
 
 IFS=' ' read -r -a args <<<"$INPUT_ARGS"
 
@@ -85,19 +96,23 @@ for f in "${root_file[@]}"; do
 
   # Clean auxiliary files
   info "Cleaning auxiliary files"
-  latexmk -c "$f"
+  log_command latexmk -c "$f"
 
   # Run LaTeX *first* to generate the .bcf file
   info "Running LaTeX (first pass)"
-  pdflatex "$f" || true  # Ignore errors on the first pass
+  log_command pdflatex "$f" || true  # Ignore errors on the first pass
 
   # Run Biber
   info "Running biber"
-  biber "$(basename "$f" .tex)"
+  log_command biber "$(basename "$f" .tex)"
 
   # Now run latexmk, with a timeout
   info "Running latexmk with timeout"
-  timeout 60s "$INPUT_COMPILER" "${args[@]}" "$f" || ret="$?" # Added timeout
+  if timeout 60s log_command "$INPUT_COMPILER" "${args[@]}" "$f"; then
+    ret=0
+  else
+    ret=$?
+  fi
   if [[ "$ret" -ne 0 ]]; then
     if [[ "$INPUT_CONTINUE_ON_ERROR" = "true" ]]; then
       exit_code="$ret"
