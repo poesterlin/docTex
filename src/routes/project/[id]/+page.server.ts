@@ -5,7 +5,7 @@ import { db } from '$lib/server/db';
 import { outputTable, projectFilesTable, projectTable, requiredFilesTable, stylesTable, type Project } from '$lib/server/db/schema';
 import { downloadFolder, removeSpaces } from '$lib/server/drive';
 import { downloadFileToPath } from '$lib/server/s3';
-import { buildTex, clearFolder, downloadStyleFiles, updateWordCount, writeMainFile } from '$lib/server/tex';
+import { buildTex, clearFolder, createBibliography, downloadStyleFiles, updateWordCount, writeMainFile } from '$lib/server/tex';
 import { error, redirect } from '@sveltejs/kit';
 import { and, asc, desc, eq, sql } from 'drizzle-orm';
 import { join } from 'path';
@@ -115,11 +115,15 @@ export const actions: Actions = {
 		}
 
 		console.log('Downloading files...');
+
+		// for projects with drive folder
 		if (project.driveFolderId) {
 			await downloadFolder(locals.session, project.driveFolderId);
 			await appendOutputLog(buildId, 'Downloading files...\n');
 			await downloadStyleFiles(project, style);
 		} else {
+			// for projects with user-uploaded files
+			
 			// download main file
 			const path = join(env.TMP_DIR, project.folderId, removeSpaces(project.name) + '.md');
 			await downloadFileToPath(project.folderId, path);
@@ -144,6 +148,8 @@ export const actions: Actions = {
 				}
 			}
 		}
+
+		await createBibliography(project);
 
 		try {
 			await appendOutputLog(buildId, 'Writing main file...\n');
