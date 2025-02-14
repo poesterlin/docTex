@@ -7,4 +7,4 @@ if (!env.POSTGRES_CONNECTION_STRING) {
 }
 
 const client = postgres(env.POSTGRES_CONNECTION_STRING);
-export const db = drizzle(client);
+export const db = drizzle(client, { logger: env.POSTGRES_LOG_QUERIES === 'true' });
