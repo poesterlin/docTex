@@ -73,8 +73,6 @@ export function fixFootnotes(markdown: string) {
 	const footnoteReference = /\[\^(\d+)\][^:]/g;
 	const matches = markdown.matchAll(footnoteReference);
 
-	const footnoteDefinition = /\[\^(\d+)\]: (.+?)$/g;
-
 	for (const match of matches) {
 		const number = match[1];
 		const footnote = new RegExp(`\\[\\^${number}+\\]:\\s+(.+?)$`).exec(markdown);
