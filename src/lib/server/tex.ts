@@ -242,6 +242,11 @@ export async function clearFolder(project: Project) {
 	} catch (error) {}
 }
 
+export async function createFolder(project: Project) {
+	const path = join(env.TMP_DIR, project.folderId);
+	await mkdir(path, { recursive: true });
+}
+
 export async function createBibliography(project: Project) {
 	const bibs = await db
 		.select({
