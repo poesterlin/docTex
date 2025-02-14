@@ -48,7 +48,7 @@ done
 root_file=("${expanded_root_file[@]}")
 
 INPUT_COMPILER="latexmk"
-INPUT_ARGS="-pdf -file-line-error -shell-escape -interaction=nonstopmode -v" # Added -v
+INPUT_ARGS="-pdf -file-line-error -shell-escape -interaction=nonstopmode -v"
 
 IFS=' ' read -r -a args <<<"$INPUT_ARGS"
 
@@ -98,13 +98,21 @@ for f in "${root_file[@]}"; do
   info "Cleaning auxiliary files"
   log_command latexmk -c "$f"
 
-  # Run LaTeX *first* to generate the .bcf file
+  # Run LaTeX (first pass)
   info "Running LaTeX (first pass)"
-  log_command pdflatex "$f" || true  # Ignore errors on the first pass
+  log_command pdflatex "$f"
 
   # Run Biber
   info "Running biber"
   log_command biber "$(basename "$f" .tex)"
+
+  # Run LaTeX (second pass)
+  info "Running LaTeX (second pass)"
+  log_command pdflatex "$f"
+
+  # Run LaTeX (third pass)
+  info "Running LaTeX (third pass)"
+  log_command pdflatex "$f"
 
   # Now run latexmk, with a timeout
   info "Running latexmk with timeout"
