@@ -54,13 +54,39 @@ export function fixCitationKeys(markdown: string) {
 	// citation keys get exported like this: \[@key2016manual\]
 	// but should be: [@key2016manual]
 
-	const citationRegex = /\\\[@([\w-]+)\\\]/g;
-	const matches = markdown.matchAll(citationRegex);
+	const bracketOpen = / \\\[/g;
+	markdown = markdown.replaceAll(bracketOpen, '[');
+	const bracketClose = / \\\]/g;
+	markdown = markdown.replaceAll(bracketClose, ']');
+
+	return markdown;
+}
+
+export function fixFootnotes(markdown: string) {
+	// footnotes get exported like this:
+
+	// `[^1]` as a reference in the main text
+	// `[^1]:  footnote text` at the end of the document
+
+	// they should be exported like this: ^[footnote text]
+
+	const footnoteReference = /\[\^(\d+)\][^:]/g;
+	const matches = markdown.matchAll(footnoteReference);
+
+	const footnoteDefinition = /\[\^(\d+)\]: (.+?)$/g;
+
 	for (const match of matches) {
-		const key = match[1];
-		markdown = markdown.replace(match[0], `[@${key}]`);
-		console.log(`Fixed citation key: ${key}`);
-		// markdown = markdown.replace(match[0], `\\footcite{${key}}`);
+		const number = match[1];
+		const footnote = new RegExp(`\\[\\^${number}+\\]:\\s+(.+?)$`).exec(markdown);
+
+		if (!footnote) {
+			console.log(`No footnote found for ${number}`);
+			continue;
+		}
+
+		markdown = markdown
+		.replace(footnote[0], `^[${footnote[1]}]`) // replace the footnote definition
+		.replace(match[0], ''); // remove the footnote reference
 	}
 
 	return markdown;

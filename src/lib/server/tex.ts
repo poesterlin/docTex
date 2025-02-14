@@ -19,7 +19,7 @@ import { rm, readFile } from 'fs/promises';
 import { removeSpaces } from './drive';
 import ImageMagic from 'imagemagick';
 import { generateId } from '$lib';
-import { fixCitationKeys } from './transform';
+import { fixCitationKeys, fixFootnotes } from './transform';
 
 export async function substituteSettings(contents: string, settings: Record<string, string | boolean>) {
 	const lines = contents.split('\n');
@@ -103,6 +103,8 @@ export async function writeMainFile(project: Project, style: Style) {
 
 	const markdownInputFile = removeSpaces(project.name) + '.md';
 	let inputContent = await readFile(join(env.TMP_DIR, project.folderId, markdownInputFile), 'utf-8');
+
+	inputContent = fixFootnotes(inputContent);
 	inputContent = fixCitationKeys(inputContent);
 
 	const markdownHeader = `\\markdownBegin{}`;
@@ -142,7 +144,7 @@ export async function buildTex(project: Project, id: string) {
 
 	const path = join(env.TMP_DIR, project.folderId);
 	const command = `/tex/entrypoint.sh`;
-	
+
 	console.log('Running command:', command, 'in', path);
 
 	const maxTime = 1000 * 60 * 1; // 1 minute
