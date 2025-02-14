@@ -5,7 +5,7 @@ import { db } from '$lib/server/db';
 import { assert, generateId, MAX_FILE_SIZE, validateForm } from '$lib';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
-import { uploadFile } from '$lib/server/s3';
+import { getFileContentString, uploadFile } from '$lib/server/s3';
 import { findAllSettings } from '$lib/server/tex';
 
 export const load: PageServerLoad = async ({ locals, params }) => {
@@ -25,10 +25,11 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	}
 
 	const files = await db.select().from(requiredFilesTable).where(eq(requiredFilesTable.stylesId, id));
-
 	const settings = await db.select().from(styleSettingsTable).where(eq(styleSettingsTable.styleId, id));
 
-	return { style, files, settings };
+	const mainFile = files.find((file) => file.id === style.mainFile);
+
+	return { style, files, settings, mainFilePromise: mainFile ? getFileContentString(mainFile.id) : Promise.resolve('') };
 };
 
 export const actions = {

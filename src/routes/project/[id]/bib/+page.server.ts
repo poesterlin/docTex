@@ -57,7 +57,7 @@ export const actions: Actions = {
 			//     journal={...},
 			// }
 
-			const match = form.content.match(/@\w+\{(?<key>\w+),/);
+			const match = form.content.match(/@\w+\{(?<key>[\w-]+),/);
 			const key = match?.groups?.key;
 
 			if (!match || !key) {

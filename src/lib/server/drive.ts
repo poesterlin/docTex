@@ -5,7 +5,7 @@ import { join } from 'path';
 import { type RequiredFile, type Session } from './db/schema';
 import { getAuthClient } from './google';
 import { downloadFile } from './s3';
-import { fixCitationKeys, storeAndReplaceDataImages } from './transform';
+import { storeAndReplaceDataImages } from './transform';
 
 const drive = google.drive('v3');
 

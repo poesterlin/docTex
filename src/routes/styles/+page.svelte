@@ -49,9 +49,9 @@
 			for="file"
 			class="block w-full rounded-md bg-gray-700 px-4 py-2 text-center font-medium text-white shadow hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
 		>
-			Add Zipped Folder
+			Add Zipped Folder or main.tex File
 		</label>
-		<input id="file" type="file" class="hidden" name="file" required accept=".zip" />
+		<input id="file" type="file" class="hidden" name="file" required accept=".zip,.tex" />
 
 		<button
 			type="submit"

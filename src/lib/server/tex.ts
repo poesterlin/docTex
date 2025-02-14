@@ -100,10 +100,11 @@ export async function writeMainFile(project: Project, style: Style) {
 	const content = await getFileContentString(style.mainFile);
 
 	let res = await substituteSettings(content, settings);
-	res = fixCitationKeys(res);
 
 	const markdownInputFile = removeSpaces(project.name) + '.md';
-	const inputContent = await readFile(join(env.TMP_DIR, project.folderId, markdownInputFile), 'utf-8');
+	let inputContent = await readFile(join(env.TMP_DIR, project.folderId, markdownInputFile), 'utf-8');
+	inputContent = fixCitationKeys(inputContent);
+
 	const markdownHeader = `\\markdownBegin{}`;
 	const markdownFooter = `\\markdownEnd{}`;
 	res = res.replace(
@@ -141,6 +142,8 @@ export async function buildTex(project: Project, id: string) {
 
 	const path = join(env.TMP_DIR, project.folderId);
 	const command = `/tex/entrypoint.sh`;
+	
+	console.log('Running command:', command, 'in', path);
 
 	const maxTime = 1000 * 60 * 1; // 1 minute
 	const signal = AbortSignal.timeout(maxTime);
@@ -168,24 +171,7 @@ export async function buildTex(project: Project, id: string) {
 			build.fileId = id;
 
 			try {
-				const thumbnailPath = join(path, 'output_thumbnail.png');
-				await new Promise<void>((resolve, reject) => {
-					ImageMagic.convert(
-						['-thumbnail', 'x600', '-background', 'white', '-alpha', 'remove', outputPath + '[0]', thumbnailPath],
-						function (err, stdout) {
-							if (err) {
-								return reject(new Error('Failed to generate thumbnail'));
-							}
-
-							console.log('stdout:', stdout);
-							resolve();
-						}
-					);
-				});
-
-				const thumbnailId = generateId();
-				await uploadFileFromPath(thumbnailId, thumbnailPath);
-				build.thumbnail = thumbnailId;
+				build.thumbnail = await generateThumbnail(path, outputPath);
 			} catch (error) {
 				console.error('Failed to generate thumbnail', error);
 			}
@@ -193,6 +179,27 @@ export async function buildTex(project: Project, id: string) {
 
 		await db.update(outputTable).set(build).where(eq(outputTable.id, id));
 	});
+}
+
+async function generateThumbnail(path: string, outputPath: string) {
+	const thumbnailPath = join(path, 'output_thumbnail.png');
+	await new Promise<void>((resolve, reject) => {
+		ImageMagic.convert(
+			['-thumbnail', 'x600', '-background', 'white', '-alpha', 'remove', outputPath + '[0]', thumbnailPath],
+			function (err, stdout) {
+				if (err) {
+					return reject(new Error('Failed to generate thumbnail'));
+				}
+
+				console.log('stdout:', stdout);
+				resolve();
+			}
+		);
+	});
+
+	const thumbnailId = generateId();
+	await uploadFileFromPath(thumbnailId, thumbnailPath);
+	return thumbnailId;
 }
 
 export async function downloadStyleFiles(project: Project, style: Style) {

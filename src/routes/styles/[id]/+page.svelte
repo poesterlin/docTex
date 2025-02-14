@@ -112,13 +112,21 @@
 		</button>
 	</form>
 </details>
+
+{#await data.mainFilePromise}
+	<p>Loading...</p>
+{:then data}
+	{#if data}
+		<h2 class="mt-16 text-xl font-semibold">Main File</h2>
+		<pre class="mt-4 rounded-lg bg-gray-800 p-3 font-medium text-white shadow">{data}</pre>
+	{/if}
+{/await}
+
 <h2 class="mt-16 text-xl font-semibold">Files</h2>
 
 <ul class="mt-4 space-y-3">
 	{#each data.files as file}
-		<li
-			class="group block flex items-center justify-between rounded-lg bg-gray-800 p-3 font-medium text-white shadow hover:bg-gray-700"
-		>
+		<li class="group block flex items-center justify-between rounded-lg bg-gray-800 p-3 font-medium text-white shadow hover:bg-gray-700">
 			<div class="flex w-full flex-col items-center justify-between">
 				<h4 class="text-gray-400">
 					{file.name}
@@ -137,8 +145,9 @@
 			<form action="?/deleteFile" method="POST" use:enhance class="min-w-max">
 				<input type="hidden" name="id" value={file.id} />
 				<button
+					disabled={file.id === data.style.mainFile}
 					type="submit"
-					class="rounded-md bg-red-700 px-4 py-2 font-medium text-white opacity-0 shadow hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 group-hover:opacity-100"
+					class="rounded-md bg-red-700 px-4 py-2 font-medium text-white opacity-0 shadow hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 group-hover:opacity-100 disabled:opacity-50 disabled:cursor-not-allowed"
 				>
 					Delete
 				</button>
@@ -156,12 +165,7 @@
 	{#each data.settings as setting (setting.id)}
 		<li class="flex items-center space-x-4 rounded-md bg-gray-800 p-4 text-white shadow">
 			<em class="min-w-[30%] font-semibold text-gray-300">{setting.key}</em>
-			<form
-				action="?/update-setting"
-				method="post"
-				onsubmit={handleSettingsSubmit}
-				class="flex flex-1 items-center space-x-2"
-			>
+			<form action="?/update-setting" method="post" onsubmit={handleSettingsSubmit} class="flex flex-1 items-center space-x-2">
 				<input type="hidden" name="id" value={setting.id} />
 				<input
 					type="text"
@@ -185,7 +189,7 @@
 	{/each}
 </ul>
 
-<form action="?/delete" method="POST" use:enhance>
+<form action="?/delete" method="POST" use:enhance class="pb-32">
 	<button
 		type="submit"
 		class="mt-8 w-full rounded-md bg-red-700 px-4 py-2 font-medium text-white shadow hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2"

@@ -9,7 +9,7 @@
 
 	function validateBibEntry(e: Event & { currentTarget: EventTarget & HTMLTextAreaElement }) {
 		const el = e.currentTarget;
-		const match = el.value.match(/@\w+\{(?<key>\w+),/);
+		const match = el.value.match(/@\w+\{(?<key>[\w-]+),/);
 		const key = match?.groups?.key;
 		valid = Boolean(match && key);
 	}
