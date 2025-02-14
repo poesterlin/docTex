@@ -27,9 +27,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	const files = await db.select().from(requiredFilesTable).where(eq(requiredFilesTable.stylesId, id));
 	const settings = await db.select().from(styleSettingsTable).where(eq(styleSettingsTable.styleId, id));
 
-	const mainFile = files.find((file) => file.id === style.mainFile);
-
-	return { style, files, settings, mainFilePromise: mainFile ? getFileContentString(mainFile.id) : Promise.resolve('') };
+	return { style, files, settings, mainFilePromise: getFileContentString(style.mainFile) };
 };
 
 export const actions = {
@@ -140,13 +138,19 @@ export const actions = {
 				error(404, { message: 'Style not found' });
 			}
 
+			console.log('Updating main file', style);
+
+			// replace the main file
+			await uploadFile(style.mainFile, form.file);
+
+			// delete all settings
+			await db.delete(styleSettingsTable).where(eq(styleSettingsTable.styleId, id));
+
+			// read the new main file and add all new settings
 			const content = await form.file.text();
 			const settings = await findAllSettings(content);
+			console.log('Found settings', settings);
 
-			await uploadFile(id, form.file);
-			await db.update(stylesTable).set({ mainFile: id }).where(eq(stylesTable.id, id));
-
-			await db.delete(styleSettingsTable).where(eq(styleSettingsTable.styleId, id));
 			for (const [setting, comment] of settings) {
 				if (setting === undefined || comment === undefined) {
 					continue;
