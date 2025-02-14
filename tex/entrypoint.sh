@@ -100,7 +100,7 @@ for f in "${root_file[@]}"; do
 
   # Run LaTeX (first pass)
   info "Running LaTeX (first pass)"
-  log_command pdflatex "$f"
+  log_command pdflatex --shell-escape "$f"
 
   # Run Biber
   info "Running biber"
@@ -108,11 +108,11 @@ for f in "${root_file[@]}"; do
 
   # Run LaTeX (second pass)
   info "Running LaTeX (second pass)"
-  log_command pdflatex "$f"
+  log_command pdflatex --shell-escape "$f"
 
   # Run LaTeX (third pass)
   info "Running LaTeX (third pass)"
-  log_command pdflatex "$f"
+  log_command pdflatex --shell-escape "$f"
 
   # Now run latexmk, with a timeout
   info "Running latexmk with timeout"
