@@ -1,24 +1,20 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { toastStore } from '$lib/client/toast.svelte';
 	import type { BibReference } from '$lib/server/db/schema';
 	import type { PageData } from './$types';
+	import Citation from '$lib/client/Citation.svelte';
+	import { IconX } from '@tabler/icons-svelte';
 
 	let { data }: { data: PageData } = $props();
 	let valid = $state<undefined | boolean>();
+	let bibEntry = $state<undefined | BibReference>();
+	let dialogEl: HTMLDialogElement;
 
 	function validateBibEntry(e: Event & { currentTarget: EventTarget & HTMLTextAreaElement }) {
 		const el = e.currentTarget;
 		const match = el.value.match(/@\w+\{(?<key>[\w-]+),/);
 		const key = match?.groups?.key;
 		valid = Boolean(match && key);
-	}
-
-	function copyCitationToClipboard(bib: BibReference) {
-		// TODO: add feature to cite specific site
-		const cite = `[@${bib.key}]`;
-		navigator.clipboard.writeText(cite);
-		toastStore.show('Citation copied to clipboard');
 	}
 
 	function parseBib(bib: string) {
@@ -48,6 +44,11 @@
 
 	function replaceSpecialChars(str: string) {
 		return str.replace(/[\{\}]/g, '');
+	}
+
+	function open(bib: BibReference) {
+		bibEntry = bib;
+		dialogEl.showModal();
 	}
 </script>
 
@@ -88,9 +89,9 @@
 				<input type="hidden" name="id" value={bib.id} />
 				<button type="submit" class="text-red-600 hover:text-red-400">Delete</button>
 			</form>
-			<button onclick={() => copyCitationToClipboard(bib)} class="text-gray-300 hover:text-gray-600">Copy citation to clipboard</button>
+			<button onclick={() => open(bib)} class="text-gray-300 hover:text-gray-600">Generate Citation</button>
 
-			<div class="text-gray-400 mt-8">
+			<div class="mt-8 text-gray-400">
 				<pre>{@html parseBib(bib.content as string)}</pre>
 			</div>
 		</li>
@@ -98,6 +99,18 @@
 		<li class="text-gray-400">This project does not include any bibliography entries yet.</li>
 	{/each}
 </ul>
+
+<!-- Citation Generation Dialog -->
+<dialog class="z-50 flex items-center justify-center rounded-xl shadow-lg" bind:this={dialogEl}>
+	<form method="dialog">
+		<button class="absolute right-0 top-0 p-4 text-gray-300 hover:text-gray-600" aria-label="Close" onclick={() => (bibEntry = undefined)}>
+			<IconX class="h-6 w-6" />
+		</button>
+	</form>
+	{#if bibEntry}
+		<Citation {bibEntry} />
+	{/if}
+</dialog>
 
 <style>
 	ul {
@@ -130,5 +143,9 @@
 				line-height-step: 1.5rem;
 			}
 		}
+	}
+
+	dialog::backdrop {
+		background-color: rgba(0, 0, 0, 0.5);
 	}
 </style>
