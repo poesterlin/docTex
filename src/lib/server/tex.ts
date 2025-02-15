@@ -222,7 +222,7 @@ export async function buildTex(project: Project, id: string) {
 
 	console.log('Running command:', command, 'in', path);
 
-	const maxTime = 1000 * 60 * 1; // 1 minute
+	const maxTime = 1000 * 60 * 5; // 5 minutes
 	const signal = AbortSignal.timeout(maxTime);
 
 	exec(command, { cwd: path, signal }, async (error, stdout, stderr) => {
