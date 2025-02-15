@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import Settings from '$lib/client/Settings.svelte';
 	import { handleSettingsSubmit } from '$lib/client/utils';
 	import type { PageServerData } from './$types';
 
@@ -149,7 +150,7 @@
 				<button
 					disabled={file.id === data.style.mainFile}
 					type="submit"
-					class="rounded-md bg-red-700 px-4 py-2 font-medium text-white opacity-0 shadow hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 group-hover:opacity-100 disabled:opacity-50 disabled:cursor-not-allowed"
+					class="rounded-md bg-red-700 px-4 py-2 font-medium text-white opacity-0 shadow hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 group-hover:opacity-100"
 				>
 					Delete
 				</button>
@@ -169,22 +170,7 @@
 			<em class="min-w-[30%] font-semibold text-gray-300">{setting.key}</em>
 			<form action="?/update-setting" method="post" onsubmit={handleSettingsSubmit} class="flex flex-1 items-center space-x-2">
 				<input type="hidden" name="id" value={setting.id} />
-				<input
-					type="text"
-					name="value"
-					value={setting.value}
-					placeholder="Value"
-					class="flex-1 rounded-md border border-gray-600 bg-gray-700 p-2 text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-					onblur={submit}
-				/>
-				<input
-					type="text"
-					name="comment"
-					value={setting.comment}
-					placeholder="Comment"
-					class="flex-1 rounded-md border border-gray-600 bg-gray-700 p-2 text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-					onblur={submit}
-				/>
+				<Settings {setting} onsubmit={submit} />
 				<input type="submit" hidden />
 			</form>
 		</li>

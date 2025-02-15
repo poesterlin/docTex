@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { eq } from 'drizzle-orm';
 import { getFileContentString, uploadFile } from '$lib/server/s3';
 import { findAllSettings } from '$lib/server/tex';
+import { getSettingsFromFile } from '$lib/server/tex';
 
 export const load: PageServerLoad = async ({ locals, params }) => {
 	if (!locals.user) {
@@ -25,7 +26,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	}
 
 	const files = await db.select().from(requiredFilesTable).where(eq(requiredFilesTable.stylesId, id));
-	const settings = await db.select().from(styleSettingsTable).where(eq(styleSettingsTable.styleId, id));
+	const settings = await db.select().from(styleSettingsTable).where(eq(styleSettingsTable.styleId, id)).orderBy(styleSettingsTable.key);
 
 	return { style, files, settings, mainFilePromise: getFileContentString(style.mainFile) };
 };
@@ -114,7 +115,7 @@ export const actions = {
 			await db
 				.update(styleSettingsTable)
 				.set({
-					value: form.value,
+					value: form.value ?? '',
 					comment: form.comment
 				})
 				.where(eq(styleSettingsTable.id, form.id));
@@ -143,21 +144,12 @@ export const actions = {
 			// replace the main file
 			await uploadFile(style.mainFile, form.file);
 
-			// delete all settings
+			// delete all existing settings
 			await db.delete(styleSettingsTable).where(eq(styleSettingsTable.styleId, id));
 
 			// read the new main file and add all new settings
-			const content = await form.file.text();
-			const settings = await findAllSettings(content);
-			console.log('Found settings', settings);
-
-			for (const [setting, comment] of settings) {
-				if (setting === undefined || comment === undefined) {
-					continue;
-				}
-
-				await db.insert(styleSettingsTable).values({ id: generateId(), styleId: id, key: setting, value: '', comment });
-			}
+			const settings = await getSettingsFromFile(form.file, style.id);
+			await db.insert(styleSettingsTable).values(settings);
 		}
 	),
 	delete: async ({ locals, params }) => {

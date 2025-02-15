@@ -12,7 +12,8 @@ import {
 	projectSettingsTable,
 	requiredFilesTable,
 	type Style,
-	styleSettingsTable
+	styleSettingsTable,
+	stylesTable
 } from './db/schema';
 import { getFileContentString, uploadFileFromPath } from './s3';
 import { rm, readFile } from 'fs/promises';
@@ -21,6 +22,7 @@ import ImageMagic from 'imagemagick';
 import { generateId } from '$lib';
 import { fixCitationKeys, fixFootnotes } from './transform';
 import { AnsiUp } from 'ansi_up';
+import type { ZipEntry } from 'unzipit';
 
 export async function substituteSettings(contents: string, settings: Record<string, string | boolean>) {
 	const lines = contents.split('\n');
@@ -54,14 +56,14 @@ export async function substituteSettings(contents: string, settings: Record<stri
 	return newLines.join('\n');
 }
 
-export async function findAllSettings(contents: string): Promise<[string, string][]> {
+export async function findAllSettings(contents: string): Promise<[string, { comment?: string; type: 'string' | 'boolean' }][]> {
 	const lines = contents.split('\n');
 
 	const settings = new Set<string>();
 	const optionalSettings = new Set<string>();
 
 	for (const line of lines) {
-		const match = line.match(/SETTING_([A-Z_]+)/);
+		const match = line.match(/#SETTING_([A-Z_]+)/);
 		if (!match) {
 			continue;
 		}
@@ -74,7 +76,78 @@ export async function findAllSettings(contents: string): Promise<[string, string
 		}
 	}
 
-	return Array.from(settings.entries()).map(([key]) => [key, optionalSettings.has(key) ? 'optional' : '']);
+	const booleanSettings = new Set<string>();
+
+	// find all settings that only have #IF_SETTING_ and no SETTING_
+
+	for (const line of lines) {
+		const match = line.match(/#IF_SETTING_([A-Z_]+)#/);
+		if (!match) {
+			continue;
+		}
+
+		if (!settings.has(match[1])) {
+			booleanSettings.add(match[1]);
+			console.log('Found boolean setting', match[1]);
+		}
+	}
+
+	const result: [string, { comment?: string; type: 'string' | 'boolean' }][] = [];
+
+	for (const setting of settings) {
+		const isOptional = optionalSettings.has(setting);
+		result.push([
+			setting,
+			{
+				comment: isOptional ? 'Optional' : undefined,
+				type: 'string'
+			}
+		]);
+	}
+
+	for (const setting of booleanSettings) {
+		result.push([
+			setting,
+			{
+				type: 'boolean'
+			}
+		]);
+	}
+
+	return result;
+}
+
+type newSetting = typeof styleSettingsTable.$inferInsert;
+export async function getSettingsFromFile(file: File | ZipEntry, styleId: string): Promise<newSetting[]> {
+	const content = await file.text();
+	const settings = await findAllSettings(content);
+
+	const newSettings: newSetting[] = [];
+
+	for (const [setting, options] of settings) {
+		const { comment, type } = options;
+		const isBoolean = type === 'boolean';
+
+		if (setting === undefined) {
+			console.log('Skipping setting', setting);
+			continue;
+		}
+
+		const values = {
+			id: generateId(),
+			styleId,
+			key: setting,
+			value: '',
+			comment: comment ?? '',
+			isBoolean
+		} satisfies newSetting;
+
+		console.log('Adding setting', values);
+
+		newSettings.push(values);
+	}
+
+	return newSettings;
 }
 
 export async function getSettings(project: Project, style: Style) {

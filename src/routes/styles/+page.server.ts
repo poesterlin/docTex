@@ -9,6 +9,7 @@ import { styleSettingsTable, requiredFilesTable } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import { findAllSettings } from '$lib/server/tex';
 import { uploadFile } from '$lib/server/s3';
+import { getSettingsFromFile } from '$lib/server/tex';
 
 export const load: PageServerLoad = async () => {
 	const styles = await db.select().from(stylesTable);
@@ -56,33 +57,20 @@ export const actions = {
 							continue;
 						}
 
+						const id = generateId();
 						const isMainFile = name === 'main.tex';
 						if (isMainFile) {
-							const content = await entry.text();
-							const settings = await findAllSettings(content);
-							const id = generateId();
 							await uploadFile(id, entry);
+
+							// set file to be the main file of the style
 							await db.update(stylesTable).set({ mainFile: id }).where(eq(stylesTable.id, styleId));
 
-							await db.delete(styleSettingsTable).where(eq(styleSettingsTable.styleId, styleId));
-							for (const [setting, comment] of settings) {
-								if (setting === undefined || comment === undefined) {
-									continue;
-								}
-
-								await db.insert(styleSettingsTable).values({
-									id: generateId(),
-									styleId,
-									key: setting,
-									value: '',
-									comment
-								});
-							}
+							const settings = await getSettingsFromFile(entry, styleId);
+							await db.insert(styleSettingsTable).values(settings);
 
 							continue;
 						}
 
-						const id = generateId();
 						await db.insert(requiredFilesTable).values({
 							id,
 							name: name,
@@ -117,7 +105,11 @@ export const actions = {
 				path: '/main.tex'
 			} satisfies typeof requiredFilesTable.$inferInsert);
 
+			// set file to be the main file of the style
 			await db.update(stylesTable).set({ mainFile: id }).where(eq(stylesTable.id, styleId));
+
+			const settings = await getSettingsFromFile(file, styleId);
+			await db.insert(styleSettingsTable).values(settings);
 
 			return redirect(303, '/styles/' + styleId);
 		}

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Settings from '$lib/client/Settings.svelte';
 	import { handleSettingsSubmit } from '$lib/client/utils';
 	import type { PageData } from './$types';
 
@@ -11,9 +12,7 @@
 	}
 </script>
 
-<h2 class="sticky top-0 mb-8 text-3xl font-semibold text-white p-4 shadow bg-gray-700/25 rounded-md backdrop-blur-md">
-	Setting
-</h2>
+<h2 class="sticky top-0 mb-8 rounded-md bg-gray-700/25 p-4 text-3xl font-semibold text-white shadow backdrop-blur-md">Setting</h2>
 
 <ul class="space-y-4">
 	{#each data.settings as setting (setting.id)}
@@ -21,27 +20,14 @@
 			<span class="min-w-[30%] font-semibold text-gray-300">{setting.key}</span>
 			<form action="?/update-setting" method="post" onsubmit={handleSettingsSubmit} class="flex flex-1 items-center space-x-2">
 				<input type="hidden" name="id" value={setting.id} />
-				<input
-					type="text"
-					name="value"
-					value={setting.value}
-					placeholder="Value"
-					class="flex-1 rounded-md border border-gray-600 bg-gray-700 p-2 text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-					onblur={submit}
-				/>
-				<input
-					type="text"
-					name="comment"
-					value={setting.comment}
-					placeholder="Comment"
-					class="flex-1 rounded-md border border-gray-600 bg-gray-700 p-2 text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-					onblur={submit}
-				/>
+				<Settings {setting} onsubmit={submit} />
 				<input type="submit" hidden />
 			</form>
 		</li>
 	{:else}
-		<li class="text-gray-400"><a href="/styles/{data.project.styleId}" class="underline">This Style</a> does not have any settings to customize.</li>
+		<li class="text-gray-400">
+			<a href="/styles/{data.project.styleId}" class="underline">This Style</a> does not have any settings to customize.
+		</li>
 	{/each}
 </ul>
 

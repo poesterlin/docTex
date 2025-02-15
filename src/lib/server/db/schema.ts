@@ -38,7 +38,8 @@ export const styleSettingsTable = pgTable('style_settings', {
 	styleId: text('style_id').references(() => stylesTable.id, fullCascade),
 	key: text('key').notNull(),
 	value: text('value').notNull(),
-	comment: text('comment').notNull()
+	comment: text('comment').notNull(),
+	isBoolean: boolean('is_boolean').notNull().default(false)
 });
 
 export const projectSettingsTable = pgTable('project_settings', {

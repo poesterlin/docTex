@@ -24,7 +24,8 @@ export const load = async ({ locals, parent }) => {
 			id: projectSettingsTable.id,
 			key: styleSettingsTable.key,
 			value: projectSettingsTable.value,
-			comment: styleSettingsTable.comment
+			comment: styleSettingsTable.comment,
+			isBoolean: styleSettingsTable.isBoolean
 		})
 		.from(styleSettingsTable)
 		.where(eq(projectSettingsTable.projectId, id))
@@ -63,7 +64,7 @@ export const actions: Actions = {
 			await db
 				.update(projectSettingsTable)
 				.set({
-					value: form.value
+					value: form.value ?? ''
 				})
 				.where(and(eq(projectSettingsTable.id, form.id), eq(projectSettingsTable.projectId, projectId)));
 		}
