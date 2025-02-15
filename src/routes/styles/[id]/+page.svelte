@@ -119,7 +119,7 @@
 {:then data}
 	{#if data}
 		<h2 class="mt-16 text-xl font-semibold">Main File</h2>
-		<pre class="mt-4 rounded-lg bg-gray-800 p-3 font-medium text-white shadow">{data}</pre>
+		<pre class="mt-4 whitespace-pre-wrap rounded-lg bg-gray-800 p-3 font-medium text-white shadow">{data}</pre>
 	{:else}
 		<p class="mt-16 text-gray-500">No main File found</p>
 	{/if}
