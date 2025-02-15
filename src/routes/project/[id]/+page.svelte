@@ -66,7 +66,9 @@
 
 {#if data.build}
 	<div class="m-auto mt-8 flex h-40 w-full items-center justify-center md:h-96">
-		<img src="/project/{data.project.id}/thumbnail" alt="PDF Thumbnail" class="h-full w-full object-contain" />
+		<object data="/file-not-found.svg" type="image/svg" class="h-full w-full object-contain" aria-label="PDF Thumbnail">
+			<img src="/project/{data.project.id}/thumbnail" alt="PDF Thumbnail" class="h-full w-full object-contain" />
+		</object>
 	</div>
 {/if}
 
