@@ -127,7 +127,8 @@ export const actions: Actions = {
 
 		// for projects with drive folder
 		if (project.driveFolderId) {
-			await downloadFolder(locals.session, project.driveFolderId);
+			const path = join(env.TMP_DIR, project.folderId);
+			await downloadFolder(locals.session, project.driveFolderId, path);
 			await appendOutputLog(buildId, 'Downloading files...\n');
 			await downloadStyleFiles(project, style);
 		} else {

@@ -6,7 +6,7 @@ export async function storeAndReplaceDataImages(markdown: string, baseFolder: st
 	// find all images in this format:
 	// ![][image1]
 
-	const imageRegex = /!\[\]\[(image\d+)\]/g;
+	const imageRegex = /!\[.*]\[(image\d+)\]/g;
 	let matches: any = [];
 
 	if (markdown.matchAll) {

@@ -135,11 +135,7 @@ export async function copyFileToProjectFolder(session: Session, file: RequiredFi
 	});
 }
 
-export async function downloadFolder(session: Session, folderId: string, path?: string) {
-	if (!path) {
-		path = join(env.TMP_DIR, folderId);
-	}
-
+export async function downloadFolder(session: Session, folderId: string, path: string) {
 	await mkdir(path, { recursive: true });
 
 	const auth = getAuthClient(session);
