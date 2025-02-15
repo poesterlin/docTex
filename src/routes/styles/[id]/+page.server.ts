@@ -149,7 +149,9 @@ export const actions = {
 
 			// read the new main file and add all new settings
 			const settings = await getSettingsFromFile(form.file, style.id);
-			await db.insert(styleSettingsTable).values(settings);
+			if (settings.length > 0) {
+				await db.insert(styleSettingsTable).values(settings);
+			}
 		}
 	),
 	delete: async ({ locals, params }) => {

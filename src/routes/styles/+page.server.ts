@@ -66,7 +66,9 @@ export const actions = {
 							await db.update(stylesTable).set({ mainFile: id }).where(eq(stylesTable.id, styleId));
 
 							const settings = await getSettingsFromFile(entry, styleId);
-							await db.insert(styleSettingsTable).values(settings);
+							if (settings.length > 0) {
+								await db.insert(styleSettingsTable).values(settings);
+							}
 
 							continue;
 						}
@@ -109,7 +111,9 @@ export const actions = {
 			await db.update(stylesTable).set({ mainFile: id }).where(eq(stylesTable.id, styleId));
 
 			const settings = await getSettingsFromFile(file, styleId);
-			await db.insert(styleSettingsTable).values(settings);
+			if (settings.length > 0) {
+				await db.insert(styleSettingsTable).values(settings);
+			}
 
 			return redirect(303, '/styles/' + styleId);
 		}
