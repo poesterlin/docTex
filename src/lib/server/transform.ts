@@ -7,16 +7,7 @@ export async function storeAndReplaceDataImages(markdown: string, baseFolder: st
 	// ![][image1]
 
 	const imageRegex = /!\[.*]\[(image\d+)\]/g;
-	let matches: any = [];
-
-	if (markdown.matchAll) {
-		matches = markdown.matchAll(imageRegex);
-	} else {
-		let match;
-		while ((match = imageRegex.exec(markdown)) !== null) {
-			matches.push(match);
-		}
-	}
+	const matches = markdown.matchAll(imageRegex);
 
 	for (const match of matches) {
 		const id = match[1];
@@ -64,28 +55,34 @@ export function fixCitationKeys(markdown: string) {
 
 export function fixFootnotes(markdown: string) {
 	// footnotes get exported like this:
-
+  
 	// `[^1]` as a reference in the main text
 	// `[^1]:  footnote text` at the end of the document
-
+  
 	// they should be exported like this: ^[footnote text]
-
-	const footnoteReference = /\[\^(\d+)\][^:]/g;
-	const matches = markdown.matchAll(footnoteReference);
-
+  
+	let footnoteReference = /\[\^(\d+)\]/g;
+	let matches = Array.from(markdown.matchAll(footnoteReference));
+  
+	// Reverse the matches to process footnotes from the end of the document
+	// to avoid index shifting issues when replacing text.
+	matches = matches.reverse();
+  
 	for (const match of matches) {
-		const number = match[1];
-		const footnote = new RegExp(`\\[\\^${number}+\\]:\\s+(.+?)$`).exec(markdown);
-
-		if (!footnote) {
-			console.log(`No footnote found for ${number}`);
-			continue;
-		}
-
-		markdown = markdown
-		.replace(footnote[0], `^[${footnote[1]}]`) // replace the footnote definition
-		.replace(match[0], ''); // remove the footnote reference
+	  const number = match[1];
+	  const footnoteRegex = new RegExp(`\\[\\^${number}\\]:\\s+(.+?)(?=\\[\\^\\d+\\]:|$)`, 's');
+	  const footnote = footnoteRegex.exec(markdown);
+  
+	  if (!footnote) {
+		console.log(`No footnote found for ${number}`);
+		continue;
+	  }
+  
+	  markdown = markdown
+		.replace(footnote[0], '') // remove the footnote definition
+		.replace(match[0], `^[${footnote[1].trim()}]`); // replace the footnote reference
 	}
-
+  
 	return markdown;
-}
+  }
+  
