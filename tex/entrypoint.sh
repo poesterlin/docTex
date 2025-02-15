@@ -110,9 +110,9 @@ for f in "${root_file[@]}"; do
   info "Running LaTeX (second pass)"
   log_command pdflatex --shell-escape "$f"
 
-  # Run LaTeX (third pass)
-  info "Running LaTeX (third pass)"
-  log_command pdflatex --shell-escape "$f"
+  # # Run LaTeX (third pass)
+  # info "Running LaTeX (third pass)"
+  # log_command pdflatex --shell-escape "$f"
 
   # Now run latexmk, with a timeout
   info "Running latexmk with timeout"
