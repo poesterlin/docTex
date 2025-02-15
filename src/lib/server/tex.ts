@@ -158,7 +158,7 @@ export async function buildTex(project: Project, id: string) {
 			errors: stderr + (error ? `\nERROR:\n` + error.message : ''),
 			running: false,
 			thumbnail: null,
-			duration: (Date.now() - startTime) / 1000
+			duration: Math.ceil((Date.now() - startTime) / 1000) // seconds as integer
 		};
 
 		// wait for the file to be written
