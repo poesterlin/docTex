@@ -198,9 +198,43 @@ ${markdownFooter}
 export async function updateWordCount(project: Project, buildId: string) {
 	const path = join(env.TMP_DIR, project.folderId, removeSpaces(project.name) + '.md');
 	const inputContent = await readFile(path, 'utf-8');
-	const wordCount = inputContent.split(/\s+/).length;
-
+	const wordCount = countWords(inputContent);
+	
 	await db.update(outputTable).set({ wordCount }).where(eq(outputTable.id, buildId));
+}
+
+function countWords(input: string): number {
+	const separators: string[] = [' ', '.', ','];
+
+	// This is the state, where true means we are not currently counting text, and
+	// false means we are.
+	let state: boolean = true;
+
+	// When a sentence begins, but before we have scanned anything, we are not
+	// counting a word yet, so we have to set the state to true first.
+	state = true;
+
+	// This variable is our word count that we will give to the user once the
+	// program has finished running
+	let count: number = 0;
+
+	// Scan through all elements in our text individually one by one
+	for (let i = 0; i < input.length; i++) {
+		// if the next element is a separator, set the state as true.
+		if (separators.includes(input[i]) || input[i] === '\n' || input[i] === '\t') {
+			state = true;
+		}
+
+		// On the other hand, if the next element is not in our list separators, and
+		// the state is currently true, then we set the state as false and
+		// increment our word_count variable by one.
+		else if (state === true) {
+			state = false;
+			count = count + 1;
+		}
+	}
+
+	return count;
 }
 
 function settingsToObject(settings: any) {
