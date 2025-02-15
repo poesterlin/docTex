@@ -18,7 +18,6 @@ import { error, redirect } from '@sveltejs/kit';
 import { and, asc, desc, eq, sql } from 'drizzle-orm';
 import { join } from 'path';
 import type { Actions, PageServerLoad } from './$types';
-import { ca } from 'date-fns/locale';
 
 export const load: PageServerLoad = async ({ locals, parent }) => {
 	let project: Project | null = null;
@@ -60,7 +59,7 @@ async function appendOutputLog(buildId: string, newLogs: string) {
 	await db
 		.update(outputTable)
 		.set({
-			logs: sql`CONCAT(logs, ${newLogs})`
+			logs: sql`CONCAT(${outputTable.logs}, ${newLogs})`
 		})
 		.where(eq(outputTable.id, buildId));
 }
