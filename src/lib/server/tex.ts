@@ -20,6 +20,7 @@ import { removeSpaces } from './drive';
 import ImageMagic from 'imagemagick';
 import { generateId } from '$lib';
 import { fixCitationKeys, fixFootnotes } from './transform';
+import { AnsiUp } from 'ansi_up';
 
 export async function substituteSettings(contents: string, settings: Record<string, string | boolean>) {
 	const lines = contents.split('\n');
@@ -152,14 +153,18 @@ export async function buildTex(project: Project, id: string) {
 	const signal = AbortSignal.timeout(maxTime);
 
 	exec(command, { cwd: path, signal }, async (error, stdout, stderr) => {
+		const ansi_up = new AnsiUp();
+
 		const build: Partial<Output> = {
 			projectId: project.id,
-			logs: stdout,
-			errors: stderr + (error ? `\nERROR:\n` + error.message : ''),
+			logs: ansi_up.ansi_to_html(stdout),
+			errors: ansi_up.ansi_to_html(stderr + (error ? `\nERROR:\n` + error.message : '')),
 			running: false,
 			thumbnail: null,
 			duration: Math.ceil((Date.now() - startTime) / 1000) // seconds as integer
 		};
+
+		console.log('Build finished', build);
 
 		// wait for the file to be written
 		await new Promise((resolve) => setTimeout(resolve, 1000));

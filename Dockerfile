@@ -7,6 +7,9 @@ FROM ghcr.io/xu-cheng/texlive-full:latest AS tex
 WORKDIR /tex
 COPY --chmod=777 tex/ ./
 
+# remove windows line endings
+RUN sed -i 's/\r$//' /tex/entrypoint.sh 
+
 RUN apk update \
     && apk add --no-cache imagemagick
 

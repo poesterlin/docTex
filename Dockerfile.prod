@@ -31,6 +31,9 @@ COPY --from=bun /usr/local/bin/bun /usr/local/bin/bun
 WORKDIR /tex
 COPY --chmod=777 tex/ ./
 
+# remove windows line endings
+RUN sed -i 's/\r$//' /tex/entrypoint.sh
+
 # add bun to PATH
 RUN echo 'export PATH=$PATH:/usr/local/bin' >> /etc/profile
 

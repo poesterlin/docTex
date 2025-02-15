@@ -125,17 +125,19 @@
 						<IconLink />
 					</a>
 				{:else if build.errors}
-					<pre class="flex-1 text-red-500">{build.errors}</pre>
+					<pre class="flex-1 text-red-500">{@html build.errors}</pre>
 				{:else}
 					<p class="text-gray-400">No PDF generated</p>
 				{/if}
 			</div>
 
 			<!-- logs -->
-			<details class="rounded-md bg-gray-700 p-4">
-				<summary class="text-slate-400">Logs</summary>
-				<pre class="mt-2 max-h-[50svh] flex-1 overflow-y-scroll rounded-md bg-black p-4 text-gray-500">{build.logs}</pre>
-			</details>
+			{#if build.logs}
+				<details class="rounded-md bg-gray-700 p-4">
+					<summary class="text-slate-400">Logs</summary>
+					<pre class="mt-2 max-h-[50svh] flex-1 overflow-y-scroll rounded-md bg-black p-4 text-gray-500">{@html build.logs}</pre>
+				</details>
+			{/if}
 		</li>
 	{/each}
 </ul>
