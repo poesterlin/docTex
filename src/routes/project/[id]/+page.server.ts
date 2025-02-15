@@ -59,7 +59,7 @@ async function appendOutputLog(buildId: string, newLogs: string) {
 	await db
 		.update(outputTable)
 		.set({
-			logs: sql`CONCAT(${outputTable.logs}, ${newLogs})`
+			logs: sql`CONCAT(${outputTable.logs}, cast(${newLogs} as text))`
 		})
 		.where(eq(outputTable.id, buildId));
 }
