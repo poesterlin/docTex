@@ -112,7 +112,7 @@ export const actions: Actions = {
 			logs: '',
 			errors: '',
 			running: true,
-			wordCount: 0
+			wordCount: 0,
 		});
 
 		// Clear folder if last build was not successful, preserving cache

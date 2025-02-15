@@ -7,6 +7,8 @@
 
 	let builds = $state(data.outputs);
 
+	let now = $state(new Date());
+
 	onMount(() => {
 		const build = builds[0];
 
@@ -24,7 +26,14 @@
 			}
 		}, 3 * 1000);
 
-		return () => clearInterval(id);
+		const id2 = setInterval(() => {
+			now = new Date();
+		}, 1000);
+
+		return () => {
+			clearInterval(id);
+			clearInterval(id2);
+		};
 	});
 
 	const intlDate = Intl.DateTimeFormat('en-US', {
@@ -43,6 +52,22 @@
 		}
 
 		return intlDate.format(timestamp);
+	}
+
+	function getDuration(timestamp: Date, now: Date) {
+		const seconds = Math.floor((now.getTime() - new Date(timestamp).getTime()) / 1000);
+		return formatSeconds(seconds);
+	}
+
+	function formatSeconds(seconds: number) {
+		const minutes = Math.floor((seconds % 3600) / 60);
+		const secs = seconds % 60;
+
+		if (minutes === 0) {
+			return `${secs}s`;
+		}
+
+		return `${minutes}m ${secs}s`;
 	}
 </script>
 
@@ -66,6 +91,13 @@
 			<div class="flex items-center justify-between border-b border-gray-700 p-4">
 				<b class="font-semibold text-gray-400">{format(build.timestamp, 'date')}</b>
 				<span class="text-gray-300">{build.wordCount} Words</span>
+				<span>
+					{#if build.duration && !build.running}
+						{formatSeconds(build.duration)}
+					{:else}
+						{getDuration(build.timestamp, now)}
+					{/if}
+				</span>
 				<span class="text-gray-300">
 					{format(build.timestamp, 'time')}
 				</span>
@@ -73,7 +105,7 @@
 
 			<div class="flex items-center justify-between pl-4">
 				{#if build.running}
-					<p class="animate-pulse text-slate-400">Running...</p>
+					<p class="animate-pulse text-slate-400">Generating PDF</p>
 
 					<form action="?/cancel" method="post">
 						<input type="hidden" name="buildId" value={build.id} />

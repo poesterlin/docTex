@@ -141,6 +141,7 @@ function settingsToObject(settings: any) {
 
 export async function buildTex(project: Project, id: string) {
 	// TODO: setup postgres listener to abort build if user cancels
+	const startTime = Date.now();
 
 	const path = join(env.TMP_DIR, project.folderId);
 	const command = `/tex/entrypoint.sh`;
@@ -152,12 +153,12 @@ export async function buildTex(project: Project, id: string) {
 
 	exec(command, { cwd: path, signal }, async (error, stdout, stderr) => {
 		const build: Partial<Output> = {
-			timestamp: new Date(),
 			projectId: project.id,
 			logs: stdout,
 			errors: stderr + (error ? `\nERROR:\n` + error.message : ''),
 			running: false,
-			thumbnail: null
+			thumbnail: null,
+			duration: (Date.now() - startTime) / 1000
 		};
 
 		// wait for the file to be written

@@ -101,7 +101,8 @@ export const outputTable = pgTable('output', {
 	running: boolean('running').notNull().default(false),
 	fileId: text('file_id'),
 	thumbnail: text('thumbnail'),
-	wordCount: integer('word_count').notNull().default(0)
+	wordCount: integer('word_count').notNull().default(0),
+	duration: integer('duration').default(0)
 });
 
 export type Output = typeof outputTable.$inferSelect;
