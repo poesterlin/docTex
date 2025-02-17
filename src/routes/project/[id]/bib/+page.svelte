@@ -3,7 +3,7 @@
 	import type { BibReference } from '$lib/server/db/schema';
 	import type { PageData } from './$types';
 	import Citation from '$lib/client/Citation.svelte';
-	import { IconX } from '@tabler/icons-svelte';
+	import { IconDownload, IconX } from '@tabler/icons-svelte';
 
 	let { data }: { data: PageData } = $props();
 	let valid = $state<undefined | boolean>();
@@ -99,6 +99,11 @@
 		<li class="text-gray-400">This project does not include any bibliography entries yet.</li>
 	{/each}
 </ul>
+
+<a href="/project/{data.project.id}/bib/export" class="mt-8 flex w-max gap-4 rounded-md bg-gray-800 p-4 px-6 font-medium text-white shadow hover:bg-gray-700" download="Bibliography.bib">
+	Download Bibliography
+	<IconDownload />
+</a>
 
 <!-- Citation Generation Dialog -->
 <dialog class="z-50 flex items-center justify-center rounded-xl shadow-lg" bind:this={dialogEl}>
