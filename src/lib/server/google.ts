@@ -3,8 +3,10 @@ import { google } from 'googleapis';
 import type { Session } from './db/schema';
 
 const scopes = [
+	// userinfo
 	'https://www.googleapis.com/auth/userinfo.email',
 	'https://www.googleapis.com/auth/userinfo.profile',
+	// drive
 	'https://www.googleapis.com/auth/drive',
 	'https://www.googleapis.com/auth/drive.appdata',
 	'https://www.googleapis.com/auth/drive.file',
@@ -14,7 +16,10 @@ const scopes = [
 	'https://www.googleapis.com/auth/drive.photos.readonly',
 	'https://www.googleapis.com/auth/drive.readonly',
 	'https://www.googleapis.com/auth/drive.appfolder',
-	'https://www.googleapis.com/auth/drive.install'
+	'https://www.googleapis.com/auth/drive.install',
+	// docs
+	'https://www.googleapis.com/auth/documents',
+	'https://www.googleapis.com/auth/documents.readonly'
 ];
 
 export function getAuthClient(session?: Session) {

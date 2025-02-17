@@ -8,6 +8,7 @@ import type { Actions, PageServerLoad } from './$types';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { env } from '$env/dynamic/private';
+import { createDocInFolder } from '$lib/server/docs';
 
 export const load: PageServerLoad = async ({ locals, parent }) => {
 	const { user } = await parent();
@@ -45,7 +46,10 @@ export const actions: Actions = {
 		z.object({
 			name: z.string(),
 			styleId: z.string(),
-			createFolder: z.string().default('off').transform(value => value === 'on')
+			createFolder: z
+				.string()
+				.default('off')
+				.transform((value) => value === 'on')
 		}),
 		async ({ locals }, form) => {
 			if (!locals.user) {
@@ -94,17 +98,7 @@ export const actions: Actions = {
 				return redirect(302, `/project/${id}`);
 			}
 
-			// TODO: create a google docs document instead of a markdown file
-
-			const file = {
-				id: env.MARKDOWN_EXPLAINER_DOC,
-				name: form.name,
-				mimeType: 'text/markdown',
-				override: 1,
-				path: form.name
-			} as RequiredFile;
-
-			await copyFileToProjectFolder(session, file, googleFolder);
+			await createDocInFolder(session, googleFolder, form.name);
 
 			redirect(302, `/project/${id}`);
 		}

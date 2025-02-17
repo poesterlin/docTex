@@ -1,4 +1,3 @@
-import { env } from '$env/dynamic/private';
 import { mkdir, writeFile } from 'fs/promises';
 import { google } from 'googleapis';
 import { join } from 'path';
