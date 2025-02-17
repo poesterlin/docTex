@@ -1,6 +1,6 @@
 import { env } from '$env/dynamic/private';
 import { exec } from 'child_process';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { mkdir, stat, writeFile } from 'fs/promises';
 import { join } from 'path';
 import { db } from './db';
@@ -195,12 +195,23 @@ ${markdownFooter}
 	await writeFile(path, res);
 }
 
+export async function appendOutputLog(buildId: string, newLogs: string, data: Partial<Output> = {}) {
+	await db
+		.update(outputTable)
+		.set({
+			...data,
+			logs: sql`CONCAT(${outputTable.logs}, cast(${newLogs} as text))`
+		})
+		.where(eq(outputTable.id, buildId));
+}
+
 export async function updateWordCount(project: Project, buildId: string) {
 	const path = join(env.TMP_DIR, project.folderId, removeSpaces(project.name) + '.md');
 	const inputContent = await readFile(path, 'utf-8');
 	const wordCount = countWords(inputContent);
-	
-	await db.update(outputTable).set({ wordCount }).where(eq(outputTable.id, buildId));
+
+	await appendOutputLog(buildId, 'Word count: ' + wordCount + '\n', { wordCount });
+	await appendOutputLog(buildId, 'content: \n' + inputContent + '\n');
 }
 
 function countWords(input: string): number {

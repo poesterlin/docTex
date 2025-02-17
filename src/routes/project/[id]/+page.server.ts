@@ -6,6 +6,7 @@ import { outputTable, projectFilesTable, projectTable, requiredFilesTable, style
 import { downloadFolder, removeSpaces } from '$lib/server/drive';
 import { downloadFileToPath } from '$lib/server/s3';
 import {
+	appendOutputLog,
 	buildTex,
 	clearFolder,
 	createBibliography,
@@ -55,14 +56,7 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
 	return { user: user ?? null, project, build, style, wordHistory: toSVG(wordHistory) };
 };
 
-async function appendOutputLog(buildId: string, newLogs: string) {
-	await db
-		.update(outputTable)
-		.set({
-			logs: sql`CONCAT(${outputTable.logs}, cast(${newLogs} as text))`
-		})
-		.where(eq(outputTable.id, buildId));
-}
+
 
 export const actions: Actions = {
 	build: async ({ params, locals }) => {
