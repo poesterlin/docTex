@@ -45,9 +45,9 @@ export function fixCitationKeys(markdown: string) {
 	// citation keys get exported like this: \[@key2016manual\]
 	// but should be: [@key2016manual]
 
-	const bracketOpen = / \\\[/g;
+	const bracketOpen = /\\\[/g;
 	markdown = markdown.replaceAll(bracketOpen, '[');
-	const bracketClose = / \\\]/g;
+	const bracketClose = /\\\]/g;
 	markdown = markdown.replaceAll(bracketClose, ']');
 
 	return markdown;

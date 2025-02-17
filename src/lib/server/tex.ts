@@ -181,6 +181,8 @@ export async function writeMainFile(project: Project, style: Style) {
 	inputContent = fixFootnotes(inputContent);
 	inputContent = fixCitationKeys(inputContent);
 
+	console.log('Writing main file', inputContent);
+
 	const markdownHeader = `\\markdownBegin{}`;
 	const markdownFooter = `\\markdownEnd{}`;
 	res = res.replace(
@@ -196,6 +198,8 @@ ${markdownFooter}
 }
 
 export async function appendOutputLog(buildId: string, newLogs: string, data: Partial<Output> = {}) {
+	console.log('Appending logs', newLogs);
+
 	await db
 		.update(outputTable)
 		.set({
@@ -211,7 +215,6 @@ export async function updateWordCount(project: Project, buildId: string) {
 	const wordCount = countWords(inputContent);
 
 	await appendOutputLog(buildId, 'Word count: ' + wordCount + '\n', { wordCount });
-	await appendOutputLog(buildId, 'content: \n' + inputContent + '\n');
 }
 
 function countWords(input: string): number {
