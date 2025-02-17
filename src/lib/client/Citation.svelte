@@ -40,17 +40,20 @@
 	function generateCitation() {
 		const postnote = generatePostnote();
 
-		const parts = [];
-
-		const citation = `@${bibEntry.key}`;
-		parts.push(citation);
+		const parts = [`@${bibEntry.key}`];
 
 		if (postnote) {
 			parts.push(postnote);
 		}
 
-		const authorPrefix = citationData.suppressAuthor ? '-' : '';
-		return `[${authorPrefix}${parts.join(' ')}]`;
+		const citation = parts.join(' ');
+
+		const inBrackets = citationData.suppressAuthor;
+		if (inBrackets) {
+			return `[${citation}]`;
+		}
+
+		return citation;
 	}
 
 	function parseBibAuthor(bibtex: string) {
@@ -95,19 +98,6 @@
 		<IconBook class="h-6 w-6 text-indigo-100" />
 		<h1 class="text-2xl font-bold text-gray-200">Citation Generator</h1>
 	</div>
-
-	<!-- <div>
-                <label class="mt-6 block text-sm font-medium text-gray-300">Citation Type</label>
-                <select
-                    name="citationType"
-                    bind:value={citationData.citationType}
-                    onchange={handleInputChange}
-                    class="mt-1 block w-full rounded-md border-gray-300 text-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                >
-                    <option value="parenthetical">Parenthetical Citation [@key]</option>
-                    <option value="text">Text Citation @key</option>
-                </select>
-            </div> -->
 
 	<div class="space-y-2">
 		<div class="flex items-center justify-between">
