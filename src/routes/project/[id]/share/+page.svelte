@@ -43,6 +43,10 @@
 	</button>
 </form>
 
+<p class="mb-6 text-gray-400">
+	Share this link with collaborators to give them access to this projects output pdf.
+</p>
+
 <ul class="space-y-6 divide-y divide-gray-700">
 	{#each data.invites as invite}
 		<li class="flex items-center justify-between gap-4 rounded-md bg-gray-800 p-4 text-white shadow">

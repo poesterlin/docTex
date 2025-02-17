@@ -1,9 +1,11 @@
 <script lang="ts">
 	import type { LayoutServerData } from './$types';
 	import { highlightLink } from '$lib/client/highlight-link.svelte';
+	import { IconPlayerPlay } from '@tabler/icons-svelte';
+	import { page } from '$app/state';
 
 	const { children, data }: { children: any; data: LayoutServerData } = $props();
-	const { project, isShared } = data;
+	const { project } = data;
 </script>
 
 {#snippet content()}
@@ -15,11 +17,20 @@
 {#if !data.isShared}
 	<div class="flex flex-wrap items-start gap-6 md:h-full md:flex-nowrap md:gap-0">
 		<aside class="w-full min-w-[200px] border-b border-gray-700 px-2 pb-4 md:h-full md:w-1/4 md:border-b-0 md:border-r">
-			<a href="/project/{project.id}" class="mb-4 block">
-				<h2 class="text-4xl font-semibold uppercase text-white">
-					{project.name}
-				</h2>
-			</a>
+			<div class="mb-6 flex items-center justify-between">
+				<a href="/project/{project.id}">
+					<h2 class="text-4xl font-semibold uppercase text-white">
+						{project.name}
+					</h2>
+				</a>
+				{#if !page.url.pathname.includes('/builds')}
+					<form action="/project/{project.id}?/build" method="POST">
+						<button type="submit" class="rounded-lg p-2 hover:bg-gray-700">
+							<IconPlayerPlay />
+						</button>
+					</form>
+				{/if}
+			</div>
 
 			<ul class="text-xl">
 				<li>

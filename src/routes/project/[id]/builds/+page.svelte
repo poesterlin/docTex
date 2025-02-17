@@ -47,6 +47,8 @@
 	});
 
 	function format(timestamp: Date, mode: 'date' | 'time') {
+		timestamp = new Date(timestamp);
+
 		if (mode === 'time') {
 			return intlTime.format(timestamp);
 		}
@@ -77,7 +79,7 @@
 	<form action="/project/{data.project.id}?/build" method="post">
 		<button
 			type="submit"
-			class="items center my-4 flex w-full justify-between gap-4 rounded-md bg-gray-500 p-4 text-white shadow hover:bg-gray-700"
+			class="glowing my-12 flex items-center justify-between gap-4 rounded-md bg-gray-500 p-6 px-12 text-2xl text-white shadow hover:bg-gray-700"
 		>
 			<span>Start Build</span>
 			<IconPlayerPlay />
@@ -85,6 +87,7 @@
 	</form>
 {/if}
 
+<h3 class="text-xl font-semibold text-gray-300 mb-4 mt-16">Recent Builds</h3>
 <ul class="space-y-6 divide-y divide-gray-700">
 	{#each builds as build}
 		<li class="flex flex-col gap-4 rounded-md bg-gray-800 p-4 text-white shadow">
@@ -141,3 +144,18 @@
 		</li>
 	{/each}
 </ul>
+
+<style>
+	.glowing {
+		animation: glow 3s infinite alternate;
+	}
+
+	@keyframes glow {
+		0% {
+			box-shadow: 0 0 10px 2px #4a6283;
+		}
+		100% {
+			box-shadow: 0 0 20px 2px #253141;
+		}
+	}
+</style>
