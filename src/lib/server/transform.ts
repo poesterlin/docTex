@@ -50,6 +50,9 @@ export function fixCitationKeys(markdown: string) {
 	const bracketClose = /\\\]/g;
 	markdown = markdown.replaceAll(bracketClose, ']');
 
+	// replace \-@ with -@
+	markdown = markdown.replaceAll(/\\-@/g, '-@');
+
 	return markdown;
 }
 
