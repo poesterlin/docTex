@@ -73,7 +73,7 @@
 {/if}
 
 {#if data.wordHistory}
-	<div class="svg-shadow mt-24">
+	<div class="svg-shadow mt-24 pb-24">
 		{@html data.wordHistory}
 		<h3 class="text-center text-xl font-semibold text-gray-200">
 			{data.build?.wordCount} Words!
