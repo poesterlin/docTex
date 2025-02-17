@@ -102,12 +102,16 @@
 
 <!-- Citation Generation Dialog -->
 <dialog class="z-50 flex items-center justify-center rounded-xl shadow-lg" bind:this={dialogEl}>
-	<form method="dialog">
-		<button class="absolute right-0 top-0 p-4 text-gray-300 hover:text-gray-600" aria-label="Close" onclick={() => (bibEntry = undefined)}>
-			<IconX class="h-6 w-6" />
-		</button>
-	</form>
 	{#if bibEntry}
+		<form method="dialog">
+			<button
+				class="absolute right-0 top-0 p-4 text-gray-300 hover:text-gray-600"
+				aria-label="Close"
+				onclick={() => (bibEntry = undefined)}
+			>
+				<IconX class="h-6 w-6" />
+			</button>
+		</form>
 		<Citation {bibEntry} />
 	{/if}
 </dialog>
