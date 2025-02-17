@@ -127,7 +127,9 @@ export const bibliographyTable = pgTable(
 			.notNull()
 			.references(() => projectTable.id, fullCascade),
 		key: text('key').notNull(),
-		content: json('content').notNull()
+		content: json('content').notNull(),
+		url: text('url'),
+		notes: text('notes')
 	},
 	// do not allow two bibliography entries with the same key in the same project
 	(t) => [unique().on(t.projectId, t.key)]
