@@ -77,7 +77,7 @@
 		}
 
 		const author = parseBibAuthor(bibEntry.content as string);
-		const lastName = author?.split(',')[0];
+		const lastName = author?.split(',')[0] ?? 'Author';
 
 		return `${lastName} ${citation}`;
 	}
