@@ -50,6 +50,11 @@
 		bibEntry = bib;
 		dialogEl.showModal();
 	}
+
+	function close() {
+		dialogEl.close();
+		bibEntry = undefined;
+	}
 </script>
 
 <h2 class="sticky top-0 mb-8 rounded-md bg-gray-700/25 p-4 text-3xl font-semibold text-white shadow backdrop-blur-md">Files</h2>
@@ -100,7 +105,11 @@
 	{/each}
 </ul>
 
-<a href="/project/{data.project.id}/bib/export" class="mt-8 flex w-max gap-4 rounded-md bg-gray-800 p-4 px-6 font-medium text-white shadow hover:bg-gray-700" download="Bibliography.bib">
+<a
+	href="/project/{data.project.id}/bib/export"
+	class="mt-8 flex w-max gap-4 rounded-md bg-gray-800 p-4 px-6 font-medium text-white shadow hover:bg-gray-700"
+	download="Bibliography.bib"
+>
 	Download Bibliography
 	<IconDownload />
 </a>
@@ -112,12 +121,12 @@
 			<button
 				class="absolute right-0 top-0 p-4 text-gray-300 hover:text-gray-600"
 				aria-label="Close"
-				onclick={() => (bibEntry = undefined)}
+				onclick={close}
 			>
 				<IconX class="h-6 w-6" />
 			</button>
 		</form>
-		<Citation {bibEntry} />
+		<Citation {bibEntry} oncopy={close} />
 	{/if}
 </dialog>
 

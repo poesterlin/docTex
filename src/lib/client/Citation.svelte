@@ -1,10 +1,9 @@
 <script lang="ts">
 	import type { BibReference } from '$lib/server/db/schema';
-	import { IconBook, IconCheck, IconCopy, IconFileText } from '@tabler/icons-svelte';
+	import { IconBook, IconCopy } from '@tabler/icons-svelte';
+	import { toastStore } from './toast.svelte';
 
 	interface CitationData {
-		citationType: 'parenthetical' | 'text';
-		prenote: string;
 		referenceType: 'page' | 'chapter' | 'section';
 		pageStart: string;
 		pageEnd: string;
@@ -12,17 +11,13 @@
 	}
 
 	let citationData: CitationData = $state({
-		citationType: 'text',
-		prenote: '',
 		referenceType: 'page',
 		pageStart: '',
 		pageEnd: '',
 		suppressAuthor: false
 	});
 
-	let { bibEntry }: { bibEntry: BibReference } = $props();
-
-	let copied = $state(false);
+	let { bibEntry, oncopy }: { bibEntry: BibReference; oncopy: () => void } = $props();
 
 	function generatePostnote() {
 		const { referenceType, pageStart, pageEnd } = citationData;
@@ -39,50 +34,59 @@
 			postnote = `${prefix} ${pageStart}${pageEnd ? '–' + pageEnd : ''}`;
 		}
 
-		// if (otherPostnote) {
-		// 	postnote = postnote ? `${postnote}; ${otherPostnote}` : otherPostnote;
-		// }
-
 		return postnote;
 	}
 
 	function generateCitation() {
-		const { citationType, prenote, suppressAuthor } = citationData;
 		const postnote = generatePostnote();
 
-		if (citationType === 'parenthetical') {
-			const parts = [];
+		const parts = [];
 
-			if (prenote) {
-				parts.push(prenote);
-			}
+		const citation = `@${bibEntry.key}`;
+		parts.push(citation);
 
-			const citation = `${suppressAuthor ? '-' : ''}@${bibEntry.key}`;
-			parts.push(citation);
-
-			if (postnote) {
-				parts.push(postnote);
-			}
-
-			return `[${parts.join(' ')}]`;
-		} else {
-			// Text citation
-			return `${suppressAuthor ? '-' : ''}@${bibEntry.key}${postnote ? ` [${postnote}]` : ''}`;
+		if (postnote) {
+			parts.push(postnote);
 		}
+
+		const authorPrefix = citationData.suppressAuthor ? '-' : '';
+		return `[${authorPrefix}${parts.join(' ')}]`;
+	}
+
+	function parseBibAuthor(bibtex: string) {
+		const authorRegex = /author\s*=\s*\{(?<author>.*?)\}/s;
+		const match = bibtex.match(authorRegex);
+
+		if (match && match.groups && match.groups.author) {
+			return match.groups.author.trim();
+		}
+
+		return null;
+	}
+
+	function generateOutputPreview() {
+		let citation = `[1]`;
+
+		const postnote = generatePostnote();
+		if (postnote) {
+			citation = `[1, ${postnote}]`;
+		}
+
+		if (citationData.suppressAuthor) {
+			return citation;
+		}
+
+		const author = parseBibAuthor(bibEntry.content as string);
+		const lastName = author?.split(',')[0];
+
+		return `${lastName} ${citation}`;
 	}
 
 	async function handleCopy() {
 		await navigator.clipboard.writeText(generateCitation());
-		copied = true;
-		setTimeout(() => (copied = false), 2000);
-	}
+		oncopy();
 
-	function handleInputChange(e: Event) {
-		const target = e.target as HTMLInputElement | HTMLSelectElement;
-		const { name, value, type } = target;
-		const newValue = type === 'checkbox' ? (target as HTMLInputElement).checked : value;
-
-		citationData = { ...citationData, [name]: newValue };
+		toastStore.show('Citation copied to clipboard');
 	}
 </script>
 
@@ -112,7 +116,6 @@
 				id="referenceType"
 				name="referenceType"
 				bind:value={citationData.referenceType}
-				onchange={handleInputChange}
 				class="rounded-md border-gray-300 text-sm text-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
 			>
 				<option value="page">Page Numbers</option>
@@ -126,67 +129,47 @@
 					type="text"
 					name="pageStart"
 					bind:value={citationData.pageStart}
-					oninput={handleInputChange}
 					placeholder={citationData.referenceType === 'page' ? 'Page number' : 'Start'}
 				/>
 			</div>
 			<div>
-				<input type="text" name="pageEnd" bind:value={citationData.pageEnd} oninput={handleInputChange} placeholder="End (optional)" />
+				<input type="text" name="pageEnd" bind:value={citationData.pageEnd} placeholder="End (optional)" />
 			</div>
 		</div>
 	</div>
 
-	<!-- <div>
-		<label class="mt-6 block text-sm font-medium text-gray-300">Prenote (optional)</label>
-		<input type="text" class="mt-2" name="prenote" bind:value={citationData.prenote} oninput={handleInputChange} placeholder="e.g., see" />
-	</div> -->
-
-	<!-- <div class="flex items-center pt-6">
-				<input
-					type="checkbox"
-					id="suppressAuthor"
-					name="suppressAuthor"
-					bind:checked={citationData.suppressAuthor}
-					onchange={handleInputChange}
-					class="h-4 w-4 rounded border-gray-300 text-indigo-300 focus:ring-indigo-500"
-				/>
-				<label for="suppressAuthor" class="ml-2 block text-sm text-gray-300"> Suppress Author (-@key) </label>
-			</div> -->
+	<div class="flex items-center pt-6">
+		<input
+			type="checkbox"
+			id="suppressAuthor"
+			name="suppressAuthor"
+			bind:checked={citationData.suppressAuthor}
+			class="h-4 w-4 rounded border-gray-300 text-indigo-300 focus:ring-indigo-500"
+		/>
+		<label for="suppressAuthor" class="ml-2 block text-sm text-gray-300"> Suppress Author </label>
+	</div>
 
 	<div class="mt-6 p-1">
-		<label class="mb-2 block text-sm font-medium text-gray-300"> Generated Citation </label>
-		<div class="rounded-md bg-gray-100 p-4 font-mono text-sm ring-4 ring-indigo-400">
+		<label for="generatedCitation" class="mb-2 block text-sm font-medium text-gray-300"> Generated Citation </label>
+		<div id="generatedCitation" class="rounded-md bg-gray-100 p-4 font-mono text-sm ring-4 ring-indigo-400">
 			<pre class="whitespace-pre-wrap">{generateCitation()}</pre>
 		</div>
 	</div>
 
+	<div>
+		<label for="outputPreview" class="mt-8 block text-sm font-medium text-gray-300">Becomes:</label>
+		<div id="outputPreview" class="rounded-md bg-gray-800 p-4 font-mono text-sm text-gray-200">
+			<pre class="whitespace-pre-wrap">{generateOutputPreview()}</pre>
+		</div>
+	</div>
+
 	<button
-		class="mt-10 flex w-full items-center justify-center gap-4 rounded-md bg-indigo-500 p-2 p-4 font-medium text-white shadow hover:bg-indigo-600"
+		class="mt-6 flex w-full items-center justify-center gap-4 rounded-md bg-indigo-500 p-2 p-4 font-medium text-white shadow hover:bg-indigo-600"
 		onclick={handleCopy}
 	>
 		<span>Copy Citation</span>
-		{#if copied}
-			<IconCheck class="h-5 w-5" />
-		{:else}
-			<IconCopy class="h-5 w-5" />
-		{/if}
+		<IconCopy class="h-5 w-5" />
 	</button>
-	<!-- <div class="rounded-md bg-blue-50 p-4">
-				<h3 class="flex items-center gap-2 text-sm font-medium text-gray-800">
-					<IconFileText class="h-4 w-4" />
-					Pandoc Citation Examples
-				</h3>
-				<ul class="mt-2 space-y-2 text-sm text-gray-700">
-					<li><code>[@doe99]</code> - Simple parenthetical citation</li>
-					<li><code>[see @doe99]</code> - Citation with prenote</li>
-					<li><code>[@doe99, p. 33]</code> - Single page reference</li>
-					<li><code>[@doe99, pp. 33-35]</code> - Page range</li>
-					<li><code>[@doe99, chap. 1]</code> - Chapter reference</li>
-					<li><code>[@doe99, p. 33; and elsewhere]</code> - Complex postnote</li>
-					<li><code>@doe99</code> - Simple text citation</li>
-					<li><code>-@doe99</code> - Citation with suppressed author</li>
-				</ul>
-			</div> -->
 </div>
 
 <style>
