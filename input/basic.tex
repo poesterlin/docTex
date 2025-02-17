@@ -1,20 +1,11 @@
 \documentclass[12pt, paper=a4, parskip, oneside]{scrreprt}
-\usepackage[T1]{fontenc}
-
-%%%%%
-
-% inlcude packages:
 \usepackage[utf8]{inputenc}
-\usepackage{silence} % Filter warnings
-\usepackage[citations, linkAttributes, pipeTables, relativeReferences,inlineNotes=true, tableAttributes, tableCaptions, smartEllipses, rawAttribute, fencedCode, startNumber=false, fancyLists=true, tightLists=false, underscores=false,superscripts]{markdown} % Markdown package for including markdown files
-\usepackage{biblatex}
-\usepackage[english, ngerman]{babel} % Spell checking (Using ngerman for german spell checking). The last language is the standard language for the document.
+\usepackage{silence}
+\usepackage[citations, linkAttributes, pipeTables, relativeReferences, inlineNotes=true, tableAttributes, tableCaptions, smartEllipses, rawAttribute, fencedCode, startNumber=false, fancyLists=true, tightLists=false, underscores=false, superscripts]{markdown}
+\usepackage[backend=biber, style=numeric, citetracker=true]{biblatex}
+\addbibresource{bibliography.bib} % Your bibliography file
 
-\addbibresource{bibliography.bib}
-
-%%%%%
-
-\date{\the\day .~\monthname~\the\year} % Place date command before \begin{document}
+\date{\the\day .~\monthname~\the\year}
 
 \begin{document}
 
