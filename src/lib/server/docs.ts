@@ -8,6 +8,7 @@ export async function createDocInFolder(session: Session, folderId: string, name
 	const docsSession = docs({ version: 'v1', auth });
 	const driveSession = drive({ version: 'v3', auth });
 
+	// 1. Create Document
 	const document = await docsSession.documents.create({
 		requestBody: {
 			title: name
@@ -20,14 +21,12 @@ export async function createDocInFolder(session: Session, folderId: string, name
 		throw new Error('Failed to create document.');
 	}
 
-	console.log(`Created document with ID: ${documentId}`);
-
 	// 2. Insert Content
 	const requests = [
 		{
 			insertText: {
 				location: { index: 1 },
-				text: 'Hello, world!\n'
+				text: 'Hello, world!\n' // TODO: style this as a heading
 			}
 		}
 	];
@@ -37,17 +36,10 @@ export async function createDocInFolder(session: Session, folderId: string, name
 		requestBody: { requests }
 	});
 
-	// const file = await driveSession.files.get({
-	// 	fileId: documentId,
-	// 	fields: 'parents'
-	// });
-	// const previousParents = file.data.parents || [];
-
-	// Add the new parent folder.
+	// 3. set parent folder.
 	await driveSession.files.update({
 		fileId: documentId,
 		addParents: folderId,
-		// removeParents: previousParents.join(','), // Join array to comma separated string
 		fields: 'id, parents'
 	});
 
