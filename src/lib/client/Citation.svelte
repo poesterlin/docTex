@@ -107,8 +107,9 @@
 
 	<div class="space-y-2">
 		<div class="flex items-center justify-between">
-			<label class="block text-sm font-medium text-gray-300">Reference</label>
+			<label for="referenceType" class="block text-sm font-medium text-gray-300">Reference</label>
 			<select
+				id="referenceType"
 				name="referenceType"
 				bind:value={citationData.referenceType}
 				onchange={handleInputChange}
