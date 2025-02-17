@@ -29,7 +29,7 @@ export async function substituteSettings(contents: string, settings: Record<stri
 
 	const newLines = lines.map((line) => {
 		for (const [key, value] of Object.entries(settings)) {
-			const prefixedKey = `SETTING_${key}`;
+			const prefixedKey = `#SETTING_${key}`;
 			const conditionalKey = `#IF_SETTING_${key}#`;
 			if (!line.includes(prefixedKey)) {
 				continue;
