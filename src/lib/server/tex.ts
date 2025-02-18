@@ -31,6 +31,12 @@ export async function substituteSettings(contents: string, settings: Record<stri
 	const newLines = lines
 		.filter((line) => line.trim() !== '')
 		.map((line) => {
+			line = line.trimStart();
+
+			if (!line.includes('#')) {
+				return line;
+			}
+
 			for (const [key, value] of settingsEntries) {
 				const prefixedKey = `#SETTING_${key}`;
 				const conditionalKey = `#IF_SETTING_${key}#`;
@@ -190,10 +196,11 @@ export async function writeMainFile(project: Project, style: Style) {
 	res = res.replace(
 		'#INCLUDE_CHAPTERS',
 		`${markdownHeader}
-		${inputContent}
-		${markdownFooter}
-		`
-	);
+		
+${inputContent}
+
+${markdownFooter}
+`);
 	console.log('Writing main file');
 	console.log(res);
 
