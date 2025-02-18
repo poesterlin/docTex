@@ -31,9 +31,9 @@ If you would like to contribute to DocTex, please fork the repository and submit
 **Open Tasks**:
 - [x] Remove dependence on the soft deprecated hybrid mode of the [markdown tex library](https://ftp.snt.utwente.nl/pub/software/tex/macros/generic/markdown/markdown.pdf).
 - [x] Protect updating custom templates from unauthorized users
-- [ ] Improve Support for Bibliographies
+- [x] Improve Support for Bibliographies
 - [ ] Document special markdown features supported by the markdown tex library [*(citations, linkAttributes, pipeTables, relativeReferences, tableAttributes, tableCaptions)*](https://ftp.snt.utwente.nl/pub/software/tex/macros/generic/markdown/markdown.pdf)
-- [ ] Add support for Tables
+- [x] Add support for Tables
 - [x] Add an option to input content directly, without using Google Docs
 - [ ] Handle not having full access to the Google Drive API
 - [ ] Allow user to abort the document generation process
