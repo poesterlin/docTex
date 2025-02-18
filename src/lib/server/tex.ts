@@ -12,8 +12,7 @@ import {
 	projectSettingsTable,
 	requiredFilesTable,
 	type Style,
-	styleSettingsTable,
-	stylesTable
+	styleSettingsTable
 } from './db/schema';
 import { getFileContentString, uploadFileFromPath } from './s3';
 import { rm, readFile } from 'fs/promises';
@@ -26,32 +25,37 @@ import type { ZipEntry } from 'unzipit';
 
 export async function substituteSettings(contents: string, settings: Record<string, string | boolean>) {
 	const lines = contents.split('\n');
+	const settingsEntries = Array.from(Object.entries(settings));
+	console.table(settingsEntries);
 
-	const newLines = lines.map((line) => {
-		for (const [key, value] of Object.entries(settings)) {
-			const prefixedKey = `#SETTING_${key}`;
-			const conditionalKey = `#IF_SETTING_${key}#`;
-			if (!line.includes(prefixedKey)) {
-				continue;
-			}
+	const newLines = lines
+		.filter((line) => line.trim() !== '')
+		.map((line) => {
+			for (const [key, value] of settingsEntries) {
+				const prefixedKey = `#SETTING_${key}`;
+				const conditionalKey = `#IF_SETTING_${key}#`;
 
-			if (line.includes(conditionalKey)) {
-				if (!value) {
-					return '';
+				if (line.includes(conditionalKey)) {
+					if (!value) {
+						line = '';
+						continue;
+					}
+
+					line = line.replace(conditionalKey, '');
 				}
 
-				line = line.replace(conditionalKey, '');
+				if (typeof value === 'boolean') {
+					continue;
+				}
+
+				if (line.includes(prefixedKey)) {
+					line = line.replace(prefixedKey, value);
+					continue;
+				}
 			}
 
-			if (typeof value === 'boolean') {
-				return line;
-			}
-
-			return line.replace(prefixedKey, value);
-		}
-
-		return line;
-	});
+			return line;
+		});
 
 	return newLines.join('\n');
 }
@@ -63,7 +67,7 @@ export async function findAllSettings(contents: string): Promise<[string, { comm
 	const optionalSettings = new Set<string>();
 
 	for (const line of lines) {
-		const match = line.match(/#SETTING_([A-Z_]+)/);
+		const match = line.match(/#SETTING_([A-Z_]+)#/);
 		if (!match) {
 			continue;
 		}
@@ -181,17 +185,17 @@ export async function writeMainFile(project: Project, style: Style) {
 	inputContent = fixFootnotes(inputContent);
 	inputContent = fixCitationKeys(inputContent);
 
-	console.log('Writing main file', inputContent);
-
 	const markdownHeader = `\\markdownBegin{}`;
 	const markdownFooter = `\\markdownEnd{}`;
 	res = res.replace(
 		'#INCLUDE_CHAPTERS',
 		`${markdownHeader}
-${inputContent}
-${markdownFooter}
-`
+		${inputContent}
+		${markdownFooter}
+		`
 	);
+	console.log('Writing main file');
+	console.log(res);
 
 	const path = join(env.TMP_DIR, project.folderId, 'main.tex');
 	await writeFile(path, res);
