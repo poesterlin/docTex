@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import '../app.css';
 	import type { LayoutServerData } from './$types';
 	import { page } from '$app/stores';
 	import { toastStore } from '$lib/client/toast.svelte';
+
+	import '../app.css';
 
 	let { children, data }: { children: any; data: LayoutServerData } = $props();
 </script>
@@ -67,17 +68,6 @@
 		position: relative;
 		background: black;
 		color: white;
-	}
-
-	:global(body::before) {
-		content: '';
-		position: absolute;
-		inset: 0;
-		background: url('/noise.webp') repeat;
-		background-size: 500px;
-		opacity: 0.8;
-		filter: saturate(0) invert(0.95) blur(3px);
-		z-index: -1;
 	}
 
 	:global(input),
