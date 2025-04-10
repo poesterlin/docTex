@@ -77,7 +77,7 @@
 			}}
 			action="?/message"
 			method="POST"
-			class="mx-auto max-w-4xl p-4"
+			class="mx-auto max-w-4xl p-2"
 		>
 			<div class="flex gap-3">
 				<input
@@ -85,7 +85,7 @@
 					name="message"
 					bind:value={userInput}
 					placeholder="Type your message..."
-					class="flex-1 rounded-full border border-gray-800 bg-stone-900 px-6 py-3 text-sm text-gray-200 placeholder-gray-400 transition-colors focus:border-white/50 focus:outline-none"
+					class="flex-1 rounded-full border border-gray-800 bg-stone-900 px-6 py-3 text-gray-200 placeholder-gray-400 transition-colors focus:border-white/50 focus:outline-none"
 				/>
 				<button
 					type="submit"
@@ -111,7 +111,7 @@
 	.area-input {
 		grid-area: input;
 	}
-	
+
 	h2 {
 		view-transition-name: section;
 	}
