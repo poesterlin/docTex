@@ -129,7 +129,9 @@ export const bibliographyTable = pgTable(
 		key: text('key').notNull(),
 		content: json('content').notNull(),
 		url: text('url'),
-		notes: text('notes')
+		notes: text('notes'),
+		fileId: text('file_id'),
+		doi: text('doi')
 	},
 	// do not allow two bibliography entries with the same key in the same project
 	(t) => [unique().on(t.projectId, t.key)]
