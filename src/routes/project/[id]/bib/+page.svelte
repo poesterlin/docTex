@@ -168,13 +168,31 @@
 	>
 		<label class="block">
 			<span class="text-sm font-medium text-gray-300">BibTeX Entry</span>
+			<!-- Added paragraph with the link -->
+			<p class="mt-1 text-xs text-gray-400">
+			  Paste your BibTeX entry below, or
+			  <a
+				href="/citation"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="text-pink-500 underline transition-colors hover:text-pink-400"
+			  >
+				generate one here
+			  </a>.
+			</p>
 			<textarea
-				bind:value={bibContent}
-				oninput={(e) => validateBibEntry(e)}
-				name="content"
-				required
-				class="mt-1 block h-60 w-full rounded-md border border-gray-600 bg-gray-700 p-2 font-mono text-sm leading-6 tracking-wider text-white placeholder-gray-400 shadow focus:border-blue-500 focus:ring-blue-500"
-				placeholder="Paste your BibTeX entry here, or generate one using the DOI field above..."
+			  bind:value={bibContent}
+			  oninput={validateBibEntry}
+			  name="content"
+			  required
+			  class="mt-1 block h-60 w-full rounded-md border border-gray-600 bg-gray-700 p-2 font-mono text-sm leading-6 tracking-wider text-white placeholder-gray-400 shadow focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500"
+			  placeholder={`@article{key,
+	author = {Author Name},
+	title = {Article Title},
+	journal = {Journal Name},
+	year = {YYYY},
+	...
+}`}
 			></textarea>
 		</label>
 

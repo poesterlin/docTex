@@ -352,7 +352,7 @@ export function createBibtex(data: DoiResponse): string {
 		if (value !== undefined && value !== null && value !== '') {
 			// Basic value wrapping in braces. More robust escaping might be needed
 			// for complex values containing special BibTeX characters.
-			bibtexString += `  ${key} = {${value}},\n`;
+			bibtexString += `  ${key}={${value}},\n`;
 		}
 	}
 
