@@ -112,17 +112,11 @@
 			filename = undefined;
 		}
 	}
-
-	function getTitle(bib: BibReference) {
-		const key = bib.key;
-		const filename = key.replaceAll(/[^a-zA-Z0-9]/g, '_');
-		return `${filename}.pdf`;
-	}
 </script>
 
 <h2 class="sticky top-0 mb-8 rounded-md bg-gray-700/25 p-4 text-3xl font-semibold text-white shadow backdrop-blur-md">Files</h2>
 
-<details open class="mb-12 rounded-md border border-gray-700 bg-gray-800 p-4 shadow">
+<details class="mb-12 rounded-md border border-gray-700 bg-gray-800 p-4 shadow">
 	<summary class="cursor-pointer text-lg font-medium text-white">Add New Entry</summary>
 
 	<!-- DOI Input Section -->
@@ -141,7 +135,7 @@
 				type="button"
 				onclick={fetchAndGenerateBibtex}
 				disabled={isFetchingDoi || !doiInput}
-				class="flex items-center gap-1 rounded-md bg-blue-600 p-2 px-3 text-white shadow hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-500"
+				class="flex items-center gap-1 rounded-md bg-pink-600 p-2 px-3 text-white shadow hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-500"
 			>
 				{#if isFetchingDoi}
 					<IconLoader2 class="h-5 w-5 animate-spin" />

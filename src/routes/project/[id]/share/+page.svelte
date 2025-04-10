@@ -37,7 +37,7 @@
 		};
 	}}
 >
-	<button type="submit" class="items center my-6 flex justify-between gap-4 rounded-md bg-gray-500 p-4 text-white shadow hover:bg-gray-700">
+	<button type="submit" class="items center my-6 flex justify-between gap-4 rounded-md bg-pink-600 p-4 text-white shadow hover:bg-pink-700">
 		<IconPlus />
 		<span>Generate Invite</span>
 	</button>

@@ -79,7 +79,7 @@
 	<form action="/project/{data.project.id}?/build" method="post">
 		<button
 			type="submit"
-			class="glowing my-12 flex items-center justify-between gap-4 rounded-md bg-gray-500 p-6 px-12 text-2xl text-white shadow hover:bg-gray-700"
+			class="glowing my-12 flex items-center justify-between gap-4 rounded-md bg-pink-600 p-6 px-12 text-2xl text-white shadow hover:bg-pink-700"
 		>
 			<span>Start Build</span>
 			<IconPlayerPlay />

@@ -4,7 +4,7 @@
 	import { onMount } from 'svelte';
 
 	type Message = { role: 'user' | 'assistant'; content: string; loading?: boolean; isHtml?: boolean; isError?: boolean };
-	let messages = $state<Message[]>([{ role: 'assistant', content: 'Hi! 👋 How can I help you today?' }]);
+	let messages = $state<Message[]>([{ role: 'assistant', content: 'Hi! 👋 I know all about your sources and your work 🤓 What do you want to know?' }]);
 
 	let userInput = $state('');
 	let chatContainer: HTMLElement;
@@ -89,7 +89,7 @@
 				/>
 				<button
 					type="submit"
-					class="rounded-full bg-gray-700 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-violet-500/20 transition-colors hover:bg-violet-500/90"
+					class="rounded-full bg-pink-700 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-violet-500/20 transition-colors hover:bg-violet-500/90"
 				>
 					Send
 				</button>
