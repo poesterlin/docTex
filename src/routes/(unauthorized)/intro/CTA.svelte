@@ -9,9 +9,9 @@
     <p class="text-xl text-gray-300 mb-8">
       Join thousands of researchers who have streamlined their paper writing process.
     </p>
-    <button class="bg-pink-600 text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-pink-700 transition-colors">
+    <a class="bg-pink-600 text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-pink-700 transition-colors" href="/login">
       Start Writing Now
-    </button>
+    </a>
     <p class="mt-4 text-gray-400">
       No credit card required • Free plan available
     </p>
