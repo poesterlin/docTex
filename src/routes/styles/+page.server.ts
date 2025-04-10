@@ -1,20 +1,19 @@
 import { generateId, MAX_FILE_SIZE, validateForm } from '$lib';
 import { db } from '$lib/server/db';
-import { stylesTable } from '$lib/server/db/schema';
+import { requiredFilesTable, styleSettingsTable, stylesTable } from '$lib/server/db/schema';
+import { uploadFile } from '$lib/server/s3';
+import { getSettingsFromFile } from '$lib/server/tex';
 import { redirect } from '@sveltejs/kit';
+import { eq } from 'drizzle-orm';
 import { unzip } from 'unzipit';
 import { z } from 'zod';
 import type { PageServerLoad } from './$types';
-import { styleSettingsTable, requiredFilesTable } from '$lib/server/db/schema';
-import { eq } from 'drizzle-orm';
-import { findAllSettings } from '$lib/server/tex';
-import { uploadFile } from '$lib/server/s3';
-import { getSettingsFromFile } from '$lib/server/tex';
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({parent}) => {
 	const styles = await db.select().from(stylesTable);
+	const {user}=await parent();
 
-	return { styles };
+	return { styles , user};
 };
 
 export const actions = {

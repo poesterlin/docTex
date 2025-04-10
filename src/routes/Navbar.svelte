@@ -1,5 +1,5 @@
 <script lang="ts">
-	export let userName: string;
+	import { IconUser } from '@tabler/icons-svelte';
 </script>
 
 <nav class="border-b border-gray-700 bg-gray-800">
@@ -13,12 +13,16 @@
 				</div>
 			</div>
 
-			<form method="post" action="/?/logout" class="flex items-center gap-4">
-				<span class="text-gray-300">Logged in as {userName}</span>
-				<button class="rounded-md bg-gray-700 px-4 py-2 text-sm font-medium text-gray-100 transition-colors hover:bg-gray-600">
-					Sign out
-				</button>
-			</form>
+			<div class="flex items-center gap-4">
+				<a href="/profile" class="text-gray-300">
+					<IconUser class="h-6 w-6" />
+				</a>
+				<form method="post" action="/?/logout">
+					<button class="rounded-md bg-gray-700 px-4 py-2 text-sm font-medium text-gray-100 transition-colors hover:bg-gray-600">
+						Sign out
+					</button>
+				</form>
+			</div>
 		</div>
 	</div>
 </nav>

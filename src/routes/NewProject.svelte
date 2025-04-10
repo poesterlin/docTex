@@ -1,13 +1,26 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import type { Style } from '$lib/server/db/schema';
+	import { onMount } from 'svelte';
 
 	let { close, hasGoogleAuth, styles }: { close: () => void; hasGoogleAuth: boolean; styles: Style[] } = $props();
-</script>
+	let el: HTMLDialogElement;
 
-<dialog class="fixed inset-0 z-50 flex items-center justify-center bg-transparent bg-opacity-50" open>
-	<div class="mx-4 w-full max-w-2xl rounded-xl border border-gray-700 bg-gray-800 p-8 shadow-xl">
-		<h2 class="mb-6 text-2xl font-bold text-white">New Project</h2>
+	onMount(() => {
+		if (el) {
+			el.showModal();
+		}
+	});
+
+</script>
+<dialog
+	bind:this={el}
+	class="backdrop fixed inset-0 z-50 rounded-xl border border-gray-700 bg-gray-800 flex items-center justify-center bg-black"
+>
+	<div
+		class="w-full max-w-3xl p-8 shadow-xl"
+	>
+		<h2 class="mb-6 text-2xl font-bold text-white underline">&#8544;. New Project</h2>
 
 		<form
 			action="?/setup"
@@ -69,7 +82,7 @@
 			<div class="flex justify-end gap-4 pt-4">
 				<button type="button" onclick={close} class="px-4 py-2 text-gray-300 transition-colors hover:text-white"> Cancel </button>
 				<button type="submit" class="rounded-lg bg-purple-600 px-6 py-2 font-medium text-white transition-colors hover:bg-purple-700">
-					Setup
+					&#8545;. Setup
 				</button>
 			</div>
 		</form>

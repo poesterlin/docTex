@@ -20,28 +20,7 @@
 	{@render children()}
 {:else}
 	{#if data.user}
-		<!-- <p class="truncate text-sm font-medium">
-	Logged in as <span class="font-bold">{data.user.username}</span>
-	</p>
-	<nav>
-		<ul class="flex gap-4">
-			<li>
-				<a href="/" class="hover:underline">Projects</a>
-				</li>
-				<li>
-					<a href="/styles" class="hover:underline">Styles</a>
-					</li>
-					</ul>
-					</nav>
-					<form method="post" action="/?/logout" use:enhance>
-					<button
-					type="submit"
-					class="rounded-md bg-gray-700 px-4 py-2 text-sm font-medium text-white shadow hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-					>
-					Sign out
-					</button>
-					</form> -->
-		<Navbar userName={data.user.username} />
+		<Navbar />
 	{:else}
 		<header class="bg-gray-800 py-4 text-white shadow-md">
 			<div class="container mx-auto flex items-center justify-between space-x-6 px-6">

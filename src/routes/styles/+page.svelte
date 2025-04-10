@@ -1,63 +1,53 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
-	import type { PageData } from './$types';
+	import NewStyle from './NewStyle.svelte';
+	import type { PageServerData } from './$types';
+	import { IconPlus } from '@tabler/icons-svelte';
 
-	let { data }: { data: PageData } = $props();
+	let { data }: { data: PageServerData } = $props();
+
+	let showNewProject = $state(false);
+
+	function toggleNewProject() {
+		showNewProject = !showNewProject;
+	}
 </script>
 
-<ul class="mt-8 space-y-3">
-	{#each data.styles as style}
-		<li>
+
+<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+	<div class="mb-8 flex items-center justify-between">
+		<h1 class="text-4xl font-bold text-white">Styles</h1>
+		<button
+			onclick={toggleNewProject}
+			class="flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 font-medium text-white transition-colors hover:bg-purple-700"
+		>
+			<IconPlus class="h-5 w-5" />
+			New Style
+		</button>
+	</div>
+
+	{#if showNewProject && data.user}
+		<NewStyle close={toggleNewProject} />
+	{/if}
+
+	<div class="grid gap-4">
+		{#each data.styles as style}
 			<a
 				href="/styles/{style.id}"
-				class="block rounded-lg bg-gray-800 p-3 font-medium text-gray-300 shadow hover:bg-gray-700"
+				class="hover:bg-gray-750 block rounded-lg border border-gray-700 bg-gray-800 p-6 transition-colors hover:border-gray-600"
 			>
-				<span>{style.name}</span>
-				<p class="text-sm text-gray-600">{style.description}</p>
+				<div class="flex flex-col">
+					<h3 class="text-xl font-bold text-white">{style.name}</h3>
+					<span class="text-sm text-gray-400">{style.description}</span>
+				</div>
+				<!-- <div class="mt-2 flex items-center gap-2">
+					<span class="inline-flex items-center rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800">
+						{style.}
+					</span>
+				</div> -->
 			</a>
-		</li>
-	{/each}
-</ul>
-
-{#if data.user}
-	<form
-		action="?/setup"
-		method="POST"
-		use:enhance
-		enctype="multipart/form-data"
-		class="mx-auto mt-8 max-w-md space-y-4 rounded-lg border-2 border-gray-700 bg-gray-800 p-6 shadow-md"
-	>
-		<label for="name" class="block text-sm font-medium text-gray-300"> New Style: </label>
-		<input
-			type="text"
-			name="name"
-			id="name"
-			class="my-4 block w-full rounded-md border-2 border-gray-700 bg-gray-800 p-4 text-white shadow-sm outline-none focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-			placeholder="Style Name"
-		/>
-
-		<label for="description" class="block text-sm font-medium text-gray-300"> Description: </label>
-		<textarea
-			name="description"
-			id="description"
-			class="my-4 block w-full resize-none rounded-md border-2 border-gray-700 bg-gray-800 p-4 text-white shadow-sm outline-none focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-			placeholder="Style Description"
-		></textarea>
-
-		<!-- File Field -->
-		<label
-			for="file"
-			class="block w-full rounded-md bg-gray-700 px-4 py-2 text-center font-medium text-white shadow hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-		>
-			Add Zipped Folder or main.tex File
-		</label>
-		<input id="file" type="file" class="hidden" name="file" required accept=".zip,.tex" />
-
-		<button
-			type="submit"
-			class="w-full rounded-md bg-gray-700 px-4 py-2 font-medium text-white shadow hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-		>
-			Create Style
-		</button>
-	</form>
-{/if}
+		{:else}
+			<p class="text-gray-400">No projects yet.</p>
+		{/each}
+	</div>
+	
+</div>
