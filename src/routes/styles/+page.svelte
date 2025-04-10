@@ -12,7 +12,6 @@
 	}
 </script>
 
-
 <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
 	<div class="mb-8 flex items-center justify-between">
 		<h1 class="text-4xl font-bold text-white">Styles</h1>
@@ -49,5 +48,14 @@
 			<p class="text-gray-400">No projects yet.</p>
 		{/each}
 	</div>
-	
 </div>
+
+<style>
+	h1 {
+		view-transition-name: title;
+	}
+
+	button {
+		view-transition-name: add-button;
+	}
+</style>

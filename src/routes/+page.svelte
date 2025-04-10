@@ -31,3 +31,12 @@
 
 	<ProjectsList projects={data.projects} />
 </div>
+
+<style>
+	h1 {
+		view-transition-name: title;
+	}
+	button {
+		view-transition-name: add-button;
+	}
+</style>

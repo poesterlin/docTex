@@ -87,7 +87,7 @@
 	</form>
 {/if}
 
-<h3 class="text-xl font-semibold text-gray-300 mb-4 mt-16">Recent Builds</h3>
+<h3 class="mb-4 mt-16 text-xl font-semibold text-gray-300">Recent Builds</h3>
 <ul class="space-y-6 divide-y divide-gray-700">
 	{#each builds as build}
 		<li class="flex flex-col gap-4 rounded-md bg-gray-800 p-4 text-white shadow">
@@ -145,3 +145,8 @@
 	{/each}
 </ul>
 
+<style>
+	h2 {
+		view-transition-name: section;
+	}
+</style>

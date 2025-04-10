@@ -142,4 +142,8 @@
 			white-space: pre-wrap;
 		}
 	}
+
+	h2 {
+		view-transition-name: section;
+	}
 </style>

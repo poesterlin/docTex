@@ -9,7 +9,7 @@
 </script>
 
 {#snippet content()}
-	<section class="pb-2xl m-auto block h-full w-full overflow-y-auto px-4 md:w-3/4 md:px-12 relative">
+	<section class="pb-2xl relative m-auto block h-full w-full overflow-y-auto px-4 md:w-3/4 md:px-12">
 		{@render children()}
 	</section>
 {/snippet}
@@ -87,10 +87,19 @@
 		margin: auto;
 		background-color: #fff;
 		margin-right: 1rem;
+		view-transition-name: underline;
 	}
 
 	li a {
 		padding: 0.5rem 0;
 		display: block;
+	}
+
+	h2 {
+		view-transition-name: project-title;
+	}
+
+	aside {
+		view-transition-name: sidebar;
 	}
 </style>

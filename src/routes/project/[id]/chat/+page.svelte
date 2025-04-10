@@ -111,4 +111,8 @@
 	.area-input {
 		grid-area: input;
 	}
+	
+	h2 {
+		view-transition-name: section;
+	}
 </style>

@@ -384,4 +384,8 @@
 		white-space: nowrap;
 		width: 100%;
 	}
+
+	h2 {
+		view-transition-name: section;
+	}
 </style>

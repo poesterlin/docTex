@@ -71,3 +71,9 @@
 		</li>
 	{/each}
 </ul>
+
+<style>
+	h2 {
+		view-transition-name: section;
+	}
+</style>

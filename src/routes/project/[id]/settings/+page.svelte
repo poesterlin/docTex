@@ -41,3 +41,9 @@
 		</button>
 	</form>
 {/if}
+
+<style>
+	h2 {
+		view-transition-name: section;
+	}
+</style>
