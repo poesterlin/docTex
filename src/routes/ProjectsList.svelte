@@ -15,7 +15,7 @@
 				<!-- <span class="text-sm text-gray-400">Last modified: {project}</span> -->
 			</div>
 			<!-- <div class="mt-2 flex items-center gap-2">
-				<span class="inline-flex items-center rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800">
+				<span class="inline-flex items-center rounded-full bg-pink-100 px-2.5 py-0.5 text-xs font-medium text-pink-800">
 					{project.status}
 				</span>
 			</div> -->

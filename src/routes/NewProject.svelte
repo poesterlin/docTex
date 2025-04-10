@@ -13,6 +13,7 @@
 	});
 
 </script>
+
 <dialog
 	bind:this={el}
 	class="backdrop fixed inset-0 z-50 rounded-xl border border-gray-700 bg-gray-800 flex items-center justify-center bg-black"
@@ -81,7 +82,7 @@
 
 			<div class="flex justify-end gap-4 pt-4">
 				<button type="button" onclick={close} class="px-4 py-2 text-gray-300 transition-colors hover:text-white"> Cancel </button>
-				<button type="submit" class="rounded-lg bg-purple-600 px-6 py-2 font-medium text-white transition-colors hover:bg-purple-700">
+				<button type="submit" class="rounded-lg bg-pink-600 px-6 py-2 font-medium text-white transition-colors hover:bg-pink-700">
 					&#8545;. Setup
 				</button>
 			</div>

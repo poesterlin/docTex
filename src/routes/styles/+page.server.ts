@@ -9,11 +9,11 @@ import { unzip } from 'unzipit';
 import { z } from 'zod';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({parent}) => {
+export const load: PageServerLoad = async ({ parent }) => {
 	const styles = await db.select().from(stylesTable);
-	const {user}=await parent();
+	const { user } = await parent();
 
-	return { styles , user};
+	return { styles, user };
 };
 
 export const actions = {

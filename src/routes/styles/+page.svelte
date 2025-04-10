@@ -18,7 +18,7 @@
 		<h1 class="text-4xl font-bold text-white">Styles</h1>
 		<button
 			onclick={toggleNewProject}
-			class="flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 font-medium text-white transition-colors hover:bg-purple-700"
+			class="flex items-center gap-2 rounded-lg bg-pink-600 px-4 py-2 font-medium text-white transition-colors hover:bg-pink-700"
 		>
 			<IconPlus class="h-5 w-5" />
 			New Style
@@ -40,7 +40,7 @@
 					<span class="text-sm text-gray-400">{style.description}</span>
 				</div>
 				<!-- <div class="mt-2 flex items-center gap-2">
-					<span class="inline-flex items-center rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800">
+					<span class="inline-flex items-center rounded-full bg-pink-100 px-2.5 py-0.5 text-xs font-medium text-pink-800">
 						{style.}
 					</span>
 				</div> -->
