@@ -145,17 +145,3 @@
 	{/each}
 </ul>
 
-<style>
-	.glowing {
-		animation: glow 3s infinite alternate;
-	}
-
-	@keyframes glow {
-		0% {
-			box-shadow: 0 0 10px 2px #4a6283;
-		}
-		100% {
-			box-shadow: 0 0 20px 2px #253141;
-		}
-	}
-</style>

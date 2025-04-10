@@ -29,3 +29,34 @@ body::before {
 	pointer-events: none;
 	z-index: -1;
 }
+
+/* Custom scrollbar styles */
+:global(.scrollbar-thin) {
+	scrollbar-width: thin;
+}
+
+:global(.scrollbar-thin::-webkit-scrollbar) {
+	width: 6px;
+}
+
+:global(.scrollbar-thin::-webkit-scrollbar-track) {
+	background: transparent;
+}
+
+:global(.scrollbar-thin::-webkit-scrollbar-thumb) {
+	background-color: rgba(31, 41, 55, 0.5);
+	border-radius: 20px;
+}
+
+.glowing {
+	animation: glow 3s infinite alternate;
+}
+
+@keyframes glow {
+	0% {
+		box-shadow: 0 0 10px 2px #4a6283;
+	}
+	100% {
+		box-shadow: 0 0 20px 2px #253141;
+	}
+}

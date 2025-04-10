@@ -138,3 +138,17 @@ export const bibliographyTable = pgTable(
 );
 
 export type BibReference = typeof bibliographyTable.$inferSelect;
+
+export const aiFilesTable = pgTable('ai_files', {
+	id: text('id').primaryKey(),
+	projectId: text('project_id')
+		.notNull()
+		.references(() => projectTable.id, fullCascade),
+	fileId: text('file_id').notNull(),
+	uri: text('uri').notNull(),
+	mimeType: text('mime_type').notNull(),
+	createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
+	updatedAt: timestamp('updated_at', { mode: 'date' }).notNull().defaultNow()
+});
+
+export type AiFile = typeof aiFilesTable.$inferSelect;

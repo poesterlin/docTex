@@ -102,14 +102,14 @@ export async function hasFile(sha: string) {
 	}
 }
 
-export function readStreamToBuffer(readable: any) {
+export function readStreamToBuffer(readable: any) : Promise<Buffer> {
 	return new Promise<Buffer>((resolve, reject) => {
 		const chunks: Buffer[] = [];
 		readable.on('data', (chunk: Buffer) => {
 			chunks.push(chunk);
 		});
 		readable.on('end', () => {
-			resolve(Buffer.concat(chunks));
+			resolve(Buffer.concat(chunks) as Buffer);
 		});
 		readable.on('error', reject);
 	});

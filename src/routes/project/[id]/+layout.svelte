@@ -9,7 +9,7 @@
 </script>
 
 {#snippet content()}
-	<section class="pb-2xl m-auto block h-full w-full overflow-y-auto px-4 md:w-3/4 md:px-12">
+	<section class="pb-2xl m-auto block h-full w-full overflow-y-auto px-4 md:w-3/4 md:px-12 relative">
 		{@render children()}
 	</section>
 {/snippet}
@@ -54,6 +54,9 @@
 				</li>
 				<li>
 					<a href="/project/{project.id}/bib" class="hover:underline" use:highlightLink>Bibliography</a>
+				</li>
+				<li>
+					<a href="/project/{project.id}/chat" class="hover:underline" use:highlightLink>Chat</a>
 				</li>
 				<li>
 					<a href="/project/{project.id}/share" class="hover:underline" use:highlightLink>Invites</a>

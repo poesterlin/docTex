@@ -24,3 +24,4 @@ export async function submitWithToast(form: HTMLFormElement | SubmitEvent, messa
 		invalidateAll();
 	}
 }
+
