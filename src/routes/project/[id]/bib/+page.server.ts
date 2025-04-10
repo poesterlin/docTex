@@ -1,11 +1,12 @@
-import { redirect } from '@sveltejs/kit';
-import type { PageServerLoad, Actions } from './$types';
-import { error } from '@sveltejs/kit';
-import { bibliographyTable, projectTable } from '$lib/server/db/schema';
+import { generateId, validateForm } from '$lib';
 import { db } from '$lib/server/db';
+import { bibliographyTable, projectTable } from '$lib/server/db/schema';
+import { uploadFile } from '$lib/server/s3';
+import { error, redirect } from '@sveltejs/kit';
 import { and, eq } from 'drizzle-orm';
-import { assert, generateId, validateForm } from '$lib';
 import { z } from 'zod';
+import type { Actions, PageServerLoad } from './$types';
+import { formatDoi, requestDoiInfo } from './doi';
 
 export const load: PageServerLoad = async ({ locals, parent }) => {
 	if (!locals.user) {
@@ -30,7 +31,9 @@ export const actions: Actions = {
 		z.object({
 			content: z.string(),
 			url: z.string().optional(),
-			notes: z.string().optional()
+			notes: z.string().optional(),
+			file: z.instanceof(File).optional(),
+			doi: z.string().optional()
 		}),
 		async ({ params, locals }, form) => {
 			if (!locals.user) {
@@ -59,11 +62,23 @@ export const actions: Actions = {
 			//     journal={...},
 			// }
 
-			const match = form.content.match(/@\w+\{(?<key>[\w-]+),/);
+			const regex = /@\w+\{(?<key>[\w-]+),/;
+			const match = regex.exec(form.content);
 			const key = match?.groups?.key;
 
 			if (!match || !key) {
 				error(400, { message: 'Invalid citation format' });
+			}
+
+			if (form.doi) {
+				form.doi = formatDoi(form.doi);
+			}
+
+			let fileId = null;
+			const file = form.file;
+			if (file) {
+				fileId = generateId();
+				await uploadFile(fileId, file);
 			}
 
 			await db.insert(bibliographyTable).values({
@@ -72,7 +87,9 @@ export const actions: Actions = {
 				key: key,
 				content: form.content,
 				url: form.url,
-				notes: form.notes
+				notes: form.notes,
+				fileId,
+				doi: form.doi
 			});
 
 			return { redirect: `/project/${id}/bib` };
