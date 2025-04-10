@@ -171,7 +171,7 @@
 		}}
 	>
 		<label class="block">
-			<span class="text-sm font-medium text-gray-300">BibTeX Entry Content</span>
+			<span class="text-sm font-medium text-gray-300">BibTeX Entry</span>
 			<textarea
 				bind:value={bibContent}
 				oninput={(e) => validateBibEntry(e)}
@@ -231,7 +231,7 @@
 
 		<button
 			type="submit"
-			class="block w-full rounded-md bg-green-600 p-2.5 font-medium text-white shadow hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-gray-500 disabled:opacity-70"
+			class="block w-full rounded-md bg-green-600 p-2.5 font-medium text-white shadow hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-gray-500"
 			disabled={!isValidBib}
 		>
 			Add Bibliography Entry
