@@ -72,7 +72,7 @@
 	</div>
 {/if}
 
-{#if data.wordHistory}
+{#if data.wordHistory && data.build?.wordCount > 20}
 	<div class="svg-shadow mt-24 pb-24">
 		{@html data.wordHistory}
 		<h3 class="text-center text-xl font-semibold text-gray-200">
