@@ -1,14 +1,13 @@
-import { validateForm, assert, generateId } from '$lib';
+import { assert, generateId, validateForm } from '$lib';
 import * as auth from '$lib/server/auth';
 import { db } from '$lib/server/db';
-import { projectSettingsTable, projectTable, styleSettingsTable, stylesTable, type RequiredFile } from '$lib/server/db/schema';
-import { copyFileToProjectFolder, createOrGetFolder } from '$lib/server/drive';
+import { projectSettingsTable, projectTable, styleSettingsTable, stylesTable } from '$lib/server/db/schema';
+import { createDocInFolder } from '$lib/server/docs';
+import { createOrGetFolder } from '$lib/server/drive';
 import { fail, redirect } from '@sveltejs/kit';
-import type { Actions, PageServerLoad } from './$types';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
-import { env } from '$env/dynamic/private';
-import { createDocInFolder } from '$lib/server/docs';
+import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, parent }) => {
 	const { user } = await parent();
@@ -22,7 +21,7 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
 			}
 		}
 
-		return redirect(302, '/login');
+		return redirect(302, '/intro');
 	}
 
 	const projects = await db.select().from(projectTable).where(eq(projectTable.userId, user.id));
