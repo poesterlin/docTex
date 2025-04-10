@@ -80,12 +80,13 @@
 		content: '';
 		position: absolute;
 		bottom: 0;
-		left: -1rem;
+		left: -0.75rem;
 		top: 0;
-		width: 2px;
-		height: 1rem;
+		width: 0.25rem;
+		border-radius: 0.125rem;
+		height: 1.25rem;
 		margin: auto;
-		background-color: #fff;
+		background-color: rgb(219 39 119);
 		margin-right: 1rem;
 		view-transition-name: underline;
 	}

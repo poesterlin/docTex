@@ -5,13 +5,16 @@
 </script>
 
 <div class="grid gap-4">
-	{#each projects as project}
+	{#each projects as project, idx (project.id)}
 		<a
 			href="/project/{project.id}"
 			class="hover:bg-gray-750 block rounded-lg border border-gray-700 bg-gray-800 p-6 transition-colors hover:border-gray-600"
 		>
 			<div class="flex items-center justify-between">
-				<h3 class="text-xl font-bold text-white">{project.name}</h3>
+				<h3 class="text-xl font-bold text-white">
+					<span class="text-pink-600 mr-4 ">{@html `&#85${44 + idx};.`} </span>
+					{project.name}
+				</h3>
 				<!-- <span class="text-sm text-gray-400">Last modified: {project}</span> -->
 			</div>
 			<!-- <div class="mt-2 flex items-center gap-2">
