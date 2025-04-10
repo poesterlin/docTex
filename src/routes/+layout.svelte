@@ -5,6 +5,7 @@
 	import { toastStore } from '$lib/client/toast.svelte';
 	import type { Page } from '@sveltejs/kit';
 	import '../app.css';
+	import Navbar from './Navbar.svelte';
 
 	let { children, data }: { children: any; data: LayoutServerData } = $props();
 
@@ -14,34 +15,36 @@
 		pageState = page;
 	});
 </script>
+
 {#if pageState?.route.id === '/(unauthorized)/intro'}
 	{@render children()}
 {:else}
-	<header class="bg-gray-800 py-4 text-white shadow-md">
-		<div class="container mx-auto flex items-center justify-between space-x-6 px-6">
-			{#if data.user}
-				<p class="truncate text-sm font-medium">
-					Logged in as <span class="font-bold">{data.user.username}</span>
-				</p>
-				<nav>
-					<ul class="flex gap-4">
-						<li>
-							<a href="/" class="hover:underline">Projects</a>
-						</li>
-						<li>
-							<a href="/styles" class="hover:underline">Styles</a>
-						</li>
+	{#if data.user}
+		<!-- <p class="truncate text-sm font-medium">
+	Logged in as <span class="font-bold">{data.user.username}</span>
+	</p>
+	<nav>
+		<ul class="flex gap-4">
+			<li>
+				<a href="/" class="hover:underline">Projects</a>
+				</li>
+				<li>
+					<a href="/styles" class="hover:underline">Styles</a>
+					</li>
 					</ul>
-				</nav>
-				<form method="post" action="/?/logout" use:enhance>
+					</nav>
+					<form method="post" action="/?/logout" use:enhance>
 					<button
-						type="submit"
-						class="rounded-md bg-gray-700 px-4 py-2 text-sm font-medium text-white shadow hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+					type="submit"
+					class="rounded-md bg-gray-700 px-4 py-2 text-sm font-medium text-white shadow hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
 					>
-						Sign out
+					Sign out
 					</button>
-				</form>
-			{:else}
+					</form> -->
+		<Navbar userName={data.user.username} />
+	{:else}
+		<header class="bg-gray-800 py-4 text-white shadow-md">
+			<div class="container mx-auto flex items-center justify-between space-x-6 px-6">
 				<nav>
 					<ul class="flex gap-4">
 						<li>
@@ -54,9 +57,9 @@
 						{/if}
 					</ul>
 				</nav>
-			{/if}
-		</div>
-	</header>
+			</div>
+		</header>
+	{/if}
 
 	<main class="container mx-auto p-6">
 		{@render children()}
