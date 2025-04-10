@@ -30,20 +30,30 @@ body::before {
 	z-index: -1;
 }
 
+::-moz-selection { /* Code for Firefox */
+	color: white;
+	background: rgb(219 39 119);
+  }
+  
+  ::selection {
+	color: white;
+	background: rgb(219 39 119);
+  }
+
 /* Custom scrollbar styles */
-:global(.scrollbar-thin) {
+.scrollbar-thin {
 	scrollbar-width: thin;
 }
 
-:global(.scrollbar-thin::-webkit-scrollbar) {
+.scrollbar-thin::-webkit-scrollbar {
 	width: 6px;
 }
 
-:global(.scrollbar-thin::-webkit-scrollbar-track) {
+.scrollbar-thin::-webkit-scrollbar-track {
 	background: transparent;
 }
 
-:global(.scrollbar-thin::-webkit-scrollbar-thumb) {
+.scrollbar-thin::-webkit-scrollbar-thumb {
 	background-color: rgba(31, 41, 55, 0.5);
 	border-radius: 20px;
 }

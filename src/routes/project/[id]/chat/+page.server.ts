@@ -35,7 +35,7 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
 		.filter(Boolean) as string[];
 	const aiFileIds = new Set(aiFiles.map((file) => file.id));
 
-	const filesToUpload = fileIds.filter((fileId) => fileId); // && !aiFileIds.has(fileId));
+	const filesToUpload = fileIds.filter((fileId) => fileId && !aiFileIds.has(fileId));
 	console.log('Files to upload:', filesToUpload);
 	console.log('AI files:', aiFiles);
 
@@ -97,6 +97,8 @@ export const actions: Actions = {
 				for await (const chunk of stream) {
 					response += chunk.text;
 				}
+
+				response = response.replace(/^```\w+\n/gm, '').replace(/```/g, '');
 
 				return { message: response };
 			} catch (e) {

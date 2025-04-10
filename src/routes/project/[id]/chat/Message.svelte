@@ -41,6 +41,9 @@
 	}
 
 	p {
+		line-height: 200%;
+		letter-spacing: 0.02em;
+
 		:global(h1) {
 			font-size: 1.25rem;
 			margin: 0.5rem 0;
