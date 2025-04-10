@@ -46,7 +46,7 @@
 				const value = replaceSpecialChars(line!.value.trim());
 				return `<b>${key}:</b> <span class="limit">${value}</span>`;
 			})
-			.join('\n');
+			.join('<div class="spacer"></div>');
 
 		return result;
 	}
@@ -114,7 +114,9 @@
 	}
 </script>
 
-<h2 class="sticky top-0 mb-8 rounded-md bg-gray-700/25 p-4 text-3xl font-semibold text-white shadow backdrop-blur-md">Files</h2>
+<h2 class="sticky top-0 mb-8 rounded-md bg-gray-700/25 p-4 text-3xl font-semibold text-white shadow backdrop-blur-md">
+	Bibliography
+</h2>
 
 <details class="mb-12 rounded-md border border-gray-700 bg-gray-800 p-4 shadow">
 	<summary class="cursor-pointer text-lg font-medium text-white">Add New Entry</summary>
@@ -241,7 +243,7 @@
 			</h3>
 
 			<div class="grid-span-2 flex items-center justify-end gap-2">
-				<!-- TODO: find a way to add or update the url -->
+				<!-- TODO: find a way to add or update the url and source file -->
 				{#if bib.url}
 					<a
 						href={bib.url}
@@ -383,6 +385,10 @@
 		text-overflow: ellipsis;
 		white-space: nowrap;
 		width: 100%;
+	}
+
+	:global(div.spacer){
+		height: 0.75rem;
 	}
 
 	h2 {

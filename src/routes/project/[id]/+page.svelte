@@ -56,7 +56,7 @@
 		{/if}
 
 		<form action="?/delete" method="POST">
-			<button type="submit" class="flex w-full items-center justify-between p-4 hover:bg-red-800">
+			<button type="submit" class="flex w-full items-center justify-between p-4 hover:bg-pink-800">
 				<span>Delete Project</span>
 				<IconTrash />
 			</button>
