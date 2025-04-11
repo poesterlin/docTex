@@ -31,7 +31,6 @@
 	{/each}
 </ul>
 
-{#if data.settings.length > 0}
 	<form action="?/resetSettings" method="POST">
 		<button
 			type="submit"
@@ -40,7 +39,6 @@
 			Reset Settings
 		</button>
 	</form>
-{/if}
 
 <style>
 	h2 {
