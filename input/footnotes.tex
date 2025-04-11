@@ -3,10 +3,14 @@
 \usepackage{silence}
 \usepackage[citations, linkAttributes, pipeTables, relativeReferences, inlineNotes=true, tableAttributes, tableCaptions, smartEllipses, rawAttribute, fencedCode, startNumber=false, fancyLists=true, tightLists=false, underscores=false, superscripts]{markdown}
 \usepackage[backend=biber, style=numeric, citetracker=true, style=verbose-note]{biblatex}
-\addbibresource{bibliography.bib} % Your bibliography file
+\addbibresource{bibliography.bib}
 
-#IF_SETTING_AUTHOR#\author{#SETTING_AUTHOR}
-#IF_SETTING_TITLE#\title{#SETTING_TITLE}
+{% if author %}
+\author{ {{ author }} }
+{% endif %}
+{% if title %}
+\title{ {{ title }} }
+{% endif %}
 
 \newcommand{\myfootcite}[1]{\footcite{#1}}
 
@@ -18,9 +22,13 @@
 
 \begin{document}
 
-#IF_SETTING_TITLE#\maketitle
+{% if title %}
+\maketitle
+{% endif %}
 
-#IF_SETTING_TABLEOFCONTENTS#\tableofcontents % Generate table of contents
+{% if tableofcontents %}
+\tableofcontents % Generate table of contents
+{% endif %}
 
 #INCLUDE_CHAPTERS
 
