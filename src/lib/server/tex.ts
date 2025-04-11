@@ -22,111 +22,38 @@ import { generateId } from '$lib';
 import { fixCitationKeys, fixFootnotes } from './transform';
 import { AnsiUp } from 'ansi_up';
 import type { ZipEntry } from 'unzipit';
+import { findBooleans, findOptionalSettings, processTemplate, tokenize, TokenType } from './parser';
 
 export async function substituteSettings(contents: string, settings: Record<string, string | boolean>) {
-	const lines = contents.split('\n');
-	const settingsEntries = Array.from(Object.entries(settings));
-	console.table(settingsEntries);
+	const tokens = tokenize(contents);
 
-	const newLines = lines
-		.filter((line) => line.trim() !== '')
-		.map((line) => {
-			line = line.trimStart();
-
-			if (!line.includes('#')) {
-				return line;
-			}
-
-			for (const [key, value] of settingsEntries) {
-				const prefixedKey = `#SETTING_${key}`;
-				const conditionalKey = `#IF_SETTING_${key}#`;
-
-				if (line.includes(conditionalKey)) {
-					if (!value) {
-						line = '';
-						continue;
-					}
-
-					line = line.replace(conditionalKey, '');
-				}
-
-				if (typeof value === 'boolean') {
-					continue;
-				}
-
-				if (line.includes(prefixedKey)) {
-					line = line.replace(prefixedKey, value);
-					continue;
-				}
-			}
-
-			return line;
-		});
-
-	return newLines.join('\n');
+	return processTemplate(tokens, settings);
 }
 
-export async function findAllSettings(contents: string): Promise<[string, { comment?: string; type: 'string' | 'boolean' }][]> {
-	const lines = contents.split('\n');
+export async function findAllSettings(contents: string): Promise<[string, { comment: string; type: 'string' | 'boolean' }][]> {
+	const tokens = tokenize(contents);
+	const unique = new Set(
+		tokens
+			.filter((token) => token.type === TokenType.IDENTIFIER)
+			.map((token) => token.value)
+			.filter((value) => !!value) as string[]
+	);
 
-	const settings = new Set<string>();
-	const optionalSettings = new Set<string>();
+	const foundVariables = Array.from(unique);
 
-	for (const line of lines) {
-		const match = line.match(/#SETTING_([A-Z_]+)#/);
-		if (!match) {
-			continue;
-		}
+	// variables that are only used in conditions and not in {{ }} tags
+	const booleanSettings = findBooleans(tokens, foundVariables);
+	const optionalSettings = findOptionalSettings(tokens, foundVariables);
 
-		settings.add(match[1]);
+	const result: [string, { comment: string; type: 'string' | 'boolean' }][] = [];
+	for (const setting of foundVariables) {
+		const comment = optionalSettings.has(setting) && !booleanSettings.has(setting) ? `Optional Setting` : '';
+		const type = booleanSettings.has(setting) ? 'boolean' : 'string';
 
-		const conditionalMatch = line.includes(`#IF_SETTING_${match[1]}#`);
-		if (conditionalMatch) {
-			optionalSettings.add(match[1]);
-		}
+		result.push([setting, { comment, type }]);
 	}
-
-	const booleanSettings = new Set<string>();
-
-	// find all settings that only have #IF_SETTING_ and no SETTING_
-
-	for (const line of lines) {
-		const match = line.match(/#IF_SETTING_([A-Z_]+)#/);
-		if (!match) {
-			continue;
-		}
-
-		if (!settings.has(match[1])) {
-			booleanSettings.add(match[1]);
-			console.log('Found boolean setting', match[1]);
-		}
-	}
-
-	const result: [string, { comment?: string; type: 'string' | 'boolean' }][] = [];
-
-	for (const setting of settings) {
-		const isOptional = optionalSettings.has(setting);
-		result.push([
-			setting,
-			{
-				comment: isOptional ? 'Optional' : undefined,
-				type: 'string'
-			}
-		]);
-	}
-
-	for (const setting of booleanSettings) {
-		result.push([
-			setting,
-			{
-				type: 'boolean'
-			}
-		]);
-	}
-
 	return result;
 }
-
 type newSetting = typeof styleSettingsTable.$inferInsert;
 export async function getSettingsFromFile(file: File | ZipEntry, styleId: string): Promise<newSetting[]> {
 	const content = await file.text();
@@ -148,7 +75,7 @@ export async function getSettingsFromFile(file: File | ZipEntry, styleId: string
 			styleId,
 			key: setting,
 			value: '',
-			comment: comment ?? '',
+			comment,
 			isBoolean
 		} satisfies newSetting;
 
@@ -200,7 +127,8 @@ export async function writeMainFile(project: Project, style: Style) {
 ${inputContent}
 
 ${markdownFooter}
-`);
+`
+	);
 	console.log('Writing main file');
 	console.log(res);
 

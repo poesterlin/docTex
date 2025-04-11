@@ -238,7 +238,7 @@
 					<input
 						id="year"
 						type="text"
-						placeholder={2025}
+						placeholder="2025"
 						bind:value={commonFields.year}
 						class="w-full rounded-md border border-gray-600 bg-gray-700 p-2 text-white placeholder-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-pink-600"
 					/>

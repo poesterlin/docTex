@@ -1,27 +1,35 @@
-\documentclass[SETTING_FONTSIZE, paper=SETTING_PAPERSIZE, parskip, oneside]{scrreprt}
+\documentclass[{{ fontsize }}, paper={{ papersize }}, parskip, oneside]{scrreprt}
 \usepackage[T1]{fontenc}
 \usepackage[citations, linkAttributes, pipeTables, relativeReferences, tableAttributes, tableCaptions]{markdown} % Markdown package for including markdown files
 \usepackage[utf8]{inputenc}
 \usepackage{style}
-#IF_SETTING_BIBFILE#\usepackage{biblatex}
+{% if bibfile %}
+\usepackage{biblatex}
+{% endif %}
 \usepackage{subcaption}
-\usepackage[SETTING_LANGUAGE]{babel} % Spell checking (Using ngerman for german spell checking). The last language is the standard language for the document.
-#IF_SETTING_BIBFILE#\addbibresource{SETTING_BIBFILE}
+\usepackage[{{ language }}]{babel} % Spell checking (Using ngerman for german spell checking). The last language is the standard language for the document.
+{% if bibfile %}
+\addbibresource{ {{ bibfile }} }
+{% endif %}
 
 % =========== Title page ============
-\title{SETTING_TITLE} % Your title
-#IF_SETTING_TYPE#\type{SETTING_TYPE} % Seminar to the Bachelor/Master Project | Bachelor/Master Project Report
-\author{SETTING_AUTHOR} % Your name
-\studentno{SETTING_STUDENTNR} % Your student number
-\group{SETTING_GROUP} % Your group
-\department{SETTING_DEPARTMENT} % Your department
-\advisor{SETTING_ADVISOR} % Your advisor
-\reviewer{SETTING_REVIEWER} % Your reviewer
-\city{SETTING_CITY} % Your city
+\title{ {{ title }} } % Your title
+{% if type %}
+\type{ {{ type }} } % Seminar to the Bachelor/Master Project | Bachelor/Master Project Report
+{% endif %}
+\author{ {{ author }} } % Your name
+\studentno{ {{ studentnr }} } % Your student number
+\group{ {{ group }} } % Your group
+\department{ {{ department }} } % Your department
+\advisor{ {{ advisor }} } % Your advisor
+\reviewer{ {{ reviewer }} } % Your reviewer
+\city{ {{ city }} } % Your city
 \date{\the\day .~\monthname~\the\year}
 
 % ============= Abstract =============
-#IF_SETTING_ABSTRACT#\abstract{SETTING_ABSTRACT}
+{% if abstract %}
+\abstract{ {{ abstract }} }
+{% endif %}
 
 % ============= Document =============
 \begin{document}
@@ -33,11 +41,15 @@
 \tableofcontents
 \addcontentsline{toc}{chapter}{Contents} % Add contents to table of contents
 % List of Figures
-#IF_SETTING_LOF#\listoffigures
-#IF_SETTING_LOF#\addcontentsline{toc}{chapter}{\listfigurename} % Add list of figures to table of contents
+{% if lof %}
+\listoffigures
+\addcontentsline{toc}{chapter}{\listfigurename} % Add list of figures to table of contents
+{% endif %}
 % List of Tables
-#IF_SETTING_LOT#\listoftables
-#IF_SETTING_LOT#\addcontentsline{toc}{chapter}{\listtablename} % Add list of tables to table of contents
+{% if lot %}
+\listoftables
+\addcontentsline{toc}{chapter}{\listtablename} % Add list of tables to table of contents
+{% endif %}
 % Prepare chapters
 \clearpage
 \setcounter{romanPages}{\value{page}} % Update variable for roman pages
@@ -48,14 +60,18 @@
 #INCLUDE_CHAPTERS
 
 % =========== Bibliography ===========
-#IF_SETTING_BIBFILE#\chapter*{References} % Set custom bibliography heading
-#IF_SETTING_BIBFILE#\renewcommand{\thepage}{\roman{page}} % Use roman page numbers again
-#IF_SETTING_BIBFILE#\setcounter{page}{\theromanPages} % Set the page counter
-#IF_SETTING_BIBFILE#\addcontentsline{toc}{chapter}{References} % Add bibliography to table of contents
-#IF_SETTING_BIBFILE#\defbibheading{bibempty}{} % Remove standard bibliography heading
-#IF_SETTING_BIBFILE#\printbibliography[heading=bibempty] % Print bibliography and set the heading to the defined empty heading
+{% if bibfile %}
+\chapter*{References} % Set custom bibliography heading
+\renewcommand{\thepage}{\roman{page}} % Use roman page numbers again
+\setcounter{page}{\theromanPages} % Set the page counter
+\addcontentsline{toc}{chapter}{References} % Add bibliography to table of contents
+\defbibheading{bibempty}{} % Remove standard bibliography heading
+\printbibliography[heading=bibempty] % Print bibliography and set the heading to the defined empty heading
+{% endif %}
 
 % ============= Appendix =============
-#IF_SETTING_APPENDIX#\input{#SETTING_APPENDIX}
+{% if appendix %}
+\input{ {{ appendix }} }
+{% endif %}
 
 \end{document}
