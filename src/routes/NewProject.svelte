@@ -1,32 +1,33 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import type { Style } from '$lib/server/db/schema';
+	import { IconLoader } from '@tabler/icons-svelte';
 	import { onMount } from 'svelte';
 
 	let { close, hasGoogleAuth, styles }: { close: () => void; hasGoogleAuth: boolean; styles: Style[] } = $props();
 	let el: HTMLDialogElement;
+
+	let loading = $state(false);
 
 	onMount(() => {
 		if (el) {
 			el.showModal();
 		}
 	});
-
 </script>
 
 <dialog
 	bind:this={el}
-	class="backdrop fixed inset-0 z-50 rounded-xl border border-gray-700 bg-gray-800 flex items-center justify-center bg-black"
+	class="backdrop fixed inset-0 z-50 flex items-center justify-center rounded-xl border border-gray-700 bg-black bg-gray-800"
 >
-	<div
-		class="w-full max-w-3xl p-8 shadow-xl"
-	>
+	<div class="w-full max-w-3xl p-8 shadow-xl">
 		<h2 class="mb-6 text-2xl font-bold text-white underline">&#8544;. New Project</h2>
 
 		<form
 			action="?/setup"
 			method="POST"
 			use:enhance={() => {
+				loading = true;
 				return async ({ update }) => {
 					close();
 					await update();
@@ -82,8 +83,16 @@
 
 			<div class="flex justify-end gap-4 pt-4">
 				<button type="button" onclick={close} class="px-4 py-2 text-gray-300 transition-colors hover:text-white"> Cancel </button>
-				<button type="submit" class="rounded-lg bg-pink-600 px-6 py-2 font-medium text-white transition-colors hover:bg-pink-700">
-					&#8545;. Setup
+				<button
+					type="submit"
+					class="rounded-lg bg-pink-600 px-6 py-2 font-medium text-white transition-colors hover:bg-pink-700"
+					disabled={loading}
+				>
+					{#if loading}
+						<IconLoader class="h-5 w-5 animate-spin" />
+					{:else}
+						&#8545;. Setup
+					{/if}
 				</button>
 			</div>
 		</form>

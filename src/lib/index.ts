@@ -12,6 +12,12 @@ export function assert<T>(p: T | undefined | null): asserts p is T {
     }
 }
 
+export function assertInstanceOf<T>(p: any, type: new (...args: any[]) => T): asserts p is T {
+    if (!(p instanceof type)) {
+        throw new Error('Assertion failed');
+    }
+}
+
 export function generateId() {
     // ID with 120 bits of entropy, or about the same as UUID v4.
     const bytes = crypto.getRandomValues(new Uint8Array(15));

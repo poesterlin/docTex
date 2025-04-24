@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import ConfirmSubmit from '$lib/client/ConfirmSubmit.svelte';
+	import Form from '$lib/client/Form.svelte';
 	import type { PageData } from './$types';
-	import { IconPlayerPlay, IconLink, IconExternalLink, IconTrash, IconCancel } from '@tabler/icons-svelte';
+	import { IconPlayerPlay, IconLink, IconExternalLink, IconTrash, IconCancel, IconLoader } from '@tabler/icons-svelte';
 
 	let { data }: { data: PageData } = $props();
 </script>
@@ -55,12 +57,18 @@
 			</a>
 		{/if}
 
-		<form action="?/delete" method="POST">
-			<button type="submit" class="flex w-full items-center justify-between p-4 hover:bg-pink-800">
-				<span>Delete Project</span>
-				<IconTrash />
-			</button>
-		</form>
+		<Form action="?/delete">
+			{#snippet children(loading)}
+				<ConfirmSubmit class="flex w-full items-center justify-between p-4 hover:bg-pink-800">
+					{#if loading}
+						<IconLoader class="animate-spin m-auto" />
+					{:else}
+						<span>Delete Project</span>
+						<IconTrash />
+					{/if}
+				</ConfirmSubmit>
+			{/snippet}
+		</Form>
 	{/if}
 </ul>
 
