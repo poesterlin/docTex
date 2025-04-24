@@ -1,6 +1,9 @@
 <script lang="ts">
+	import ConfirmSubmit from '$lib/client/ConfirmSubmit.svelte';
+	import Form from '$lib/client/Form.svelte';
 	import Settings from '$lib/client/Settings.svelte';
 	import { submitWithToast } from '$lib/client/utils';
+	import { IconLoader, IconReload, IconTrash } from '@tabler/icons-svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -31,14 +34,20 @@
 	{/each}
 </ul>
 
-	<form action="?/resetSettings" method="POST">
-		<button
-			type="submit"
-			class="mt-8 rounded-md bg-slate-500 px-4 py-2 font-medium text-white shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+<Form action="?/resetSettings" class="mt-8">
+	{#snippet children(loading)}
+		<ConfirmSubmit
+			class="flex items-center gap-2 rounded-md bg-slate-500 px-4 py-2 font-medium text-white shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
 		>
-			Reset Settings
-		</button>
-	</form>
+			{#if loading}
+				<IconLoader class="m-auto animate-spin" />
+			{:else}
+				<span>Reset Settings</span>
+				<IconReload class="h-5" />
+			{/if}
+		</ConfirmSubmit>
+	{/snippet}
+</Form>
 
 <style>
 	h2 {

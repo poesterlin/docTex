@@ -1,8 +1,10 @@
 <script lang="ts">
-	import { IconCancel, IconCopy, IconDownload, IconLink, IconPlayerPlay, IconPlus } from '@tabler/icons-svelte';
+	import { IconCancel, IconCopy, IconDownload, IconLink, IconLoader, IconPlayerPlay, IconPlus } from '@tabler/icons-svelte';
 	import type { PageData } from './$types';
 	import { toastStore } from '$lib/client/toast.svelte';
 	import { enhance } from '$app/forms';
+	import Form from '$lib/client/Form.svelte';
+	import ConfirmSubmit from '$lib/client/ConfirmSubmit.svelte';
 
 	let { data }: { data: PageData } = $props();
 
@@ -43,9 +45,7 @@
 	</button>
 </form>
 
-<p class="mb-6 text-gray-400">
-	Share this link with collaborators to give them access to this projects output pdf.
-</p>
+<p class="mb-6 text-gray-400">Share this link with collaborators to give them access to this projects output pdf.</p>
 
 <ul class="space-y-6 divide-y divide-gray-700">
 	{#each data.invites as invite}
@@ -57,13 +57,19 @@
 				<span>Copy Link</span>
 			</button>
 
-			<form action="?/cancel" method="POST" use:enhance>
-				<input type="hidden" name="id" value={invite.id} />
-				<button type="submit" class=" flex items-center gap-2 rounded-md p-2 p-2 text-gray-400 hover:text-red-500">
-					<span>Cancel</span>
-					<IconCancel />
-				</button>
-			</form>
+			<Form action="?/cancel">
+				{#snippet children(loading)}
+					<input type="hidden" name="id" value={invite.id} />
+					<ConfirmSubmit class="flex items-center gap-2 rounded-md p-2 p-2 text-gray-400 hover:text-red-500">
+						{#if loading}
+							<IconLoader class="m-auto animate-spin" />
+						{:else}
+							<span>Cancel Invite</span>
+							<IconCancel />
+						{/if}
+					</ConfirmSubmit>
+				{/snippet}
+			</Form>
 		</li>
 	{:else}
 		<li class="flex flex-col gap-4 rounded-md p-4 text-white shadow">

@@ -39,7 +39,7 @@
 			<button autofocus type="button" class="mr-2 rounded bg-slate-700 px-4 py-2 text-white hover:bg-slate-800" onclick={() => (openDialog = false)}>
 				Cancel
 			</button>
-			<button type="submit" class="rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700 flex gap-2" onclick={fireSubmit}>
+			<button type="submit" class="rounded items-center bg-red-600 px-4 py-2 text-white hover:bg-red-700 flex gap-2" onclick={fireSubmit}>
 				{@render children()}
 			</button>
 		</div>
