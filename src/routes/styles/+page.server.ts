@@ -43,7 +43,7 @@ export const actions = {
 			// test if the buffer is a zip file
 			// zip header: 0x50, 0x4b, 0x03, 0x04
 			const header = new Uint8Array(buffer, 0, 4);
-			const isZip = header[0] !== 0x50 || header[1] !== 0x4b || header[2] !== 0x03 || header[3] !== 0x04;
+			const isZip = header[0] === 0x50 && header[1] === 0x4b && header[2] === 0x03 && header[3] === 0x04;
 
 			try {
 				if (isZip) {
