@@ -1,8 +1,11 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import ConfirmSubmit from '$lib/client/ConfirmSubmit.svelte';
 	import Settings from '$lib/client/Settings.svelte';
 	import { submitWithToast } from '$lib/client/utils';
+	import { IconLoader, IconTrash } from '@tabler/icons-svelte';
 	import type { PageServerData } from './$types';
+	import Form from '$lib/client/Form.svelte';
 
 	let { data }: { data: PageServerData } = $props();
 
@@ -177,11 +180,17 @@
 	{/each}
 </ul>
 
-<form action="?/delete" method="POST" use:enhance class="pb-32">
-	<button
-		type="submit"
-		class="mt-8 w-full rounded-md bg-red-700 px-4 py-2 font-medium text-white shadow hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2"
-	>
-		Delete Style
-	</button>
-</form>
+
+
+<Form action="?/delete" class="mt-8 pb-32">
+	{#snippet children(loading)}
+		<ConfirmSubmit class="flex w-full items-center justify-between p-4 bg-pink-800 rounded-md focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 hover:bg-pink-700">
+			{#if loading}
+				<IconLoader class="animate-spin m-auto" />
+			{:else}
+				<span>Delete Style</span>
+				<IconTrash />
+			{/if}
+		</ConfirmSubmit>
+	{/snippet}
+</Form>

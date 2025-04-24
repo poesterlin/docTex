@@ -8,16 +8,18 @@
 		action: string;
 		onData?: (result: T) => void;
 		onSubmit?: () => void;
+		class?: string;
 	}
 
 	let loading = $state(false);
-	let { children, action, onData,  onSubmit }: Props = $props();
+	let { children, action, onData,  onSubmit, ...rest }: Props = $props();
 </script>
 
 <form
 	{action}
 	method="POST"
 	enctype="multipart/form-data"
+	{...rest}
 	use:enhance={() => {
 		loading = true;
 		onSubmit?.();

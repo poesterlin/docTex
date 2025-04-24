@@ -20,7 +20,6 @@
 	function fireSubmit(event: MouseEvent) {
 		const target = event.target;
 		assert(target);
-		console.log(target);
 		assertInstanceOf(target, HTMLElement);
 		target.closest('form')?.dispatchEvent(new Event('submit', { bubbles: true }));
 		openDialog = false;
