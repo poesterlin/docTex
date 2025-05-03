@@ -283,7 +283,7 @@
 			<p class="mt-2 text-sm text-red-500">{form.error}</p>
 		{/if}
 		{#if form?.message}
-			<p class="mt-2 text-sm text-green-500">{form.message}</p>
+			<p class="mt-2 text-sm text-yellow-500">{form.message}</p>
 		{/if}
 	</form>
 </details>
