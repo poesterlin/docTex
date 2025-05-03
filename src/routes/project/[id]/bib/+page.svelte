@@ -7,8 +7,11 @@
 	import { submitWithToast } from '$lib/client/utils';
 	import { createBibtex, formatDoi, isDoi, requestDoiInfo } from './doi';
 	import { slide } from 'svelte/transition';
+	import type { PageProps } from './$types';
+	import { assert } from '$lib';
+	import { tick } from 'svelte';
 
-	let { data }: { data: PageData } = $props();
+	let { data, form }: PageProps = $props();
 
 	let bibEntry = $state<BibReference>();
 	let dialogEl: HTMLDialogElement;
@@ -18,6 +21,36 @@
 	let bibContent = $state<string>();
 	let isValidBib = $state(false); // Is the content in the textarea valid BibTeX?
 	let filename = $state();
+
+	$effect(() => {
+		console.log('Form:', form);
+		bibContent = form?.content ?? bibContent;
+		doiInput ??= form?.doi ?? doiInput;
+		if (form) {
+			form.content = undefined;
+		}
+
+		// select <UpdateThis> in the content textarea so that the user can see it
+		if (bibContent) {
+			const updateThis = bibContent.match(/<UpdateThis>/);
+			if (updateThis) {
+				const start = updateThis.index;
+				assert(start);
+				const end = start + updateThis[0].length;
+				tick().then(() => {
+					const textarea = document.querySelector('textarea[name="content"]') as HTMLTextAreaElement;
+					// scroll to the textarea to the top
+					textarea.scrollTop = 0;
+
+					// scroll the textare into view
+					textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+					textarea.setSelectionRange(start, end);
+					textarea.focus();
+				});
+			}
+		}
+	});
 
 	function validateBibEntry(e: Event & { currentTarget: EventTarget & HTMLTextAreaElement }) {
 		const el = e.currentTarget;
@@ -114,9 +147,7 @@
 	}
 </script>
 
-<h2 class="sticky top-0 mb-8 rounded-md bg-gray-700/25 p-4 text-3xl font-semibold text-white shadow backdrop-blur-md">
-	Bibliography
-</h2>
+<h2 class="sticky top-0 mb-8 rounded-md bg-gray-700/25 p-4 text-3xl font-semibold text-white shadow backdrop-blur-md">Bibliography</h2>
 
 <details class="mb-12 rounded-md border border-gray-700 bg-gray-800 p-4 shadow">
 	<summary class="cursor-pointer text-lg font-medium text-white">Add New Entry</summary>
@@ -170,23 +201,18 @@
 			<span class="text-sm font-medium text-gray-300">BibTeX Entry</span>
 			<!-- Added paragraph with the link -->
 			<p class="mt-1 text-xs text-gray-400">
-			  Paste your BibTeX entry below, or
-			  <a
-				href="/citation"
-				target="_blank"
-				rel="noopener noreferrer"
-				class="text-pink-500 underline transition-colors hover:text-pink-400"
-			  >
-				generate one here
-			  </a>.
+				Paste your BibTeX entry below, or
+				<a href="/citation" target="_blank" rel="noopener noreferrer" class="text-pink-500 underline transition-colors hover:text-pink-400">
+					generate one here
+				</a>.
 			</p>
 			<textarea
-			  bind:value={bibContent}
-			  oninput={validateBibEntry}
-			  name="content"
-			  required
-			  class="mt-1 block h-60 w-full rounded-md border border-gray-600 bg-gray-700 p-2 font-mono text-sm leading-6 tracking-wider text-white placeholder-gray-400 shadow focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500"
-			  placeholder={`@article{key,
+				bind:value={bibContent}
+				oninput={validateBibEntry}
+				name="content"
+				required
+				class="mt-1 block h-60 w-full rounded-md border border-gray-600 bg-gray-700 p-2 font-mono text-sm leading-6 tracking-wider text-white placeholder-gray-400 shadow focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500"
+				placeholder={`@article{key,
 	author = {Author Name},
 	title = {Article Title},
 	journal = {Journal Name},
@@ -226,6 +252,7 @@
 		<label class="block">
 			<span class="text-sm font-medium text-gray-300">Source URL (Optional)</span>
 			<input
+				value={form?.url}
 				type="url"
 				name="url"
 				class="mt-1 block w-full rounded-md border border-gray-600 bg-gray-700 p-2 text-white placeholder-gray-400 shadow focus:border-blue-500 focus:ring-blue-500"
@@ -237,6 +264,7 @@
 		<label class="block">
 			<span class="text-sm font-medium text-gray-300">Notes (Optional)</span>
 			<textarea
+				value={form?.notes}
 				name="notes"
 				class="mt-1 block h-24 w-full rounded-md border border-gray-600 bg-gray-700 p-2 text-white placeholder-gray-400 shadow focus:border-blue-500 focus:ring-blue-500"
 				placeholder="Add any personal notes about this reference..."
@@ -250,6 +278,13 @@
 		>
 			Add Bibliography Entry
 		</button>
+
+		{#if form?.error}
+			<p class="mt-2 text-sm text-red-500">{form.error}</p>
+		{/if}
+		{#if form?.message}
+			<p class="mt-2 text-sm text-green-500">{form.message}</p>
+		{/if}
 	</form>
 </details>
 
@@ -405,7 +440,7 @@
 		width: 100%;
 	}
 
-	:global(div.spacer){
+	:global(div.spacer) {
 		height: 0.75rem;
 	}
 

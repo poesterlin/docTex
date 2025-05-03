@@ -2,7 +2,7 @@ import { generateId, validateForm } from '$lib';
 import { db } from '$lib/server/db';
 import { bibliographyTable, projectTable } from '$lib/server/db/schema';
 import { uploadFile } from '$lib/server/s3';
-import { error, redirect } from '@sveltejs/kit';
+import { error, fail, redirect } from '@sveltejs/kit';
 import { and, eq } from 'drizzle-orm';
 import { z } from 'zod';
 import type { Actions, PageServerLoad } from './$types';
@@ -67,7 +67,20 @@ export const actions: Actions = {
 			const key = match?.groups?.key;
 
 			if (!match || !key) {
-				error(400, { message: 'Invalid citation format' });
+				return fail(400, { message: 'Invalid citation format' });
+			}
+
+			// check if the key already exists in project
+			const [existingKey] = await db
+				.select()
+				.from(bibliographyTable)
+				.where(and(eq(bibliographyTable.projectId, id), eq(bibliographyTable.key, key)))
+				.limit(1);
+
+			if (existingKey) {
+				const newKey = '<UpdateThis>';
+				const newContent = form.content.replace(key, newKey);
+				return fail(400, { message: 'Key already exists in project', ...form, content: newContent, file: undefined });
 			}
 
 			if (form.doi) {
