@@ -41,7 +41,7 @@
 	let isLoadingBibliography = $state<boolean>(true);
 	let bibliographyError = $state<string | null>(null);
 
-	// For In-Text Citation Generation (from Demo 2)
+	// For In-Text Citation Generation
 	let inTextCitationData = $state<InTextCitationData>({
 		referenceType: 'page',
 		pageStart: '',
@@ -101,7 +101,7 @@
 		}
 	});
 
-	// Generate the short in-text citation string (from Demo 2) - This is the Pandoc/LaTeX style string
+	// Generate the short in-text citation string  - This is the Pandoc/LaTeX style string
 	const generatedCitationString = $derived.by<string>(() => {
 		const postnote = generatePostnote();
 		const parts = [`@${bibEntry.key}`];
@@ -130,7 +130,7 @@
 		}
 	}
 
-	// Generate postnote part for in-text citation (from Demo 2)
+	// Generate postnote part for in-text citation
 	function generatePostnote(): string {
 		const { referenceType, pageStart, pageEnd } = inTextCitationData;
 		let postnote = '';
@@ -164,21 +164,7 @@
 		return pageStart || pageEnd || '';
 	}
 
-	// Parse author from BibTeX string (from Demo 2)
-	function parseBibAuthor(bibtex: string | unknown): string | null {
-		if (typeof bibtex !== 'string') return null;
-		// More robust regex allowing for different spacing and quote types
-		const authorRegex = /author\s*=\s*[{"'](?<author>.*?)["'}]\s*,?\s*$/ims;
-		const match = bibtex.match(authorRegex);
-
-		if (match?.groups?.author) {
-			// Remove potential wrapping braces/quotes if they weren't captured
-			return match.groups.author.replace(/^{|}$|^"|"$/g, '').trim();
-		}
-		return null;
-	}
-
-	// Copy generated in-text citation (from Demo 2)
+	// Copy generated in-text citation
 	async function handleCopy() {
 		// Copy the Pandoc-style citation string
 		await navigator.clipboard.writeText(generatedCitationString);
@@ -188,9 +174,7 @@
 
 	// --- CSL Engine Setup ---
 
-	// Reactive variable for fetched style XML
 	let styleXml = $state<string | null>(null);
-	// Reactive variable for fetched locale XML
 	let localeXml = $state<string | null>(null);
 
 	// Effect to fetch CSL style and locale XML when URLs change
@@ -229,7 +213,6 @@
 		const currentLocaleId = localeId; // Depend on selected locale ID
 
 		if (!currentLocaleXml || !currentItem) {
-			// console.log('citeprocSys: Not ready - localeXml or cslJsonItem missing.');
 			return null; // Not ready if locale or item is missing
 		}
 
@@ -260,7 +243,6 @@
 		const currentLocaleId = localeId; // Use the state variable for locale ID
 
 		if (!sys || !style) {
-			// console.log('Engine not ready: sys or style missing');
 			return null; // Not ready if sys or style XML is missing
 		}
 
@@ -286,7 +268,6 @@
 		// Reset status
 		isLoadingBibliography = true;
 		// Keep existing error if engine creation failed, otherwise clear it before trying
-		// if (currentEngine) bibliographyError = null;
 		bibliographyHtml = '';
 
 		if (!currentEngine || !currentItem) {
@@ -351,12 +332,8 @@
 			// 1. Construct the citation item for processCitationCluster
 			const locatorValue = generateLocatorString();
 			const citationItem: any = {
-				// Use 'any' for flexibility or define a more specific type
 				id: currentItem.id,
 				'suppress-author': citationDetails.suppressAuthor
-				// Add prefix/suffix here if needed based on UI elements
-				// prefix: "see ",
-				// suffix: " (emphasis added)"
 			};
 
 			// Only add locator and label if a locator value exists
@@ -402,13 +379,21 @@
 
 	function copyFootnote() {
 		// Copy the formatted footnote HTML to clipboard
-		navigator.clipboard.writeText(formattedFootnoteHtml);
+		navigator.clipboard.write([
+			new ClipboardItem({
+				'text/html': new Blob([formattedFootnoteHtml], { type: 'text/html' })
+			})
+		]);
 		toastStore.show('Formatted footnote copied to clipboard');
 	}
 
 	function copyBibliography() {
 		// Copy the bibliography HTML to clipboard
-		navigator.clipboard.writeText(bibliographyHtml);
+		navigator.clipboard.write([
+			new ClipboardItem({
+				'text/html': new Blob([bibliographyHtml], { type: 'text/html' })
+			})
+		]);
 		toastStore.show('Formatted bibliography copied to clipboard');
 	}
 </script>
@@ -436,7 +421,7 @@
 					id="referenceType"
 					name="referenceType"
 					bind:value={inTextCitationData.referenceType}
-					class="w-1/2 rounded-md border-gray-600 py-0.5 bg-gray-800 text-sm text-gray-200 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50"
+					class="w-1/2 rounded-md border-gray-600 bg-gray-800 py-0.5 text-sm text-gray-200 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50"
 				>
 					<option value="page">Page(s)</option>
 					<option value="chapter">Chapter</option>
@@ -528,7 +513,7 @@
 					Error: {bibliographyError}
 				</p>
 			{:else}
-				<h2 class="text-md font-medium text-gray-200 flex items-center justify-between">
+				<h2 class="text-md flex items-center justify-between font-medium text-gray-200">
 					Citation
 					<button onclick={copyFootnote} title="Copy formatted footnote">
 						<IconCopy class="h-5 w-5" />
@@ -549,16 +534,14 @@
 					Error: {bibliographyError}
 				</p>
 			{:else}
-				<h2 class="text-md pt-6 font-medium text-gray-200 flex items-center justify-between">
+				<h2 class="text-md flex items-center justify-between pt-6 font-medium text-gray-200">
 					Bibliography Entry
 
 					<button onclick={copyBibliography} title="Copy formatted bibliography">
 						<IconCopy class="h-5 w-5" />
 					</button>
 				</h2>
-				<p class="text-sm text-gray-400">
-					This shows how the citation might appear in a bibliography, according to the style's rules.
-				</p>
+				<p class="text-sm text-gray-400">This shows how the citation might appear in a bibliography, according to the style's rules.</p>
 				<div class="bibliography-output min-h-[6em] rounded-md bg-gray-800 p-4 ring-1 ring-gray-600">
 					<div class="formatted-bibliography text-gray-200">
 						{@html bibliographyHtml}
