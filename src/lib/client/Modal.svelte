@@ -49,7 +49,7 @@
 
 <dialog
 	in:fade={{ duration: 200 }}
-	class="glass relative m-auto transform overflow-hidden rounded-xl !bg-black/90 p-6 text-left text-white shadow-xl transition-all sm:w-full sm:max-w-lg border border-gray-700"
+	class="glass relative m-auto max-h-[80vh] transform overflow-hidden overflow-y-auto rounded-xl border border-gray-700 !bg-black/90 p-6 text-left text-white shadow-xl transition-all sm:w-full sm:max-w-lg md:max-w-2xl lg:max-w-3xl"
 	bind:this={dialog}
 	onclick={handleOutsideClick}
 	onkeydown={trapFocus}

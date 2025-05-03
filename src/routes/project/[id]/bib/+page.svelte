@@ -14,7 +14,6 @@
 	let { data, form }: PageProps = $props();
 
 	let bibEntry = $state<BibReference>();
-	let dialogEl: HTMLDialogElement;
 	let doiInput = $state('');
 	let isFetchingDoi = $state(false);
 	let doiError = $state<string>();
@@ -90,11 +89,9 @@
 
 	function open(bib: BibReference) {
 		bibEntry = bib;
-		dialogEl.showModal();
 	}
 
 	function close() {
-		dialogEl.close();
 		bibEntry = undefined;
 	}
 
@@ -283,7 +280,7 @@
 			<p class="mt-2 text-sm text-red-500">{form.error}</p>
 		{/if}
 		{#if form?.message}
-			<p class="mt-2 text-sm text-yellow-500">{form.message}</p>
+			<p class="mt-2 text-sm text-orange-500">{form.message}</p>
 		{/if}
 	</form>
 </details>
@@ -384,16 +381,9 @@
 	</form>
 </div>
 <!-- Citation Generation Dialog -->
-<dialog class="z-50 flex items-center justify-center rounded-xl shadow-lg" bind:this={dialogEl}>
-	{#if bibEntry}
-		<form method="dialog">
-			<button class="absolute right-0 top-0 p-4 hover:text-gray-600" aria-label="Close" onclick={close}>
-				<IconX class="h-6 w-6" />
-			</button>
-		</form>
-		<Citation {bibEntry} oncopy={close} />
-	{/if}
-</dialog>
+{#if bibEntry}
+	<Citation {bibEntry} oncopy={close} />
+{/if}
 
 <style>
 	ul {
